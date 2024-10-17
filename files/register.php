@@ -17,7 +17,7 @@
     </header>
 
     <main>
-    <form method="post" action="login.php" class="p-4 border border-light rounded">
+    <form method="post" action="index.php" class="p-4 border border-light rounded" onsubmit="confirmmdp(event);">
         <div class="form-group">
             <label for="text">Nom :</label>
             <input type="text" placeholder="Martin" class="form-control" id="nom" name="nom" required>
