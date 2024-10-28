@@ -9,7 +9,7 @@
     <link href="css/style.css" rel="stylesheet">
 
 </head>
-    <h1>bienvenue dans la page d'acceuil fdp</h1>
+    
 
 
 </html>

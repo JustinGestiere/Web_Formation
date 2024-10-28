@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="description" content="Web Formation - Votre plateforme d'apprentissage en ligne">
     <title>Web Formation</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/authentification.css" rel="stylesheet">
 </head>
 <body>
     <header>
