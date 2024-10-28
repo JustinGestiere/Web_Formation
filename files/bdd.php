@@ -2,8 +2,8 @@
 
  $host = 'localhost';
  $db   = 'web_formation';
- $user = 'wf';
- $pass = 'l2aIopUl3GqDBw5zYddF';
+ $user = 'root';
+ $pass = '';
  $charset = 'utf8mb4';
  $options = [
      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
