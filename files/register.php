@@ -98,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <button type="submit" class="btn btn-primary">Inscription</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='login.php';">Accueil</button>
         </form>
 
     </main>

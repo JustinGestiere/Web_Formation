@@ -48,7 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <form method="post" action="login.php" class="p-4 border border-light rounded">
             <div class="form-group">
                 <label for="email">Adresse mail :</label>
-                <input type="email" class="form-control" id="email" name="email" required> <!-- Assurez-vous que le nom est 'email' -->
+                <input type="email" class="form-control" id="email" name="email" required 
+                value="<?php echo isset($_COOKIE['email']) ? htmlspecialchars($_COOKIE['email']) : ''; ?>"> <!-- Préremplir avec le cookie -->
             </div>
 
             <div class="form-group">
