@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="../css/header.css" rel="stylesheet">
+    <link href="../css/header_admin.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
     <style>
         .logo {
@@ -28,6 +28,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="courses.php">Matières</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="courses.php">Classes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="courses.php">Élèves</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="schedule.php">Emploi du temps</a>
