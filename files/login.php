@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Connexion réussie
         session_start();
         $_SESSION['user_id'] = $user['id'];
-        header("Location: index.php"); // Redirige vers la page d'accueil
+        header("Location: accueil.php"); // Redirige vers la page d'accueil
         exit;
     } else {
         echo "Identifiants incorrects";
@@ -63,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <button type="submit" class="btn btn-primary">Connexion</button>
+            <!-- <div class="form-group">
+                <a href="forgot_password.php" class="text-secondary">Mot de passe oublié ?</a>
+            </div> -->
             <button type="button" class="btn btn-secondary" onclick="window.location.href='register.php';">S'enregistrer</button>
         </form>
     </main>
