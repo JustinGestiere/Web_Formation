@@ -29,7 +29,9 @@
                 if ($user && password_verify($password, $user['passwords'])) { // Utiliser 'passwords' pour le champ de mot de passe
                     // Connexion réussie
                     $_SESSION['user_id'] = $user['id'];
-                    header("Location: index.php"); // Redirige vers la page d'accueil
+                    $_SESSION['user_role'] = $user['roles'];
+                    // header("Location: index.php"); // Redirige vers la page d'accueil
+                    header("Location: " . $_SESSION['user_role'] . ".php"); // Redirige vers la page d'accueil
                     exit;
                 } else {
                     echo "Identifiants incorrects";
