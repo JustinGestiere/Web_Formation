@@ -8,25 +8,25 @@
     <link href="../css/footer.css" rel="stylesheet">
 </head>
 <body>
-    <section class="container my-5">
-        <div class="text-center">
-            <h4>Contact</h4>
+    <section class="container_footer my-0">
+        <div class="bloc_footer">
+            <h4 class="text-center">Contact</h4>
+            <div class="text-center">
+                <a target="_blank" href="https://www.google.fr/maps/place/Angers/" class="btn btn-link">
+                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                    <span> Localisation : 49100, Angers</span>
+                </a>
+                <a href="tel:0780438780" class="btn btn-link">
+                    <i class="fa fa-phone" aria-hidden="true"></i>
+                    <span> Téléphone : 02 03 04 05 06</span>
+                </a>
+                <a href="mailto:justin.gestiere@gmail.com" class="btn btn-link">
+                    <i class="fa fa-envelope" aria-hidden="true"></i>
+                    <span> web.formation@gmail.com</span>
+                </a>
+            </div>
         </div>
-        <div class="text-center">
-            <a target="_blank" href="https://www.google.fr/maps/place/Angers/" class="btn btn-link">
-                <i class="fa fa-map-marker" aria-hidden="true"></i>
-                <span> Localisation : 49100, Angers</span>
-            </a>
-            <a href="tel:0780438780" class="btn btn-link">
-                <i class="fa fa-phone" aria-hidden="true"></i>
-                <span> Téléphone : 02 03 04 05 06</span>
-            </a>
-            <a href="mailto:justin.gestiere@gmail.com" class="btn btn-link">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                <span> web.formation@gmail.com</span>
-            </a>
-        </div>
-        <div>
+        <div class="bloc_footer">
             <h4 class="text-center">Informations</h4>
             <div class="text-center">
                 <a class="btn btn-link" href="mentions_légales.php">Mentions Légales</a>

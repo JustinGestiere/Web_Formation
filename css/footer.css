@@ -1,0 +1,16 @@
+.container_footer {
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 0%;
+    justify-content: space-evenly;
+    background-color: rgb(97, 97, 97);
+}
+
+.bloc_footer {
+    display: block;
+}
+
+.text-center {
+    display: flex;
+    flex-direction: column;
+}
