@@ -29,8 +29,8 @@
         <div class="bloc_footer">
             <h4 class="text-center">Informations</h4>
             <div class="text-center">
-                <a class="btn btn-link" href="mentions_légales.php">Mentions Légales</a>
-                <a class="btn btn-link" href="conditions_utilisations.php">Conditions d'utilisation</a>
+                <a class="btn btn-link" href="mentions_legales.php">Mentions Légales</a>
+                <a class="btn btn-link" href="conditions_utilisateurs.php">Conditions d'utilisation</a>
             </div>
         </div>
     </section>

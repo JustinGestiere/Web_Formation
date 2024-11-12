@@ -18,16 +18,16 @@
 <body>
 
 <header class="bg-light">
-    <div class="container">
+    <div class="container_header_admin">
         <div class="d-flex justify-content-between align-items-center py-3">
             <div class="d-flex align-items-center">
                 <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo mr-2">
-                <h1 class="h3 mb-0">Web Formation</h1>
+                <h2 class="h3 mb-0">Web Formation</h2>
             </div>
             <nav>
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
+                        <a class="nav-link" href="admin.php">Accueil</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="courses.php">Matières</a>

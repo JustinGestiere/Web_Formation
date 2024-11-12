@@ -3,11 +3,12 @@
     flex-wrap: nowrap;
     margin: 0%;
     justify-content: space-evenly;
-    background-color: rgb(97, 97, 97);
+    background-color: rgb(212, 212, 212);
 }
 
 .bloc_footer {
     display: block;
+    margin: 7px;
 }
 
 .text-center {

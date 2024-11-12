@@ -1,0 +1,6 @@
+.container_header_admin {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    background-color: rgb(212, 212, 212);
+}

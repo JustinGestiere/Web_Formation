@@ -18,13 +18,13 @@
 <body>
 
 <header class="bg-light">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center py-3">
-            <div class="d-flex align-items-center">
+    <div class="container_header">
+        <div class="d-flex align-items-center py-3">
+            <div class="d-flex align-items-center mr-3">
                 <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo mr-2">
-                <h1 class="h3 mb-0">Web Formation</h1>
+                <h2 class="h3 mb-0">Web Formation</h2>
             </div>
-            <nav>
+            <nav class="ml-auto">
                 <ul class="nav">
                     <li class="nav-item">
                         <a class="nav-link" href="index.php">Accueil</a>
@@ -51,6 +51,7 @@
         </div>
     </div>
 </header>
+
 
 
 <!-- Scripts de Bootstrap -->
