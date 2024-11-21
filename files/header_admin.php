@@ -1,5 +1,11 @@
 <?php
     session_start();
+    // Vérification que l'utilisateur est un administrateur
+    if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+        // Rediriger si l'utilisateur n'est pas connecté ou n'est pas admin
+        header("Location: login.php");
+        exit();
+    }    
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -9,11 +15,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="../css/header_admin.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
-    <style>
-        .logo {
-            height: 50px; /* Ajustez la taille du logo si nécessaire */
-        }
-    </style>
 </head>
 <body>
 
@@ -33,10 +34,10 @@
                         <a class="nav-link" href="courses.php">Matières</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="courses.php">Classes</a>
+                        <a class="nav-link" href="classes.php">Classes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="courses.php">Élèves</a>
+                        <a class="nav-link" href="students.php">Élèves</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="schedule.php">Emploi du temps</a>
@@ -47,6 +48,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="contact.php">Compte</a>
                     </li>
+                    <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
                     <li class="nav-item">
                         <form method="post" action="logout.php" class="d-inline">
                             <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
@@ -57,7 +59,6 @@
         </div>
     </div>
 </header>
-
 
 <!-- Scripts de Bootstrap -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

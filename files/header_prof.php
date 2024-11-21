@@ -9,11 +9,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="../css/header_prof.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
-    <style>
-        .logo {
-            height: 50px; /* Ajustez la taille du logo si nécessaire */
-        }
-    </style>
 </head>
 <body>
 
@@ -33,7 +28,7 @@
                         <a class="nav-link" href="courses.php">Classes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="courses.php">Élèves</a>
+                        <a class="nav-link" href="students.php">Élèves</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="schedule.php">Emploi du temps</a>
@@ -44,17 +39,24 @@
                     <li class="nav-item">
                         <a class="nav-link" href="contact.php">Compte</a>
                     </li>
-                    <li class="nav-item">
-                        <form method="post" action="logout.php" class="d-inline">
-                            <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
-                        </form>
-                    </li>
+
+                    <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <li class="nav-item">
+                            <form method="post" action="logout.php" class="d-inline">
+                                <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
+                            </form>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="login.php">Se connecter</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </div>
     </div>
 </header>
-
 
 <!-- Scripts de Bootstrap -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

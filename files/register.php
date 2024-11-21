@@ -5,43 +5,59 @@ require 'bdd.php';
 $error = ''; // Variable pour afficher les erreurs
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nom = $_POST['nom'];
-    $prenom = $_POST['prenom'];
-    $email = $_POST['username']; // Conserver ce nom pour correspondre au formulaire
-    $age = $_POST['age']; // Assurez-vous d'avoir ce champ dans le formulaire
+    // Récupération des données du formulaire et nettoyage
+    $nom = trim($_POST['nom']);
+    $prenom = trim($_POST['prenom']);
+    $email = trim($_POST['username']);
+    $age = trim($_POST['age']);
     $password = $_POST['password'];
     $confirmpassword = $_POST['confirmpassword'];
 
-    // Vérification des mots de passe
-    if ($password !== $confirmpassword) {
+    // Validation des entrées
+    if (empty($nom) || empty($prenom) || empty($email) || empty($age) || empty($password) || empty($confirmpassword)) {
+        $error = "Tous les champs doivent être remplis.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "L'adresse e-mail n'est pas valide.";
+    } elseif (!is_numeric($age) || $age < 18) {
+        $error = "L'âge doit être un nombre valide et supérieur ou égal à 18.";
+    } elseif ($password !== $confirmpassword) {
         $error = "Les mots de passe ne correspondent pas.";
     } else {
-        // Hachage du mot de passe
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-
-        // Préparation de la requête d'insertion
-        $sql = "INSERT INTO users (nom, prenoms, emails, ages, passwords) VALUES (:nom, :prenom, :email, :age, :mot_de_passe)";
+        // Vérifier si l'email existe déjà dans la base de données
+        $sql = "SELECT * FROM users WHERE emails = :email";
         $stmt = $pdo->prepare($sql);
-
-        // Liaison des paramètres
-        $stmt->bindParam(':nom', $nom);
-        $stmt->bindParam(':prenom', $prenom);
         $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':age', $age);
-        $stmt->bindParam(':mot_de_passe', $hashed_password);
-
-        // Exécution de la requête
-        if ($stmt->execute()) {
-            // Redirection après l'inscription réussie
-            header("Location: login.php");
-            exit;
+        $stmt->execute();
+        
+        if ($stmt->rowCount() > 0) {
+            $error = "Cette adresse e-mail est déjà utilisée.";
         } else {
-            $error = "Erreur lors de l'inscription. Veuillez réessayer.";
+            // Hachage du mot de passe
+            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+            // Préparation de la requête d'insertion
+            $sql = "INSERT INTO users (nom, prenoms, emails, ages, passwords) VALUES (:nom, :prenom, :email, :age, :mot_de_passe)";
+            $stmt = $pdo->prepare($sql);
+
+            // Liaison des paramètres
+            $stmt->bindParam(':nom', $nom);
+            $stmt->bindParam(':prenom', $prenom);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':age', $age);
+            $stmt->bindParam(':mot_de_passe', $hashed_password);
+
+            // Exécution de la requête
+            if ($stmt->execute()) {
+                // Redirection après l'inscription réussie
+                header("Location: login.php");
+                exit;
+            } else {
+                $error = "Erreur lors de l'inscription. Veuillez réessayer.";
+            }
         }
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -68,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <div class="form-group">
-                <label for="prenom">Prenom :</label>
+                <label for="prenom">Prénom :</label>
                 <input type="text" placeholder="Jean" class="form-control" id="prenom" name="prenom" required>
             </div>
 
@@ -100,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button type="submit" class="btn btn-primary">Inscription</button>
             <button type="button" class="btn btn-secondary" onclick="window.location.href='login.php';">Accueil</button>
         </form>
-
     </main>
 
     <!-- Scripts de Bootstrap -->

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-    <html lang="fr">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,28 +9,31 @@
 </head>
 <body>
     <section class="container_footer my-0">
-        <div class="bloc_footer">
-            <h4 class="text-center">Contact</h4>
-            <div class="text-center">
-                <a target="_blank" href="https://www.google.fr/maps/place/Angers/" class="btn btn-link">
-                    <i class="fa fa-map-marker" aria-hidden="true"></i>
-                    <span> Localisation : 49100, Angers</span>
-                </a>
-                <a href="tel:0780438780" class="btn btn-link">
-                    <i class="fa fa-phone" aria-hidden="true"></i>
-                    <span> Téléphone : 02 03 04 05 06</span>
-                </a>
-                <a href="mailto:justin.gestiere@gmail.com" class="btn btn-link">
-                    <i class="fa fa-envelope" aria-hidden="true"></i>
-                    <span> web.formation@gmail.com</span>
-                </a>
+        <div class="bloc_footer d-flex flex-column flex-md-row justify-content-between">
+            <div class="text-center text-md-left mb-4 mb-md-0">
+                <h4>Contact</h4>
+                <div>
+                    <a target="_blank" href="https://www.google.fr/maps/place/Angers/" class="btn btn-link" aria-label="Voir la localisation de l'entreprise">
+                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                        <span> Localisation : 49100, Angers</span>
+                    </a>
+                    <a href="tel:0780438780" class="btn btn-link" aria-label="Appeler le numéro">
+                        <i class="fa fa-phone" aria-hidden="true"></i>
+                        <span> Téléphone : 02 03 04 05 06</span>
+                    </a>
+                    <a href="mailto:justin.gestiere@gmail.com" class="btn btn-link" aria-label="Envoyer un email">
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <span> web.formation@gmail.com</span>
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="bloc_footer">
-            <h4 class="text-center">Informations</h4>
-            <div class="text-center">
-                <a class="btn btn-link" href="mentions_legales.php">Mentions Légales</a>
-                <a class="btn btn-link" href="conditions_utilisateurs.php">Conditions d'utilisation</a>
+
+            <div class="text-center text-md-left">
+                <h4>Informations</h4>
+                <div>
+                    <a class="btn btn-link" href="mentions_legales.php" aria-label="Mentions légales">Mentions Légales</a>
+                    <a class="btn btn-link" href="conditions_utilisateurs.php" aria-label="Conditions d'utilisation">Conditions d'utilisation</a>
+                </div>
             </div>
         </div>
     </section>
