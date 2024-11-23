@@ -5,11 +5,13 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Vérification que l'utilisateur est connecté et a le bon rôle
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-    header("Location: login.php");  // Redirige vers la page de login si l'utilisateur n'est pas admin
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'eleve' && $_SESSION['user_role'] !== 'visiteur')) {
+    header("Location: login.php");  // Redirige vers la page de login si l'utilisateur n'est pas un élève ou un visiteur
     exit();
 }
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -18,19 +20,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="../css/header_admin.css" rel="stylesheet">
+    <link href="../css/header.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
 </head>
 <body>
 
 <header class="bg-light">
-    <div class="container_header_admin">
-        <div class="d-flex justify-content-between align-items-center py-3">
-            <div class="d-flex align-items-center">
-                <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin mr-2">
+    <div class="container_header">
+        <div class="d-flex align-items-center py-3">
+            <div class="d-flex align-items-center mr-3">
+                <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo mr-2">
                 <h2 class="h3 mb-0">Web Formation</h2>
             </div>
-            <nav>
+            <nav class="ml-auto">
                 <ul class="nav">
                     <li class="nav-item">
                         <a class="nav-link" href="accueil.php">Accueil</a>
@@ -39,26 +41,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
                         <a class="nav-link" href="matieres.php">Matières</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="classes.php">Classes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="eleve.php">Élèves</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="statistique.php">Statistiques</a>
+                        <a class="nav-link" href="signature.php">Signature</a>
                     </li>
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="contact.php">Compte</a>
                     </li> -->
+
                     <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
-                    <li class="nav-item">
-                        <form method="post" action="logout.php" class="d-inline">
-                            <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
-                        </form>
-                    </li>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <li class="nav-item">
+                            <form method="post" action="logout.php" class="d-inline">
+                                <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
+                            </form>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="login.php">Se connecter</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </div>

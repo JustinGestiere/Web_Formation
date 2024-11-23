@@ -1,7 +1,6 @@
 .container_footer {
     display: flex;
     flex-wrap: nowrap;
-    margin: 0%;
     justify-content: space-evenly;
     background-color: rgb(212, 212, 212);
 }
@@ -11,7 +10,21 @@
     margin: 7px;
 }
 
-.text-center {
+.blocks_footer {
+    display: block;
+    margin: 0 105px;
+}
+
+h4 {
+    text-align: center;
+}
+
+.info_contact {
+    display: flex;
+    flex-direction: column;
+}
+
+.info_information {
     display: flex;
     flex-direction: column;
 }

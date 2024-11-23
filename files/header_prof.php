@@ -1,6 +1,16 @@
 <?php
+// Vérifie si la session n'a pas encore été démarrée avant de l'appeler
+if (session_status() == PHP_SESSION_NONE) {
     session_start();
+}
+
+// Vérification que l'utilisateur est connecté et a le bon rôle
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
+    header("Location: login.php");  // Redirige vers la page de login si l'utilisateur n'est pas admin
+    exit();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -22,23 +32,23 @@
             <nav>
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
+                        <a class="nav-link" href="accueil.php">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="courses.php">Classes</a>
+                        <a class="nav-link" href="classes.php">Classes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="students.php">Élèves</a>
+                        <a class="nav-link" href="eleve.php">Élèves</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="schedule.php">Emploi du temps</a>
+                        <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about.php">Signature</a>
+                        <a class="nav-link" href="signature.php">Signature</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="contact.php">Compte</a>
-                    </li>
+                    </li> -->
 
                     <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
                     <?php if (isset($_SESSION['user_id'])): ?>

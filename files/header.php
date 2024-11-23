@@ -1,64 +1,32 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
     session_start();
+}
+// Vérifie si l'utilisateur est connecté et récupère son rôle
+if (isset($_SESSION['user_role'])) {
+    $user_role = $_SESSION['user_role'];
+} else {
+    // Si l'utilisateur n'est pas connecté, redirige vers login.php
+    header("Location: login.php");
+    exit();
+}
+
+// En fonction du rôle, inclure le bon header
+switch ($user_role) {
+    case 'admin':
+        include('header_admin.php');
+        break;
+    case 'prof':
+        include('header_prof.php');
+        break;
+    case 'eleve':
+    case 'visiteur':
+        include('header_eleve.php'); // Header générique pour élèves et visiteurs
+        break;
+    default:
+        // Si aucun rôle valide, rediriger vers login.php
+        header("Location: login.php");
+        exit();
+}
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="../css/header.css" rel="stylesheet">
-    <title>Web Formation - Gestion de Planning</title>
-</head>
-<body>
 
-<header class="bg-light">
-    <div class="container_header">
-        <div class="d-flex align-items-center py-3">
-            <div class="d-flex align-items-center mr-3">
-                <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo mr-2">
-                <h2 class="h3 mb-0">Web Formation</h2>
-            </div>
-            <nav class="ml-auto">
-                <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="courses.php">Matières</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="schedule.php">Emploi du temps</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.php">Signature</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contact.php">Compte</a>
-                    </li>
-
-                    <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <li class="nav-item">
-                            <form method="post" action="logout.php" class="d-inline">
-                                <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
-                            </form>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="login.php">Se connecter</a>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </nav>
-        </div>
-    </div>
-</header>
-
-<!-- Scripts de Bootstrap -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-</body>
-</html>

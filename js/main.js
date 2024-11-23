@@ -25,7 +25,7 @@ function confirmmdp(event) {
         messageElement.textContent = ""; // Réinitialiser le message si les mdp correspondent
         return true; // Permettre la soumission du formulaire
         setTimeout(() => {
-            window.location.href = "index.php"; // Rediriger vers la page d'accueil après un court délai
+            window.location.href = "login.php"; // Rediriger vers la page d'accueil après un court délai
         }, 1000); // Délai de 1 seconde pour que l'utilisateur puisse voir le message
     } else {
         messageElement.textContent = "Les mots de passe ne correspondent pas.";

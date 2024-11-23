@@ -10,9 +10,9 @@
 <body>
     <section class="container_footer my-0">
         <div class="bloc_footer d-flex flex-column flex-md-row justify-content-between">
-            <div class="text-center text-md-left mb-4 mb-md-0">
+            <div class="blocks_footer text-center text-md-left mb-4 mb-md-0">
                 <h4>Contact</h4>
-                <div>
+                <div class="info_contact">
                     <a target="_blank" href="https://www.google.fr/maps/place/Angers/" class="btn btn-link" aria-label="Voir la localisation de l'entreprise">
                         <i class="fa fa-map-marker" aria-hidden="true"></i>
                         <span> Localisation : 49100, Angers</span>
@@ -28,9 +28,9 @@
                 </div>
             </div>
 
-            <div class="text-center text-md-left">
+            <div class="blocks_footer text-center text-md-left">
                 <h4>Informations</h4>
-                <div>
+                <div class="info_information">
                     <a class="btn btn-link" href="mentions_legales.php" aria-label="Mentions légales">Mentions Légales</a>
                     <a class="btn btn-link" href="conditions_utilisateurs.php" aria-label="Conditions d'utilisation">Conditions d'utilisation</a>
                 </div>

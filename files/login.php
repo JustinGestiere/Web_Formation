@@ -1,13 +1,25 @@
 <?php
 session_start();
+require 'bdd.php';
 
-// Vérifie si l'utilisateur est déjà connecté et redirige en fonction de son rôle
+// Vérifie si l'utilisateur est déjà connecté
 if (isset($_SESSION['user_id'])) {
-    header("Location: " . $_SESSION['user_role'] . ".php"); // Redirection selon le rôle (admin, user, etc.)
-    exit();
+    switch ($_SESSION['user_role']) {
+        case 'admin':
+            header("Location: accueil.php");
+            exit();
+        case 'prof':
+            header("Location: accueil.php");
+            exit();
+        case 'eleve':
+        case 'visiteur':
+            header("Location: accueil.php");
+            exit();
+        default:
+            header("Location: login.php");  // En cas de rôle invalide
+            exit();
+    }
 }
-
-require 'bdd.php'; // Assurez-vous d'avoir ce fichier pour la connexion à la base de données
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Assainir les entrées
