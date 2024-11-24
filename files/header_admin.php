@@ -42,7 +42,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
                         <a class="nav-link" href="classes.php">Classes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="eleve.php">Élèves</a>
+                        <a class="nav-link" href="utilisateurs.php">Utilisateurs</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>

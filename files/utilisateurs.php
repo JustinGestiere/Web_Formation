@@ -21,10 +21,7 @@ if (isset($_SESSION['user_role'])) {
 }
 ?>
 
-<?php
-header("Location: accueil.php");
-exit;
-?>
+
 
 <?php
   include "footer.php";
