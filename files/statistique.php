@@ -39,7 +39,7 @@ if (isset($_SESSION['user_role'])) {
                 <?php
                     try {
                         // Récupérer les classes
-                        $sql = "SELECT * FROM class WHERE name";
+                        $sql = "SELECT name FROM class ORDER BY name";
                         $stmt = $pdo->query($sql);
                         $names = $stmt->fetchAll();
                         $namesCount = count($names);
@@ -58,7 +58,7 @@ if (isset($_SESSION['user_role'])) {
                         <?php
                         if ($namesCount > 0) {
                             foreach ($names as $name) {
-                                echo "<li>" . htmlspecialchars($name["nom"]) . " " . htmlspecialchars($name["prenoms"]) . " (" . htmlspecialchars($name["emails"]) . ")</li>";
+                                echo "<li>" . htmlspecialchars($name["name"]) . "</li>";
                             }
                         } else {
                             echo "<p>Aucune classe trouvé.</p>";
@@ -71,30 +71,30 @@ if (isset($_SESSION['user_role'])) {
 
 
             <details class="blocs_statistiques">
-            <summary>
-                <?php
-                    try {
-                        // Récupérer les cours
-                        $sql = "SELECT * FROM matieres WHERE name ";
-                        $stmt = $pdo->query($sql);
-                        $cours = $stmt->fetchAll();
-                        $coursCount = count($cours);
-                    } catch (PDOException $e) {
-                        error_log("Erreur lors de la récupération des cours : " . $e->getMessage());
-                        $cours = [];
-                        $coursCount = 0;
-                    }
-                ?>
-                <p>
-                    <h4>Cours ( <?php echo $coursCount; ?> )</h4>
-                </p>
-            </summary>
+                <summary>
+                    <?php
+                        try {
+                            // Récupérer les cours
+                            $sql = "SELECT name FROM matieres ORDER BY name";
+                            $stmt = $pdo->query($sql);
+                            $cours = $stmt->fetchAll();
+                            $coursCount = count($cours);
+                        } catch (PDOException $e) {
+                            error_log("Erreur lors de la récupération des cours : " . $e->getMessage());
+                            $cours = [];
+                            $coursCount = 0;
+                        }
+                    ?>
+                    <p>
+                        <h4>Cours ( <?php echo $coursCount; ?> )</h4>
+                    </p>
+                </summary>
                 <div class="liste_statistiques">
                     <ul>
                         <?php
                         if ($coursCount > 0) {
                             foreach ($cours as $matieres) {
-                                echo "<li>" . htmlspecialchars($matieres["nom"]) . " " . htmlspecialchars($matieres["prenoms"]) . " (" . htmlspecialchars($matieres["emails"]) . ")</li>";
+                                echo "<li>" . htmlspecialchars($matieres["name"]) . "</li>";
                             }
                         } else {
                             echo "<p>Aucun cours trouvé.</p>";
@@ -111,7 +111,7 @@ if (isset($_SESSION['user_role'])) {
                 <?php
                     try {
                         // Récupérer les élèves
-                        $sql = "SELECT * FROM users WHERE roles = 'eleve'";
+                        $sql = "SELECT * FROM users WHERE roles = 'eleve' ORDER BY emails";
                         $stmt = $pdo->query($sql);
                         $eleves = $stmt->fetchAll();
                         $elevesCount = count($eleves);
@@ -147,7 +147,7 @@ if (isset($_SESSION['user_role'])) {
                 <?php
                     try {
                         // Récupérer les professeurs
-                        $sql = "SELECT * FROM users WHERE roles = 'prof'";
+                        $sql = "SELECT * FROM users WHERE roles = 'prof' ORDER BY emails";
                         $stmt = $pdo->query($sql);
                         $professeurs = $stmt->fetchAll();
                         $professeursCount = count($professeurs);
@@ -183,7 +183,7 @@ if (isset($_SESSION['user_role'])) {
                 <?php
                     try {
                         // Récupérer les visiteurs
-                        $sql = "SELECT * FROM users WHERE roles = 'visiteur'";
+                        $sql = "SELECT * FROM users WHERE roles = 'visiteur' ORDER BY emails";
                         $stmt = $pdo->query($sql);
                         $visiteurs = $stmt->fetchAll();
                         $visiteursCount = count($visiteurs);
@@ -219,7 +219,7 @@ if (isset($_SESSION['user_role'])) {
                 <?php
                     try {
                         // Récupérer les admins
-                        $sql = "SELECT * FROM users WHERE roles = 'admin'";
+                        $sql = "SELECT * FROM users WHERE roles = 'admin' ORDER BY emails";
                         $stmt = $pdo->query($sql);
                         $administrateurs = $stmt->fetchAll();
                         $administrateursCount = count($administrateurs);
