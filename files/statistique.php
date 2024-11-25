@@ -34,25 +34,25 @@ if (isset($_SESSION['user_role'])) {
             </h2>
         </div>
         <div class="statistiques">
-        <details class="blocs_statistiques">
-            <summary>
-                <?php
-                    try {
-                        // Récupérer les classes
-                        $sql = "SELECT name FROM class ORDER BY name";
-                        $stmt = $pdo->query($sql);
-                        $names = $stmt->fetchAll();
-                        $namesCount = count($names);
-                    } catch (PDOException $e) {
-                        error_log("Erreur lors de la récupération des classes : " . $e->getMessage());
-                        $names = [];
-                        $namesCount = 0;
-                    }
-                ?>
-                <p>
-                    <h4>Classes ( <?php echo $namesCount; ?> )</h4>
-                </p>
-            </summary>
+            <details class="blocs_statistiques">
+                <summary>
+                    <?php
+                        try {
+                            // Récupérer les classes
+                            $sql = "SELECT name FROM class ORDER BY name";
+                            $stmt = $pdo->query($sql);
+                            $names = $stmt->fetchAll();
+                            $namesCount = count($names);
+                        } catch (PDOException $e) {
+                            error_log("Erreur lors de la récupération des classes : " . $e->getMessage());
+                            $names = [];
+                            $namesCount = 0;
+                        }
+                    ?>
+                    <p>
+                        <h4>Classes ( <?php echo $namesCount; ?> )</h4>
+                    </p>
+                </summary>
                 <div class="liste_statistiques">
                     <ul>
                         <?php
