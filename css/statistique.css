@@ -6,7 +6,7 @@
 .statistiques {
     display: flex;
     flex-wrap: wrap; /* Permet de passer à une nouvelle ligne */
-    margin: 80px 25px;
+    margin: 80px 20px;
     gap: 25px 10px; /* Espacement entre les blocs */
     justify-content: center; /* Centrage des blocs */
     align-items: flex-start;    
@@ -15,17 +15,28 @@
 .blocs_statistiques {
     background-color: #2e31cc;
     color: white;
-    padding: 20px;
+    padding: 15px;
     text-align: center;
     border-radius: 5px;
     flex: 0 1 calc(33.33% - 10px); /* Chaque bloc occupe environ 1/3 de la ligne */
     box-sizing: border-box; /* Inclure les marges dans la taille */
+    width: 268.41px;
+    /* height: 120.79px; */
 }
 
 .blocs_statistiques summary {
     list-style: none;
     font-weight: bold;
     padding: 15px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 95.58px;
+}
+
+.liste_statistiques {
+    height: 120px;
+    overflow: auto;
 }
 
 .blocs_statistiques ul {
