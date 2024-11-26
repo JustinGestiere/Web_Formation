@@ -9,6 +9,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header("Location: login.php");  // Redirige vers la page de login si l'utilisateur n'est pas admin
     exit();
 }
+
+// Connexion PDO à la base de données
+try {
+    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', '');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    $error = "Erreur de connexion à la base de données : " . $e->getMessage();
+    exit();
+}
 ?>
 
 
@@ -40,6 +49,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="classes.php">Classes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="cours.php">Cours</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="utilisateurs.php">Utilisateurs</a>

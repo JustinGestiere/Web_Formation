@@ -18,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Tous les champs doivent être remplis.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "L'adresse e-mail n'est pas valide.";
-    } elseif (!is_numeric($age) || $age < 18) {
-        $error = "L'âge doit être un nombre valide et supérieur ou égal à 18.";
+    } elseif (!is_numeric($age) || $age < 16) {
+        $error = "L'âge doit être un nombre valide et supérieur ou égal à 16.";
     } elseif ($password !== $confirmpassword) {
         $error = "Les mots de passe ne correspondent pas.";
     } else {

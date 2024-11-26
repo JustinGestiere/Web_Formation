@@ -29,7 +29,7 @@ $error="";
 <section>
     <div class="titre_utilisateurs">
         <h2>
-            Gestion des matières
+            Gestion des cours
         </h2>
     </div>
 
@@ -37,7 +37,7 @@ $error="";
         <div class="blocs_utilisateurs">
             <details>
                 <summary>
-                    <h4>Créer une matière</h4>
+                    <h4>Créer un cours</h4>
                 </summary>
                 <form method="post" class="p-4 border border-light rounded">
                     <?php
@@ -56,7 +56,7 @@ $error="";
                                 $stmt->execute();
                                 
                                 if ($stmt->rowCount() > 0) {
-                                    $error = "Cette matière existe déjà.";
+                                    $error = "Ce cours existe déjà.";
                                 } else {           
                                     // Préparation de la requête d'insertion
                                     $sql = "INSERT INTO matieres (name) VALUES (:name)";
@@ -68,17 +68,17 @@ $error="";
                                     // Exécution de la requête
                                     if ($stmt->execute()) {
                                         // Redirection après l'inscription réussie
-                                        $error = "Nouvelle matière enregistrer.";
+                                        $error = "Nouveau cours enregistrer.";
                                     } else {
-                                        $error = "Erreur lors de l'enregistrement de la matière. Veuillez réessayer.";
+                                        $error = "Erreur lors de l'enregistrement du cours. Veuillez réessayer.";
                                     }
                                 }
                             }
                         }
                     ?>
                     <div class="form-group">
-                        <label for="name">Nom de la matière :</label>
-                        <input type="text" placeholder="Mathématiques" class="form-control" id="name" name="name" required>
+                        <label for="name">Date + Nom du cours :</label>
+                        <input type="text" placeholder="24/10/2024_Mathématiques" class="form-control" id="name" name="name" required>
                     </div>
 
                     <!-- Afficher les erreurs ici -->
@@ -94,7 +94,7 @@ $error="";
         <div class="blocs_utilisateurs">
             <details>
                 <summary>
-                    <h4>Modifier une matière</h4>
+                    <h4>Modifier un cours</h4>
                 </summary>
                 <div>
                     ok2
@@ -105,7 +105,7 @@ $error="";
         <div class="blocs_utilisateurs">
             <details>
                 <summary>
-                    <h4>Voir une matière</h4>
+                    <h4>Voir un cours</h4>
                 </summary>
                 <div>
                     ok3
@@ -116,7 +116,7 @@ $error="";
         <div class="blocs_utilisateurs">
             <details>
                 <summary>
-                    <h4>Supprimer une matière</h4>
+                    <h4>Supprimer un cours</h4>
                 </summary>
                 <div>
                     ok4
