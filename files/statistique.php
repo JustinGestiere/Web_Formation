@@ -74,30 +74,30 @@ if (isset($_SESSION['user_role'])) {
                 <summary>
                     <?php
                         try {
-                            // Récupérer les cours
+                            // Récupérer les matieres
                             $sql = "SELECT name FROM matieres ORDER BY name";
                             $stmt = $pdo->query($sql);
-                            $cours = $stmt->fetchAll();
-                            $coursCount = count($cours);
+                            $matiere = $stmt->fetchAll();
+                            $matiereCount = count($matiere);
                         } catch (PDOException $e) {
-                            error_log("Erreur lors de la récupération des cours : " . $e->getMessage());
-                            $cours = [];
-                            $coursCount = 0;
+                            error_log("Erreur lors de la récupération des matières : " . $e->getMessage());
+                            $matiere = [];
+                            $matiereCount = 0;
                         }
                     ?>
                     <p>
-                        <h4>Cours ( <?php echo $coursCount; ?> )</h4>
+                        <h4>Matières ( <?php echo $matiereCount; ?> )</h4>
                     </p>
                 </summary>
                 <div class="liste_statistiques">
                     <ul>
                         <?php
-                        if ($coursCount > 0) {
-                            foreach ($cours as $matieres) {
+                        if ($matiereCount > 0) {
+                            foreach ($matiere as $matieres) {
                                 echo "<li>" . htmlspecialchars($matieres["name"]) . "</li>";
                             }
                         } else {
-                            echo "<p>Aucun cours trouvé.</p>";
+                            echo "<p>Aucune matiere trouvé.</p>";
                         }
                         ?>
                     </ul>

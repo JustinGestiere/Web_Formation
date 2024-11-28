@@ -23,18 +23,18 @@ $error="";
 ?>
 
 <head>
-    <link href="../css/utilisateurs.css" rel="stylesheet" />
+    <link href="../css/classes.css" rel="stylesheet" />
 </head>
 
 <section>
-    <div class="titre_utilisateurs">
+    <div class="titre_classes">
         <h2>
             Gestion des classes
         </h2>
     </div>
 
-    <div class="page_utilisateurs">
-        <div class="blocs_utilisateurs">
+    <div class="page_classes"> 
+        <div class="blocs_classes"> <!-- Créer les classes -->
             <details>
                 <summary>
                     <h4>Créer une classe</h4>
@@ -89,7 +89,7 @@ $error="";
             </details>
         </div>
 
-        <div class="blocs_utilisateurs">
+        <div class="blocs_classes">
             <details>
                 <summary>
                     <h4>Modifier une classe</h4>
@@ -100,18 +100,43 @@ $error="";
             </details>
         </div>
 
-        <div class="blocs_utilisateurs">
+        <div class="blocs_classes"> <!-- Voir les classes -->
             <details>
                 <summary>
-                    <h4>Voir une classe</h4>
+                    <?php
+                        try {
+                            // Récupérer les classes
+                            $sql = "SELECT name FROM class ORDER BY name";
+                            $stmt = $pdo->query($sql);
+                            $names = $stmt->fetchAll();
+                            $namesCount = count($names);
+                        } catch (PDOException $e) {
+                            error_log("Erreur lors de la récupération des classes : " . $e->getMessage());
+                            $names = [];
+                            $namesCount = 0;
+                        }
+                    ?>
+                    <p>
+                        <h4>Voir les classes</h4>
+                    </p>
                 </summary>
-                <div>
-                    ok3
+                <div class="liste_statistiques">
+                    <ul>
+                        <?php
+                        if ($namesCount > 0) {
+                            foreach ($names as $name) {
+                                echo "<li>" . htmlspecialchars($name["name"]) . "</li>";
+                            }
+                        } else {
+                            echo "<p>Aucune classe trouvé.</p>";
+                        }
+                        ?>
+                    </ul>
                 </div>
             </details>
         </div>
 
-        <div class="blocs_utilisateurs">
+        <div class="blocs_classes">
             <details>
                 <summary>
                     <h4>Supprimer une classe</h4>
