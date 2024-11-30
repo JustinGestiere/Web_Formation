@@ -29,9 +29,9 @@ if (isset($_SESSION['user_role'])) {
 <section>
     <div>
         <div class="titre_statistiques">
-            <h2>
+            <h1>
                 Chiffres clés Web_Formation
-            </h2>
+            </h1>
         </div>
         <div class="statistiques">
             <details class="blocs_statistiques">

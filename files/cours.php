@@ -28,9 +28,9 @@ $error="";
 
 <section>
     <div class="titre_utilisateurs">
-        <h2>
+        <h1>
             Gestion des cours
-        </h2>
+        </h1>
     </div>
 
     <div class="page_utilisateurs">
