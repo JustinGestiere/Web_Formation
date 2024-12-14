@@ -19,7 +19,14 @@ if (isset($_SESSION['user_role'])) {
     header("Location: login.php");
     exit();
 }
-$message="";
+
+// Vérifiez s'il y a un message en session et assignez-le à $message, puis supprimez-le de la session.
+$message = '';
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    unset($_SESSION['message']); // Supprimez le message de la session après l'affichage
+}
+
 ?>
 
 <head>
@@ -100,15 +107,25 @@ $message="";
                     <ul>
                         <?php
                             try {
-                                // Récupérer toutes les matières à chaque chargement de la page
+                                // Récupérer les matieres
                                 $sql = "SELECT name FROM matieres ORDER BY name";
                                 $stmt = $pdo->query($sql);
-                                $matieres = $stmt->fetchAll();
+                                $matiere = $stmt->fetchAll();
+                                $matiereCount = count($matiere);
                             } catch (PDOException $e) {
-                                error_log("Erreur PDO : " . $e->getMessage());
-                                $message = "Erreur lors de la récupération des matières.";
-                                $matieres = [];
+                                error_log("Erreur lors de la récupération des matières : " . $e->getMessage());
+                                $matiere = [];
+                                $matiereCount = 0;
                             }
+                        ?>
+                        <?php
+                        if ($matiereCount > 0) {
+                            foreach ($matiere as $matieres) {
+                                echo "<li>" . htmlspecialchars($matieres["name"]) . "</li>";
+                            }
+                        } else {
+                            echo "<p>Aucune matiere trouvé.</p>";
+                        }
                         ?>
                     </ul>
                 </div>
@@ -160,19 +177,17 @@ $message="";
                             } else {
                                 $_SESSION['message'] = "Aucune matière sélectionnée.";
                             }
-                            exit();
                         }                        
                     ?>
                 </div>
             </details>
         </div>
-
-        <div class="message">
-            <!-- Afficher les erreurs ici -->
-            <?php if (isset($message) && $message): ?>
-                <p><?php echo htmlspecialchars($message); ?></p>
-            <?php endif; ?>
-        </div>
+    </div>
+    <div class="message">
+        <!-- Afficher les erreurs ici -->
+        <?php if (isset($message) && $message): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
     </div>
 </section>
 

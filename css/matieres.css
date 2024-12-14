@@ -38,7 +38,9 @@
 }
 
 .liste_matieres {
-    height: 120px;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 5px; /* Coins arrondis */
+    height: 100px;
     overflow: auto;
 }
 
