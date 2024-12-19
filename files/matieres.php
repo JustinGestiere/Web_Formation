@@ -91,7 +91,22 @@ if (isset($_SESSION['message'])) {
                     <h4>Modifier une matière</h4>   
                 </summary>
                 <div>
-                    ok2
+                    <form method="GET" action="">
+                        <label for="name">Sélectionnez un utilisateur :</label>
+                        <select id="name" name="id" required>
+                            <option value="">-- Sélectionner --</option>
+                            <?php
+                            // Récupérer les utilisateurs
+                            $stmt = $pdo->query("SELECT id, name FROM matieres");
+                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                echo "<option value='{$row['id']}'" . 
+                                    (isset($_GET['id']) && $_GET['id'] == $row['id'] ? " selected" : "") .
+                                    ">{$row['name']}</option>";
+                            }
+                            ?>
+                        </select>
+                        <button type="submit">Afficher</button>
+                    </form>
                 </div>
             </details>
         </div>
@@ -137,7 +152,7 @@ if (isset($_SESSION['message'])) {
                 <summary>
                     <h4>Supprimer les matières</h4>
                 </summary>
-                <div class="liste_matieres">
+                <div class="liste_matiere">
                     <form method="post" class="p-4 border border-light rounded">
                         <label for="matiere">Choisissez une matière :</label>
                         <select name="matiere_id" id="matiere" required>
@@ -158,7 +173,7 @@ if (isset($_SESSION['message'])) {
                             }
                             ?>
                         </select>
-                        <button type="submit" name="submit">Supprimer</button>
+                        <button id="supprimer" type="submit" name="submit">Supprimer</button>
                     </form>
 
                     <?php
@@ -183,14 +198,15 @@ if (isset($_SESSION['message'])) {
             </details>
         </div>
     </div>
+
     <div class="message">
         <!-- Afficher les erreurs ici -->
         <?php if (isset($message) && $message): ?>
             <p><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
     </div>
+    <script src="../js/matieres.js"></script>
 </section>
-
 <?php
   include "footer.php";
 ?>

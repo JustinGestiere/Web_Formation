@@ -28,7 +28,7 @@ if (isset($_SESSION['user_role'])) {
         <h2>1. Présentation du site</h2>
         <p>
             Le site <strong>Web Formation</strong> est une plateforme éducative accessible à l'adresse suivante : 
-            <a href="http://votresite.com">www.votresite.com</a>.
+            <a href="http://localhost/bts_sio/Web_Formation/files/login.php">www.web_formation.com</a>.
             Il permet aux utilisateurs d'accéder à des ressources pédagogiques, de consulter des emplois du temps, de signer leur présence en cours, et d'interagir avec la communauté éducative.
         </p>
     </section>
@@ -44,9 +44,9 @@ if (isset($_SESSION['user_role'])) {
     <section>
         <h2>3. Hébergement</h2>
         <p>
-            Le site est hébergé par : <strong>Nom de l'hébergeur</strong><br>
-            Adresse : <strong>Adresse de l'hébergeur</strong><br>
-            Téléphone : <strong>Téléphone de l'hébergeur</strong>
+            Le site est hébergé par : <strong>Gestiere Justin</strong><br>
+            Adresse : <strong>1 rue Georges Mandel Angers</strong><br>
+            Téléphone : <strong>02 03 04 05 06</strong>
         </p>
     </section>
 

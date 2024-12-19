@@ -38,8 +38,8 @@ if (isset($_SESSION['user_role'])) {
         <!-- Sections des CGU -->
         <section>
             <h2>1. Présentation du site</h2>
-            <p>Web Formation (ci-après le "Site") est une plateforme éducative accessible à 
-                l'adresse suivante : [URL du site]. Le Site permet aux utilisateurs de s'informer 
+            <p>Web Formation est une plateforme éducative accessible à 
+                l'adresse suivante : [http://localhost/bts_sio/Web_Formation/files/login.php]. Le Site permet aux utilisateurs de s'informer 
                 sur les cours, de consulter les emplois du temps, de signer leur présence et 
                 d'interagir avec la communauté éducative. Web Formation est créé et administré par 
                 Justin GESTIERE.
@@ -97,9 +97,8 @@ Les utilisateurs de Web Formation s'engagent à :
         <section>
             <h2>7. Protection des données personnelles</h2>
             <p>Web Formation respecte les réglementations en matière de protection des données 
-                (notamment le RGPD). Vos informations personnelles sont sécurisées et ne seront 
-                jamais partagées sans votre consentement. Veuillez consulter notre [Politique de 
-                confidentialité] pour en savoir plus.
+                notamment le RGPD. Vos informations personnelles sont sécurisées et ne seront 
+                jamais partagées sans votre consentement.
             </p>
         </section>
 
@@ -121,14 +120,14 @@ Les utilisateurs de Web Formation s'engagent à :
         <section>
             <h2>10. Droit applicable et juridiction</h2>
             <p>Ces CGU sont régies par la loi française. En cas de litige, les tribunaux 
-                compétents de [Ville ou région] seront seuls compétents.
+                compétents de Angers seront seuls compétents.
             </p>
         </section>
 
         <section>
             <h2>11. Contact</h2>
             <p>Pour toute question relative aux présentes CGU, vous pouvez nous contacter à 
-                l'adresse suivante : [Adresse e-mail de contact].
+                l'adresse suivante : justin.gestiere@gmail.com.
             </p>
         </section>
     </section>
