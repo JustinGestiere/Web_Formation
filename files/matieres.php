@@ -87,28 +87,24 @@ if (isset($_SESSION['message'])) {
 
         <div class="blocs_matieres"> <!-- Modifier les matières -->
             <details>
-                <summary>
-                    <h4>Modifier une matière</h4>   
-                </summary>
-                <div>
-                    <form method="GET" action="">
-                        <label for="name">Sélectionnez un utilisateur :</label>
-                        <select id="name" name="id" required>
-                            <option value="">-- Sélectionner --</option>
-                            <?php
-                            // Récupérer les utilisateurs
-                            $stmt = $pdo->query("SELECT id, name FROM matieres");
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<option value='{$row['id']}'" . 
-                                    (isset($_GET['id']) && $_GET['id'] == $row['id'] ? " selected" : "") .
-                                    ">{$row['name']}</option>";
-                            }
-                            ?>
-                        </select>
-                        <button type="submit">Afficher</button>
-                    </form>
-                </div>
-            </details>
+                    <summary>
+                        <h4>Modifier les matières</h4>
+                    </summary>
+                    <div>
+                        <?php
+                        // Récupérer les matières
+                        $stmt = $pdo->query("SELECT id, name FROM matieres");
+
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+                            <form method="POST" action="modifier_matiere.php" style="margin-bottom: 10px;">
+                                <label for="matiere_<?php echo $row['id']; ?>">Matière :</label>
+                                <input type="text" id="matiere_<?php echo $row['id']; ?>" name="name" value="<?php echo htmlspecialchars($row['name']); ?>" required>
+                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                <button type="submit">Enregistrer</button>
+                            </form>
+                        <?php $message = "Matière modifier avec succès.";endwhile; ?>
+                    </div>
+                </details>
         </div>
 
         <div class="blocs_matieres"> <!-- Voir les matières -->

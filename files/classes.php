@@ -91,13 +91,24 @@ $error="";
 
         <div class="blocs_classes">
             <details>
-                <summary>
-                    <h4>Modifier une classe</h4>
-                </summary>
-                <div>
-                    ok2
-                </div>
-            </details>
+                    <summary>
+                        <h4>Modifier les classes</h4>
+                    </summary>
+                    <div>
+                        <?php
+                        // Récupérer les classes
+                        $stmt = $pdo->query("SELECT id, name FROM class");
+
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+                            <form method="POST" action="modifier_class.php" style="margin-bottom: 10px;">
+                                <label for="classe_<?php echo $row['id']; ?>">Classe :</label>
+                                <input type="text" id="classe_<?php echo $row['id']; ?>" name="name" value="<?php echo htmlspecialchars($row['name']); ?>" required>
+                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                <button type="submit">Enregistrer</button>
+                            </form>
+                        <?php $message = "Classe modifier avec succès.";endwhile; ?>
+                    </div>
+                </details>
         </div>
 
         <div class="blocs_classes"> <!-- Voir les classes -->
@@ -136,16 +147,62 @@ $error="";
             </details>
         </div>
 
-        <div class="blocs_classes">
+        <div class="blocs_classes"> <!-- Supprimer les classes -->
             <details>
                 <summary>
-                    <h4>Supprimer une classe</h4>
+                    <h4>Supprimer les classes</h4>
                 </summary>
-                <div>
-                    ok4
+                <div class="liste_classe">
+                    <form method="post" class="p-4 border border-light rounded">
+                        <label for="classe">Choisissez une classe :</label>
+                        <select name="classe_id" id="classe" required>
+                            <option value="">-- Sélectionnez une classe --</option>
+                            <?php
+                            // Requête pour récupérer les classes
+                            $sql = "SELECT id, name FROM class";
+                            $stmt = $pdo->query($sql);
+                            $classes = $stmt->fetchAll(); // Récupération des classes sous forme associative
+                            
+                            if (count($classes) > 0) {
+                                // Afficher chaque classe comme option
+                                foreach ($classes as $classe) {
+                                    echo "<option value='" . htmlspecialchars($classe['id']) . "'>" . htmlspecialchars($classe['name']) . "</option>";
+                                }
+                            } else {
+                                echo "<option value=''>Aucune matière disponible</option>";
+                            }
+                            ?>
+                        </select>
+                        <button id="supprimer" type="submit" name="submit">Supprimer</button>
+                    </form>
+
+                    <?php
+                        // Traitement de la suppression (si le formulaire est soumis)
+                        if (isset($_POST['submit'])) {
+                            if (isset($_POST['classe_id']) && !empty($_POST['classe_id'])) {
+                                $classe_id = intval($_POST['classe_id']);
+                                $sql = "DELETE FROM class WHERE id = ?";
+                                $stmt = $pdo->prepare($sql);
+                        
+                                if ($stmt->execute([$classe_id])) {
+                                    $_SESSION['message'] = "Classe supprimée avec succès.";
+                                } else {
+                                    $_SESSION['message'] = "Erreur lors de la suppression.";
+                                }
+                            } else {
+                                $_SESSION['message'] = "Aucune classe sélectionnée.";
+                            }
+                        }                        
+                    ?>
                 </div>
             </details>
         </div>
+    </div>
+    <div class="message">
+        <!-- Afficher les erreurs ici -->
+        <?php if (isset($message) && $message): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
     </div>  
 </section>
 
