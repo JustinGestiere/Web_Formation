@@ -89,7 +89,7 @@ $error="";
             </details>
         </div>
 
-        <div class="blocs_classes">
+        <div class="blocs_classes"> <!-- Modifer les classes -->
             <details>
                     <summary>
                         <h4>Modifier les classes</h4>

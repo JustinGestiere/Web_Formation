@@ -23,106 +23,86 @@ $error="";
 ?>
 
 <head>
-    <link href="../css/utilisateurs.css" rel="stylesheet" />
+    <link href="../css/cours.css" rel="stylesheet" />
 </head>
 
 <section>
-    <div class="titre_utilisateurs">
+    <div class="titre_cours">
         <h1>
             Gestion des cours
         </h1>
     </div>
 
-    <div class="page_utilisateurs">
-        <div class="blocs_utilisateurs">
+    <div class="page_cours"> 
+        <div class="blocs_cours"> <!-- Créer les cours -->
             <details>
                 <summary>
-                    <h4>Créer un cours</h4>
+                    <h4>Créer une classe</h4>
                 </summary>
-                <form method="post" class="p-4 border border-light rounded">
+            </details>
+        </div>
+
+        <div class="blocs_cours"> <!-- Modifer les cours -->
+            <details>
+                    <summary>
+                        <h4>Modifier les cours</h4>
+                    </summary>
+                    <div>
+                    </div>
+                </details>
+        </div>
+
+        <div class="blocs_cours"> <!-- Voir les cours -->
+            <details>
+                <summary>
                     <?php
-                        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                            // Récupération des données du formulaire et nettoyage
-                            $name_matiere = trim($_POST['name']);
-                        
-                            // Validation des entrées
-                            if (empty($name_matiere)) {
-                                $error = "Le nom de la matiere doit être remplie.";
-                            } else {
-                                // Vérifier si l'email existe déjà dans la base de données
-                                $sql = "SELECT * FROM matieres WHERE name = :name";
-                                $stmt = $pdo->prepare($sql);
-                                $stmt->bindParam(':name', $name_matiere);
-                                $stmt->execute();
-                                
-                                if ($stmt->rowCount() > 0) {
-                                    $error = "Ce cours existe déjà.";
-                                } else {           
-                                    // Préparation de la requête d'insertion
-                                    $sql = "INSERT INTO matieres (name) VALUES (:name)";
-                                    $stmt = $pdo->prepare($sql);
-                        
-                                    // Liaison des paramètres
-                                    $stmt->bindParam(':name', $name_matiere);
-                        
-                                    // Exécution de la requête
-                                    if ($stmt->execute()) {
-                                        // Redirection après l'inscription réussie
-                                        $error = "Nouveau cours enregistrer.";
-                                    } else {
-                                        $error = "Erreur lors de l'enregistrement du cours. Veuillez réessayer.";
-                                    }
-                                }
-                            }
+                        try {
+                            // Récupérer les cours
+                            $sql = "SELECT titre FROM cours ORDER BY titre";
+                            $stmt = $pdo->query($sql);
+                            $names = $stmt->fetchAll();
+                            $namesCount = count($names);
+                        } catch (PDOException $e) {
+                            error_log("Erreur lors de la récupération des cours : " . $e->getMessage());
+                            $names = [];
+                            $namesCount = 0;
                         }
                     ?>
-                    <div class="form-group">
-                        <label for="name">Date + Nom du cours :</label>
-                        <input type="text" placeholder="24/10/2024_Mathématiques" class="form-control" id="name" name="name" required>
-                    </div>
-
-                    <!-- Afficher les erreurs ici -->
-                    <?php if ($error): ?>
-                        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
-                    <?php endif; ?>
-
-                    <button type="submit" class="btn btn-primary">Enregistrement</button>
-                </form>
-            </details>
-        </div>
-
-        <div class="blocs_utilisateurs">
-            <details>
-                <summary>
-                    <h4>Modifier un cours</h4>
+                    <p>
+                        <h4>Voir les cours</h4>
+                    </p>
                 </summary>
-                <div>
-                    ok2
+                <div class="liste_statistiques">
+                    <ul>
+                        <?php
+                        if ($namesCount > 0) {
+                            foreach ($names as $name) {
+                                echo "<li>" . htmlspecialchars($name["titre"]) . "</li>";
+                            }
+                        } else {
+                            echo "<p>Aucun cours trouvé.</p>";
+                        }
+                        ?>
+                    </ul>
                 </div>
             </details>
         </div>
 
-        <div class="blocs_utilisateurs">
+        <div class="blocs_cours"> <!-- Supprimer les cours -->
             <details>
                 <summary>
-                    <h4>Voir un cours</h4>
+                    <h4>Supprimer les cours</h4>
                 </summary>
-                <div>
-                    ok3
-                </div>
+                
             </details>
         </div>
+    </div>
 
-        <div class="blocs_utilisateurs">
-            <details>
-                <summary>
-                    <h4>Supprimer un cours</h4>
-                </summary>
-                <div>
-                    ok4
-                </div>
-            </details>
-        </div>
+    <div class="message">
+        <!-- Afficher les erreurs ici -->
+        <?php if (isset($message) && $message): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
     </div>  
 </section>
 

@@ -1,9 +1,9 @@
-.titre_utilisateurs {
+.titre_cours {
     text-align: center;
     margin: 40px 0;
 }
 
-.page_utilisateurs {
+.page_cours {
     display: flex;
     flex-wrap: wrap; /* Permet de passer à une nouvelle ligne */
     margin: 80px 20px;
@@ -12,7 +12,7 @@
     align-items: flex-start; 
 }
 
-.blocs_utilisateurs {
+.blocs_cours {
     background-color: #2e31cc;
     color: white;
     padding: 15px;
@@ -23,7 +23,7 @@
     width: 268.41px;
 }
 
-.blocs_utilisateurs summary {
+.blocs_cours summary {
     list-style: none;
     font-weight: bold;
     padding: 15px 0px;
@@ -33,26 +33,6 @@
     height: 95.58px;
 }
 
-.liste_utilisateurs {
-    height: 120px;
-    overflow: auto;
-}
-
-.blocs_utilisateurs ul {
-    list-style: none;
-    text-align: center;
-    padding: 0;
-}
-
-.blocs_utilisateurs li {
-    margin: 10px;
-    padding: 0;
-}
-
-.blocs_utilisateurs p {
-    color: white;
-}
-
-.input_utilisateurs {
+.input_cours {
     display: block;
 }

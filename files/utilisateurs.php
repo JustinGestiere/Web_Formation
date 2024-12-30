@@ -28,166 +28,83 @@ $error="";
 </head>
 
 <section>
-        <div class="titre_utilisateurs">
-            <h1>
-                Gestion des utilisateurs
-            </h1>
+    <div class="titre_utilisateurs">
+        <h1>
+            Gestion des utilisateurs
+        </h1>
+    </div>
+
+    <div class="page_utilisateurs"> 
+        <div class="blocs_utilisateurs"> <!-- Créer les utilisateurs -->
+            <details>
+                <summary>
+                    <h4>Créer un utilisateur</h4>
+                </summary>
+            </details>
         </div>
 
-        <div class="page_utilisateurs">
-            <div class="blocs_utilisateurs">
-                <details>
+        <div class="blocs_utilisateurs"> <!-- Modifer les utilisateurs -->
+            <details>
                     <summary>
-                        <h4>Créer un utilisateur</h4>
+                        <h4>Modifier les utilisateurs</h4>
                     </summary>
-                    <form method="post" class="p-4 border border-light rounded">
+                    <div>
+                    </div>
+                </details>
+        </div>
+
+        <div class="blocs_utilisateurs"> <!-- Voir les utilisateurs -->
+            <details>
+                <summary>
+                    <?php
+                        try {
+                            // Récupérer les utilisateurs
+                            $sql = "SELECT nom, prenoms, roles FROM users ORDER BY nom, prenoms, roles";
+                            $stmt = $pdo->query($sql);
+                            $names = $stmt->fetchAll();
+                            $namesCount = count($names);
+                        } catch (PDOException $e) {
+                            error_log("Erreur lors de la récupération des utilisateurs : " . $e->getMessage());
+                            $names = [];
+                            $namesCount = 0;
+                        }
+                    ?>
+                    <p>
+                        <h4>Voir les utilisateurs</h4>
+                    </p>
+                </summary>
+                <div class="liste_statistiques">
+                    <ul>
                         <?php
-                            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                                // Récupération des données du formulaire et nettoyage
-                                $nom = trim($_POST['nom']);
-                                $prenom = trim($_POST['prenom']);
-                                $email = trim($_POST['username']);
-                                $age = trim($_POST['age']);
-                                $class = trim($_POST['class']);
-                                $roles = trim($_POST['roles']);
-                                $password = $_POST['password'];
-                                $confirmpassword = $_POST['confirmpassword'];
-                            
-                                // Validation des entrées
-                                if (empty($nom) || empty($prenom) || empty($email) || empty($age) || empty($roles) || empty($password) || empty($confirmpassword)) {
-                                    $error = "Tous les champs doivent être remplis.";
-                                } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                    $error = "L'adresse e-mail n'est pas valide.";
-                                } elseif (!is_numeric($age) || $age < 16) {
-                                    $error = "L'âge doit être un nombre valide et supérieur ou égal à 16.";
-                                } elseif ($password !== $confirmpassword) {
-                                    $error = "Les mots de passe ne correspondent pas.";
-                                } else {
-                                    // Vérifier si l'email existe déjà dans la base de données
-                                    $sql = "SELECT * FROM users WHERE emails = :email";
-                                    $stmt = $pdo->prepare($sql);
-                                    $stmt->bindParam(':email', $email);
-                                    $stmt->execute();
-                                    
-                                    if ($stmt->rowCount() > 0) {
-                                        $error = "Cette adresse e-mail est déjà utilisée.";
-                                    } else {
-                                        // Hachage du mot de passe
-                                        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-                            
-                                        // Préparation de la requête d'insertion
-                                        $sql = "INSERT INTO users (nom, prenoms, emails, ages, classe_id, roles, passwords) VALUES (:nom, :prenom, :email, :age, :class, :roles, :mot_de_passe)";
-                                        $stmt = $pdo->prepare($sql);
-                            
-                                        // Liaison des paramètres
-                                        $stmt->bindParam(':nom', $nom);
-                                        $stmt->bindParam(':prenom', $prenom);
-                                        $stmt->bindParam(':email', $email);
-                                        $stmt->bindParam(':age', $age);
-                                        $stmt->bindParam(':class', $class);
-                                        $stmt->bindParam(':roles', $roles);
-                                        $stmt->bindParam(':mot_de_passe', $hashed_password);
-                            
-                                        // Exécution de la requête
-                                        if ($stmt->execute()) {
-                                            // Redirection après l'inscription réussie
-                                            $error = "Inscription réussie.";
-                                        } else {
-                                            $error = "Erreur lors de l'inscription. Veuillez réessayer.";
-                                        }
-                                    }
-                                }
+                        if ($namesCount > 0) {
+                            foreach ($names as $name) {
+                                echo "<li>" . htmlspecialchars($name["nom"]) . " " . htmlspecialchars($name["prenoms"]) . " : " . htmlspecialchars($name["roles"]) ."</li>";
                             }
+                        } else {
+                            echo "<p>Aucun utilisateurs trouvé.</p>";
+                        }
                         ?>
-                        <div class="form-group">
-                            <label for="nom">Nom :</label>
-                            <input type="text" placeholder="Martin" class="form-control" id="nom" name="nom" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="prenom">Prénom :</label>
-                            <input type="text" placeholder="Jean" class="form-control" id="prenom" name="prenom" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="username">Adresse mail :</label>
-                            <input type="email" placeholder="exemple@gmail.com" class="form-control" id="username" name="username" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="age">Âge :</label>
-                            <input type="number" placeholder="Votre âge" class="form-control" id="age" name="age" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="class">Classe :</label>
-                            <input type="text" placeholder="Classe" class="form-control" id="class" name="class">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="roles">Rôles :</label>
-                            <input type="text" placeholder="Rôles" class="form-control" id="roles" name="roles" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="password">Mot de passe :</label>
-                            <input type="password" placeholder="Votre mot de passe" class="form-control" id="password" name="password" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="confirmpassword">Confirmer le mot de passe :</label>
-                            <input type="password" placeholder="Confirmation de votre mot de passe" class="form-control" id="confirmpassword" name="confirmpassword" required>
-                        </div>
-
-                        <!-- Afficher les erreurs ici -->
-                        <?php if ($error): ?>
-                            <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
-                        <?php endif; ?>
-
-                        <button type="submit" class="btn btn-primary">Inscription</button>
-                    </form>
-                </details>
-            </div>
-
-
-
-            <div class="blocs_utilisateurs">
-                <details>
-                    <summary>
-                        <h4>Modifier un utilisateur</h4>
-                    </summary>
-                    <div>
-                        ok2
-                    </div>
-                </details>
-            </div>
-
-
-
-            <div class="blocs_utilisateurs">
-                <details>
-                    <summary>
-                        <h4>Voir un utilisateur</h4>
-                    </summary>
-                    <div>
-                        ok3
-                    </div>
-                </details>
-            </div>
-
-
-
-            <div class="blocs_utilisateurs">
-                <details>
-                    <summary>
-                        <h4>Supprimer un utilisateur</h4>
-                    </summary>
-                    <div>
-                        ok4
-                    </div>
-                </details>
-            </div>
+                    </ul>
+                </div>
+            </details>
         </div>
+
+        <div class="blocs_utilisateurs"> <!-- Supprimer les utilisateurs -->
+            <details>
+                <summary>
+                    <h4>Supprimer les utilisateurs</h4>
+                </summary>
+                
+            </details>
+        </div>
+    </div>
+
+    <div class="message">
+        <!-- Afficher les erreurs ici -->
+        <?php if (isset($message) && $message): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
+    </div>  
 </section>
 
 <?php
