@@ -19,7 +19,7 @@ if (isset($_SESSION['user_role'])) {
     header("Location: login.php");
     exit();
 }
-$error="";
+$message="";
 ?>
 
 <head>
@@ -47,7 +47,7 @@ $error="";
                         
                             // Validation des entrées
                             if (empty($name_classe)) {
-                                $error = "Le nom de la classe doit être remplie.";
+                                $message = "Le nom de la classe doit être remplie.";
                             } else {
                                 // Vérifier si l'email existe déjà dans la base de données
                                 $sql = "SELECT * FROM class WHERE name = :name";
@@ -56,7 +56,7 @@ $error="";
                                 $stmt->execute();
                                 
                                 if ($stmt->rowCount() > 0) {
-                                    $error = "Cette classe existe déjà.";
+                                    $message = "Cette classe existe déjà.";
                                 } else {           
                                     // Préparation de la requête d'insertion
                                     $sql = "INSERT INTO class (name) VALUES (:name)";
@@ -68,9 +68,9 @@ $error="";
                                     // Exécution de la requête
                                     if ($stmt->execute()) {
                                         // Redirection après l'inscription réussie
-                                        $error = "Nouvelle classe enregistrer.";
+                                        $message = "Nouvelle classe enregistrer.";
                                     } else {
-                                        $error = "Erreur lors de l'enregistrement de la classe. Veuillez réessayer.";
+                                        $message = "Erreur lors de l'enregistrement de la classe. Veuillez réessayer.";
                                     }
                                 }
                             }
@@ -81,8 +81,8 @@ $error="";
                         <input type="text" placeholder="Nom de la classe" class="form-control" id="name" name="name" required>
                     </div>
                     <!-- Afficher les erreurs ici -->
-                    <?php if ($error): ?>
-                        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+                    <?php if ($message): ?>
+                        <p style="color: red;"><?php echo htmlspecialchars($message); ?></p>
                     <?php endif; ?>
                     <button type="submit" class="btn btn-primary">Enregistrement</button>
                 </form>
