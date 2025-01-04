@@ -37,43 +37,55 @@ $message="";
         <div class="blocs_cours"> <!-- Créer les cours -->
             <?php
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $titre = $_POST['titre'];
-                $description = $_POST['description'];
-                $date_debut = $_POST['date_debut'];
-                $date_fin = $_POST['date_fin'];
-                $professeur_id = $_POST['professeur_id'];
-
-                // Vérifier si un cours avec ce titre existe déjà
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM cours WHERE titre = :titre");
-                $stmt->execute([':titre' => $titre]);
-                $count = $stmt->fetchColumn();
-
-                if ($count > 0) {
-                    $message = "Un cours avec ce titre existe déjà. Veuillez en choisir un autre.";
-                } else {
-                    // Insérer les données dans la table "cours"
-                    try {
-                        $stmt = $pdo->prepare("
-                            INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id)
-                            VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id)
-                        ");
-                        $stmt->execute([
-                            ':titre' => $titre,
-                            ':description' => $description,
-                            ':date_debut' => $date_debut,
-                            ':date_fin' => $date_fin,
-                            ':professeur_id' => $professeur_id
-                        ]);
-                        $message = "Le cours a été créé avec succès.";
-                    } catch (PDOException $e) {
-                        $message = "Erreur lors de la création du cours : " . $e->getMessage();
+                if (isset($_POST['titre'], $_POST['description'], $_POST['date_debut'], $_POST['date_fin'], $_POST['professeur_id'], $_POST['class_id'])) {
+                    // Récupérer les données du formulaire
+                    $titre = $_POST['titre'];
+                    $description = $_POST['description'];
+                    $date_debut = $_POST['date_debut'];
+                    $date_fin = $_POST['date_fin'];
+                    $professeur_id = $_POST['professeur_id'];
+                    $class_id = $_POST['class_id'];
+            
+                    // Vérifier si un cours avec ce titre existe déjà
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM cours WHERE titre = :titre");
+                    $stmt->execute([':titre' => $titre]);
+                    $count = $stmt->fetchColumn();
+            
+                    if ($count > 0) {
+                        $message = "Un cours avec ce titre existe déjà. Veuillez en choisir un autre.";
+                    } else {
+                        // Insérer les données dans la table "cours"
+                        try {
+                            $stmt = $pdo->prepare("
+                                INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, class_id)
+                                VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :class_id)
+                            ");
+                            $stmt->execute([
+                                ':titre' => $titre,
+                                ':description' => $description,
+                                ':date_debut' => $date_debut,
+                                ':date_fin' => $date_fin,
+                                ':professeur_id' => $professeur_id,
+                                ':class_id' => $class_id
+                            ]);
+                            $message = "Le cours a été créé avec succès.";
+                        } catch (PDOException $e) {
+                            $message = "Erreur lors de la création du cours : " . $e->getMessage();
+                        }
                     }
+                } else {
+                    $message = "Certains champs sont manquants.";
                 }
             }
+            
 
             // Récupérer les professeurs
             $stmt = $pdo->query("SELECT id, nom, prenoms FROM users WHERE roles = 'prof'");
             $professeurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Récupérer les classes
+            $stmt = $pdo->query("SELECT id, name FROM class"); // Assurez-vous que la table "class" existe
+            $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             ?>
 
             <details>
@@ -108,103 +120,122 @@ $message="";
                     </select>
                     <br><br>
 
+                    <label for="class_id">Classe :</label>
+                    <select id="class_id" name="class_id" required>
+                        <option value="">-- Sélectionner une classe --</option>
+                        <?php foreach ($classes as $classe): ?>
+                            <option value="<?php echo $classe['id']; ?>">
+                                <?php echo htmlspecialchars($classe['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <br><br>
+
                     <button type="submit">Créer le cours</button>
                 </form>
             </details>
         </div>
 
-        <div class="blocs_cours"> <!-- Modifer les cours -->
-            <details>
-                <summary><h4>Modifier un cours</h4></summary>
+        <div class="blocs_cours"> <!-- Modifier les cours -->
+    <details>
+        <summary>
+            <h4>Modifier les cours</h4>
+        </summary>
+        <div class="cours-container">
+            <form method="GET" action="">
+                <label for="select_cours">Sélectionnez un cours :</label>
+                <select id="select_cours" name="cours_id" onchange="this.form.submit()">
+                    <option value="">-- Choisissez un cours --</option>
+                    <?php
+                    // Récupérer les cours
+                    $stmt = $pdo->query("SELECT id, titre FROM cours");
 
-                <?php
-                // Vérifier si un ID de cours est passé via POST pour modification
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modifier_id'])) {
-                    $modifier_id = $_POST['modifier_id'];
-                    $nouveau_titre = $_POST['nouveau_titre'];
-                    $nouvelle_description = $_POST['nouvelle_description'];
-                    $nouvelle_date_debut = $_POST['nouvelle_date_debut'];
-                    $nouvelle_date_fin = $_POST['nouvelle_date_fin'];
-                    $nouveau_professeur_id = $_POST['nouveau_professeur_id'];
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+                    ?>
+                        <option value="<?php echo $row['id']; ?>" <?php if (isset($_GET['cours_id']) && $_GET['cours_id'] == $row['id']) echo 'selected'; ?>>
+                            <?php echo htmlspecialchars($row['titre']); ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </form>
 
-                    try {
-                        // Requête pour modifier les données du cours
-                        $stmt = $pdo->prepare("
-                            UPDATE cours SET 
-                                titre = :titre,
-                                description = :description,
-                                date_debut = :date_debut,
-                                date_fin = :date_fin,
-                                professeur_id = :professeur_id
-                            WHERE id = :id
-                        ");
-                        $stmt->execute([
-                            ':id' => $modifier_id,
-                            ':titre' => $nouveau_titre,
-                            ':description' => $nouvelle_description,
-                            ':date_debut' => $nouvelle_date_debut,
-                            ':date_fin' => $nouvelle_date_fin,
-                            ':professeur_id' => $nouveau_professeur_id
-                        ]);
-                        $message = "Le cours a été modifié avec succès.";
-                    } catch (PDOException $e) {
-                        $message = "Erreur lors de la modification du cours : " . $e->getMessage();
-                    }
-                }
+            <?php
+            // Si un cours est sélectionné, on récupère ses détails
+            if (isset($_GET['cours_id']) && !empty($_GET['cours_id'])) {
+                $coursId = $_GET['cours_id'];
 
-                // Récupérer les cours pour la modification
-                $stmt = $pdo->query("SELECT id, titre FROM cours");
-                $cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                // Récupérer les détails du cours sélectionné
+                $stmt = $pdo->prepare("SELECT id, titre, description, date_debut, date_fin, professeur_id, class_id FROM cours WHERE id = :id");
+                $stmt->execute([':id' => $coursId]);
+                $cours = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                // Récupérer les professeurs
-                $stmt = $pdo->query("SELECT id, nom, prenoms FROM users WHERE roles = 'prof'");
-                $professeurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                ?>
+                // Récupérer le nom du professeur
+                $prof_stmt = $pdo->prepare("SELECT nom, prenoms FROM users WHERE id = :id");
+                $prof_stmt->execute([':id' => $cours['professeur_id']]);
+                $professeur = $prof_stmt->fetch(PDO::FETCH_ASSOC);
 
-                <form method="POST" action="">
-                    <label for="modifier_id">Sélectionner un cours à modifier :</label>
-                    <select id="modifier_id" name="modifier_id" required>
-                        <option value="">-- Sélectionner un cours --</option>
-                        <?php foreach ($cours as $cours_item): ?>
-                            <option value="<?php echo $cours_item['id']; ?>">
-                                <?php echo htmlspecialchars($cours_item['titre']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <br><br>
+                // Récupérer le nom de la classe
+                $class_stmt = $pdo->prepare("SELECT name FROM class WHERE id = :id");
+                $class_stmt->execute([':id' => $cours['class_id']]);
+                $classe = $class_stmt->fetch(PDO::FETCH_ASSOC);
+            ?>
+                <form method="POST" action="modifier_cours.php" class="cours-form">
+                    <div class="form-group">
+                        <label for="titre">Titre :</label>
+                        <input type="text" id="titre" name="titre" value="<?php echo htmlspecialchars($cours['titre']); ?>" required>
+                    </div>
 
-                    <!-- Champs pour modifier le cours -->
-                    <label for="nouveau_titre">Nouveau titre :</label>
-                    <input type="text" id="nouveau_titre" name="nouveau_titre" required>
-                    <br><br>
+                    <div class="form-group">
+                        <label for="description">Description :</label>
+                        <textarea id="description" name="description" rows="2"><?php echo htmlspecialchars($cours['description']); ?></textarea>
+                    </div>
 
-                    <label for="nouvelle_description">Nouvelle description :</label>
-                    <textarea id="nouvelle_description" name="nouvelle_description" rows="4"></textarea>
-                    <br><br>
+                    <div class="form-group">
+                        <label for="date_debut">Date de début :</label>
+                        <input type="datetime-local" id="date_debut" name="date_debut" value="<?php echo date('Y-m-d\TH:i', strtotime($cours['date_debut'])); ?>" required>
+                    </div>
 
-                    <label for="nouvelle_date_debut">Nouvelle date de début :</label>
-                    <input type="datetime-local" id="nouvelle_date_debut" name="nouvelle_date_debut" required>
-                    <br><br>
+                    <div class="form-group">
+                        <label for="date_fin">Date de fin :</label>
+                        <input type="datetime-local" id="date_fin" name="date_fin" value="<?php echo date('Y-m-d\TH:i', strtotime($cours['date_fin'])); ?>" required>
+                    </div>
 
-                    <label for="nouvelle_date_fin">Nouvelle date de fin :</label>
-                    <input type="datetime-local" id="nouvelle_date_fin" name="nouvelle_date_fin" required>
-                    <br><br>
+                    <div class="form-group">
+                        <label for="professeur_id">Professeur :</label>
+                        <select id="professeur_id" name="professeur_id" required>
+                            <option value="<?php echo $cours['professeur_id']; ?>"><?php echo htmlspecialchars($professeur['nom']) . " " . htmlspecialchars($professeur['prenoms']); ?></option>
+                            <?php
+                            // Récupérer tous les professeurs
+                            $prof_stmt = $pdo->query("SELECT id, nom, prenoms FROM users WHERE roles = 'prof'");
+                            while ($prof = $prof_stmt->fetch(PDO::FETCH_ASSOC)):
+                            ?>
+                                <option value="<?php echo $prof['id']; ?>"><?php echo htmlspecialchars($prof['nom']) . " " . htmlspecialchars($prof['prenoms']); ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
 
-                    <label for="nouveau_professeur_id">Professeur :</label>
-                    <select id="nouveau_professeur_id" name="nouveau_professeur_id" required>
-                        <option value="">-- Sélectionner un professeur --</option>
-                        <?php foreach ($professeurs as $professeur): ?>
-                            <option value="<?php echo $professeur['id']; ?>">
-                                <?php echo htmlspecialchars($professeur['nom']) . " " . htmlspecialchars($professeur["prenoms"]); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <br><br>
+                    <div class="form-group">
+                        <label for="class_id">Classe :</label>
+                        <select id="class_id" name="class_id" required>
+                            <option value="<?php echo $cours['class_id']; ?>"><?php echo htmlspecialchars($classe['name']); ?></option>
+                            <?php
+                            // Récupérer toutes les classes
+                            $class_stmt = $pdo->query("SELECT id, name FROM class");
+                            while ($class = $class_stmt->fetch(PDO::FETCH_ASSOC)):
+                            ?>
+                                <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['name']); ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
 
-                    <button type="submit">Modifier le cours</button>
+                    <input type="hidden" name="id" value="<?php echo $cours['id']; ?>">
+                    <button type="submit">Enregistrer</button>
                 </form>
-            </details>
+            <?php } ?>
         </div>
+    </details>
+</div>
+
 
         <div class="blocs_cours"> <!-- Voir les cours -->
             <details>
