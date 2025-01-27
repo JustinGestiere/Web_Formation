@@ -1,119 +1,136 @@
 <?php
-session_start(); // Démarre la session si ce n'est pas déjà fait
+session_start();
+include('bdd.php'); // Inclure la connexion à la base de données
 
-// Inclure le header approprié en fonction du rôle
-if (isset($_SESSION['user_role'])) {
-    switch ($_SESSION['user_role']) {
-        case 'admin':
-            include "header_admin.php"; // Si rôle admin
-            break;
-        case 'prof':
-            include "header_prof.php"; // Si rôle prof
-            break;
-        default:
-            include "header.php"; // Sinon le header par défaut
-            break;
-    }
-} else {
-    // Si l'utilisateur n'est pas connecté, on peut rediriger vers login
-    header("Location: login.php");
-    exit();
+// Gestion de la classe sélectionnée
+$selected_class_id = isset($_GET['class_id']) ? (int)$_GET['class_id'] : 0;
+
+// Gestion de la semaine
+$week_offset = isset($_GET['week_offset']) ? (int)$_GET['week_offset'] : 0;
+
+// Calcul du lundi de la semaine en cours
+$start_date = new DateTime();
+$day_of_week = (int) $start_date->format('N'); // Numéro du jour (1 = Lundi, 7 = Dimanche)
+$start_date->modify('-' . ($day_of_week - 1) . ' days'); // Ajuster au lundi
+$start_date->modify("{$week_offset} week"); // Ajouter le décalage des semaines
+
+// Récupérer les classes disponibles
+$classes = $pdo->query("SELECT id, name FROM class")->fetchAll(PDO::FETCH_ASSOC);
+
+// Récupérer les cours pour la classe sélectionnée
+$cours = [];
+if ($selected_class_id > 0) {
+    $stmt = $pdo->prepare("
+        SELECT titre, date_debut, date_fin 
+        FROM cours 
+        WHERE class_id = :class_id 
+        AND DATE(date_debut) BETWEEN :start_date AND :end_date
+        ORDER BY date_debut ASC
+    ");
+    $stmt->execute([
+        ':class_id' => $selected_class_id,
+        ':start_date' => $start_date->format('Y-m-d'),
+        ':end_date' => $start_date->modify('+4 days')->format('Y-m-d')
+    ]);
+    $cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
 
-// calendar full calendar
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <link href="../css/matieres.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-            }
-            #calendar {
-                max-width: 900px;
-                margin: 50px auto;
-            }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../css/emploi_du_temps.css" rel="stylesheet">
+    <title>Calendrier des cours</title>
 </head>
+<body>
+    <h1>Calendrier des cours</h1>
 
-<section>
-    <div class="titre_matieres">
-        <h1>
-            Emploi du temps
-        </h1>
+    <!-- Formulaire de sélection de classe -->
+    <form method="GET" action="">
+        <input type="hidden" name="week_offset" value="<?php echo $week_offset; ?>">
+        <label for="class_id">Sélectionnez une classe :</label>
+        <select id="class_id" name="class_id" onchange="this.form.submit()">
+            <option value="">-- Sélectionner une classe --</option>
+            <?php foreach ($classes as $class): ?>
+                <option value="<?php echo $class['id']; ?>" <?php echo ($class['id'] == $selected_class_id) ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($class['name']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </form>
+
+    <!-- Navigation entre les semaines -->
+    <div class="navigation-semaine">
+        <form method="GET" action="" style="display: inline;">
+            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
+            <input type="hidden" name="week_offset" value="<?php echo $week_offset - 1; ?>">
+            <button type="submit">← Semaine précédente</button>
+        </form>
+        <span>
+            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $start_date->modify('+4 days')->format('d/m/Y'); ?>
+        </span>
+        <form method="GET" action="" style="display: inline;">
+            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
+            <input type="hidden" name="week_offset" value="<?php echo $week_offset + 1; ?>">
+            <button type="submit">Semaine suivante →</button>
+        </form>
     </div>
 
-    <?php
-        // header('Content-Type: application/json');
-
-        // Connexion à la base de données
-        $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', '');
-
-        // Récupérer les événements
-        $query = $pdo->query('SELECT title, start, end, description FROM events');
-        $events = [];
-        while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
-            $events[] = [
-                'title' => $row['title'],
-                'start' => $row['start'],
-                'end' => $row['end'],
-                'description' => $row['description']
-            ];
-        }
-
-        // Retourner les événements en JSON
-        echo json_encode($events);
-    ?>
-
-    <body>
-    <div id="calendar"></div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'timeGridWeek', // Vue hebdomadaire
-                initialDate: new Date(), // Date initiale
-                locale: 'fr', // Localisation en français
-                firstDay: 1, // Lundi comme premier jour de la semaine
-                hiddenDays: [0, 6], // Masquer dimanche (0) et samedi (6)
-                headerToolbar: {
-                    left: 'prev,next today', // Boutons pour naviguer
-                    center: 'title', // Titre (ex. "17 - 21 Décembre 2024")
-                    right: '' // Pas de vue à changer
-                },
-                slotMinTime: '08:00:00', // Heure de début (8h)
-                slotMaxTime: '18:00:00', // Heure de fin (18h)
-                events: [
-                    {
-                        title: 'Réunion',
-                        start: '2024-12-18T10:00:00',
-                        end: '2024-12-18T12:00:00',
-                        description: 'Réunion avec l\'équipe'
-                    },
-                    {
-                        title: 'Cours PHP',
-                        start: '2024-12-19T14:00:00',
-                        end: '2024-12-19T16:00:00',
-                        description: 'Introduction à PDO'
-                    }
-                ],
-                eventClick: function(info) {
-                    alert('Détail de l\'événement : ' + info.event.title + '\n' + info.event.extendedProps.description);
+    <!-- Calendrier -->
+    <div class="calendrier">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Lundi</th>
+                    <th>Mardi</th>
+                    <th>Mercredi</th>
+                    <th>Jeudi</th>
+                    <th>Vendredi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                // Générer les jours de la semaine
+                $days = [];
+                $start_date->modify('-4 days'); // Revenir au lundi après navigation
+                for ($i = 0; $i < 5; $i++) {
+                    $days[] = $start_date->format('Y-m-d');
+                    $start_date->modify('+1 day');
                 }
-            });
-            calendar.render();
-        });
-    </script>
 
-    </body>
-    </html>
+                // Préparer les cours pour chaque jour
+                $cours_par_jour = [];
+                foreach ($days as $day) {
+                    $cours_par_jour[$day] = array_filter($cours, function ($cours_item) use ($day) {
+                        return date('Y-m-d', strtotime($cours_item['date_debut'])) === $day;
+                    });
+                }
 
-    <script src="../js/emploi_du_temps.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-</section>
+                // Affichage des cours
+                echo '<tr>';
+                foreach ($days as $day) {
+                    echo '<td>';
+                    if (isset($cours_par_jour[$day]) && count($cours_par_jour[$day]) > 0) {
+                        foreach ($cours_par_jour[$day] as $cours_item) {
+                            echo '<div class="cours">';
+                            echo '<strong>' . htmlspecialchars($cours_item['titre']) . '</strong><br>';
+                            echo date('H:i', strtotime($cours_item['date_debut'])) . ' - ' . date('H:i', strtotime($cours_item['date_fin']));
+                            echo '</div><br>';
+                        }
+                    } else {
+                        echo 'Aucun cours';
+                    }
+                    echo '</td>';
+                }
+                echo '</tr>';
+                ?>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
 
 <?php
   include "footer.php";
