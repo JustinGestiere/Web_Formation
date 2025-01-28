@@ -2,37 +2,69 @@
 session_start();
 include('bdd.php'); // Inclure la connexion à la base de données
 
-// Gestion de la classe sélectionnée
+// Vérification du rôle utilisateur et inclusion du bon header
+if (isset($_SESSION['user_role'])) {
+    switch ($_SESSION['user_role']) {
+        case 'admin':
+            include "header_admin.php";
+            break;
+        case 'prof':
+            include "header_prof.php";
+            break;
+        default:
+            include "header.php";
+            break;
+    }
+} else {
+    header("Location: login.php");
+    exit();
+}
+
+// Variables principales
+$week_offset = isset($_GET['week_offset']) ? (int)$_GET['week_offset'] : 0;
 $selected_class_id = isset($_GET['class_id']) ? (int)$_GET['class_id'] : 0;
 
-// Gestion de la semaine
-$week_offset = isset($_GET['week_offset']) ? (int)$_GET['week_offset'] : 0;
+// Définir le premier lundi de 2025 comme point de départ
+$start_date = new DateTime('2025-01-06');
+$start_date->modify("{$week_offset} week");
 
-// Calcul du lundi de la semaine en cours
-$start_date = new DateTime();
-$day_of_week = (int) $start_date->format('N'); // Numéro du jour (1 = Lundi, 7 = Dimanche)
-$start_date->modify('-' . ($day_of_week - 1) . ' days'); // Ajuster au lundi
-$start_date->modify("{$week_offset} week"); // Ajouter le décalage des semaines
+// Calcul des jours de la semaine (du lundi au vendredi)
+$days = [];
+$week_start = clone $start_date;
+for ($i = 0; $i < 5; $i++) {
+    $days[] = clone $week_start;
+    $week_start->modify('+1 day');
+}
 
-// Récupérer les classes disponibles
+// Récupération des classes disponibles
 $classes = $pdo->query("SELECT id, name FROM class")->fetchAll(PDO::FETCH_ASSOC);
 
-// Récupérer les cours pour la classe sélectionnée
+// Récupération des cours pour la classe sélectionnée (ou tous les cours si aucune classe n'est sélectionnée)
 $cours = [];
+$query = "
+    SELECT titre, date_debut, date_fin, class_id
+    FROM cours
+    WHERE DATE(date_debut) BETWEEN :start_date AND :end_date
+";
+$params = [
+    ':start_date' => $start_date->format('Y-m-d'),
+    ':end_date' => $week_start->modify('-1 day')->format('Y-m-d') // Vendredi
+];
+
 if ($selected_class_id > 0) {
-    $stmt = $pdo->prepare("
-        SELECT titre, date_debut, date_fin 
-        FROM cours 
-        WHERE class_id = :class_id 
-        AND DATE(date_debut) BETWEEN :start_date AND :end_date
-        ORDER BY date_debut ASC
-    ");
-    $stmt->execute([
-        ':class_id' => $selected_class_id,
-        ':start_date' => $start_date->format('Y-m-d'),
-        ':end_date' => $start_date->modify('+4 days')->format('Y-m-d')
-    ]);
-    $cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $query .= " AND class_id = :class_id";
+    $params[':class_id'] = $selected_class_id;
+}
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Organisation des cours par jour
+$cours_par_jour = [];
+foreach ($days as $day) {
+    $cours_par_jour[$day->format('Y-m-d')] = array_filter($cours, function ($cours_item) use ($day) {
+        return date('Y-m-d', strtotime($cours_item['date_debut'])) === $day->format('Y-m-d');
+    });
 }
 ?>
 
@@ -52,7 +84,7 @@ if ($selected_class_id > 0) {
         <input type="hidden" name="week_offset" value="<?php echo $week_offset; ?>">
         <label for="class_id">Sélectionnez une classe :</label>
         <select id="class_id" name="class_id" onchange="this.form.submit()">
-            <option value="">-- Sélectionner une classe --</option>
+            <option value="">-- Toutes les classes --</option>
             <?php foreach ($classes as $class): ?>
                 <option value="<?php echo $class['id']; ?>" <?php echo ($class['id'] == $selected_class_id) ? 'selected' : ''; ?>>
                     <?php echo htmlspecialchars($class['name']); ?>
@@ -69,7 +101,7 @@ if ($selected_class_id > 0) {
             <button type="submit">← Semaine précédente</button>
         </form>
         <span>
-            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $start_date->modify('+4 days')->format('d/m/Y'); ?>
+            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->modify('-1 day')->format('d/m/Y'); ?>
         </span>
         <form method="GET" action="" style="display: inline;">
             <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
@@ -91,41 +123,23 @@ if ($selected_class_id > 0) {
                 </tr>
             </thead>
             <tbody>
-                <?php
-                // Générer les jours de la semaine
-                $days = [];
-                $start_date->modify('-4 days'); // Revenir au lundi après navigation
-                for ($i = 0; $i < 5; $i++) {
-                    $days[] = $start_date->format('Y-m-d');
-                    $start_date->modify('+1 day');
-                }
-
-                // Préparer les cours pour chaque jour
-                $cours_par_jour = [];
-                foreach ($days as $day) {
-                    $cours_par_jour[$day] = array_filter($cours, function ($cours_item) use ($day) {
-                        return date('Y-m-d', strtotime($cours_item['date_debut'])) === $day;
-                    });
-                }
-
-                // Affichage des cours
-                echo '<tr>';
-                foreach ($days as $day) {
-                    echo '<td>';
-                    if (isset($cours_par_jour[$day]) && count($cours_par_jour[$day]) > 0) {
-                        foreach ($cours_par_jour[$day] as $cours_item) {
-                            echo '<div class="cours">';
-                            echo '<strong>' . htmlspecialchars($cours_item['titre']) . '</strong><br>';
-                            echo date('H:i', strtotime($cours_item['date_debut'])) . ' - ' . date('H:i', strtotime($cours_item['date_fin']));
-                            echo '</div><br>';
-                        }
-                    } else {
-                        echo 'Aucun cours';
-                    }
-                    echo '</td>';
-                }
-                echo '</tr>';
-                ?>
+                <tr>
+                    <?php foreach ($days as $day): ?>
+                        <td>
+                            <strong><?php echo $day->format('d/m/Y'); ?></strong><br>
+                            <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
+                                <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
+                                    <div class="cours">
+                                        <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
+                                        <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
+                                    </div><br>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                Aucun cours
+                            <?php endif; ?>
+                        </td>
+                    <?php endforeach; ?>
+                </tr>
             </tbody>
         </table>
     </div>
