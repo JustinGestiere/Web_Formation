@@ -1,9 +1,9 @@
-.titre_matieres {
+.titre_classes {
     text-align: center;
     margin: 40px 0;
 }
 
-.page_matieres {
+.page_classes {
     display: flex;
     flex-wrap: wrap; /* Permet de passer à une nouvelle ligne */
     margin: 80px 20px;
@@ -12,7 +12,7 @@
     align-items: flex-start; 
 }
 
-.blocs_matieres {
+.blocs_classes {
     background-color: #2e31cc;
     color: white;
     padding: 15px;
@@ -23,7 +23,7 @@
     width: 268.41px;
 }
 
-.blocs_matieres summary {
+.blocs_classes summary {
     list-style: none;
     font-weight: bold;
     padding: 15px 0px;
@@ -33,18 +33,13 @@
     height: 95.58px;
 }
 
-.input_matieres {
+.input_classes {
     display: block;
 }
 
-.liste_matieres {
-    border: 1px solid #dee2e6 !important;
-    border-radius: 5px; /* Coins arrondis */
-    height: 100px;
+.liste_classes {
+    height: 120px;
     overflow: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 ul {
@@ -64,4 +59,3 @@ ul {
     padding: 10px; /* Espacement interne */
     border-radius: 5px; /* Coins arrondis */
 }
-

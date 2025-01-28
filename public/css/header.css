@@ -1,0 +1,10 @@
+.container_header {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    background-color: rgb(212, 212, 212);
+}
+
+.nav {
+    padding: .5rem 0.5rem;
+}

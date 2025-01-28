@@ -1,0 +1,30 @@
+.container_footer {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    background-color: rgb(212, 212, 212);
+}
+
+.bloc_footer {
+    display: block;
+    margin: 7px;
+}
+
+.blocks_footer {
+    display: block;
+    margin: 0 105px;
+}
+
+h4 {
+    text-align: center;
+}
+
+.info_contact {
+    display: flex;
+    flex-direction: column;
+}
+
+.info_information {
+    display: flex;
+    flex-direction: column;
+}
