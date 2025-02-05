@@ -1,6 +1,14 @@
 <?php
 session_start();
-require 'bdd.php';
+
+// Établir la connexion à la base de données
+try {
+    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', '');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    error_log("Erreur de connexion BDD (login): " . $e->getMessage());
+    exit("Une erreur est survenue lors de la connexion à la base de données.");
+}
 
 // Vérifie si l'utilisateur est déjà connecté
 if (isset($_SESSION['user_id'])) {
@@ -44,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             setcookie('email', $email, time() + 3600 * 24 * 30, "/", "", true, true); // Cookie qui dure 30 jours
         }
 
-        // Redirige vers la page d'accueil correspondant au rôle
-        header("Location: " . $_SESSION['user_role'] . ".php");
+        // Redirection vers la page d'accueil
+        header("Location: accueil.php");
         exit();
     } else {
         $error_message = "Erreur d'authentification. Vérifiez votre email et votre mot de passe.";

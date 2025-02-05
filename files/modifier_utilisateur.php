@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'bdd.php'; // Inclure la connexion à la base de données
+require_once 'config.php'; // Inclure la connexion à la base de données
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     $id = $_POST['id'];

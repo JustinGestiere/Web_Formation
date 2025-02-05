@@ -1,6 +1,6 @@
 <?php
-// Inclure le fichier de connexion à la base de données
-require 'bdd.php';
+session_start();
+require_once 'config.php';
 
 $error = ''; // Variable pour afficher les erreurs
 

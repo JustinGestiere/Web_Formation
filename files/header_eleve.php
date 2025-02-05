@@ -1,26 +1,28 @@
 <?php
-// Vérifie si la session n'a pas encore été démarrée avant de l'appeler
+/**
+ * En-tête élève - Gestion des accès et de la navigation
+ */
+
+// Démarrage de la session
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Vérification que l'utilisateur est connecté et a le bon rôle
+// Vérification des droits d'accès
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'eleve' && $_SESSION['user_role'] !== 'visiteur')) {
-    header("Location: login.php");  // Redirige vers la page de login si l'utilisateur n'est pas un élève ou un visiteur
+    header("Location: login.php");
     exit();
 }
 
-// Connexion PDO à la base de données
+// Connexion à la base de données
 try {
     $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', '');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    $error = "Erreur de connexion à la base de données : " . $e->getMessage();
-    exit();
+    error_log("Erreur BDD (eleve): " . $e->getMessage());
+    exit("Erreur de connexion à la base de données.");
 }
 ?>
-
-
 
 
 <!DOCTYPE html>

@@ -1,26 +1,40 @@
 <?php
 session_start();
-require_once 'error_handler.php';
 
-// Inclure le header approprié en fonction du rôle
-if (isset($_SESSION['user_role'])) {
-    switch ($_SESSION['user_role']) {
-        case 'admin':
-            include "header_admin.php"; // Si rôle admin
-            break;
-        case 'prof':
-            include "header_prof.php"; // Si rôle prof
-            break;
-        default:
-            include "header.php"; // Sinon le header par défaut
-            break;
+try {
+    require_once 'config.php';  // Inclut la configuration et la connexion BDD
+    
+    // Vérifie si l'utilisateur est connecté
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: login.php');
+        exit();
     }
-} else {
-    // Si l'utilisateur n'est pas connecté, on peut rediriger vers login
+
+    // Inclut le header approprié en fonction du rôle
+    if (isset($_SESSION['user_role'])) {
+        switch ($_SESSION['user_role']) {
+            case 'admin':
+                include "header_admin.php"; // Si rôle admin
+                break;
+            case 'prof':
+                include "header_prof.php"; // Si rôle prof
+                break;
+            default:
+                include "header.php"; // Sinon le header par défaut
+                break;
+        }
+    } else {
+        // Si l'utilisateur n'est pas connecté, on peut rediriger vers login
+        header("Location: login.php");
+        exit();
+    }
+} catch (Exception $e) {
+    error_log("Erreur dans cours.php : " . $e->getMessage());
     header("Location: login.php");
     exit();
 }
-$message="";
+
+$message = "";
 ?>
 
 <head>
@@ -71,12 +85,7 @@ $message="";
                             ]);
                             $message = "Le cours a été créé avec succès.";
                         } catch (PDOException $e) {
-                            ErrorHandler::logError("Erreur lors de la création du cours", [
-                                'message' => $e->getMessage(),
-                                'titre' => $titre,
-                                'professeur_id' => $professeur_id,
-                                'class_id' => $class_id
-                            ]);
+                            error_log("Erreur lors de la création du cours : " . $e->getMessage());
                             $message = "Une erreur est survenue lors de la création du cours. Veuillez réessayer plus tard.";
                         }
                     }
@@ -295,10 +304,7 @@ $message="";
                         $stmt->execute([':id' => $supprimer_id]);
                         $message = "Le cours a été supprimé avec succès.";
                     } catch (PDOException $e) {
-                        ErrorHandler::logError("Erreur lors de la suppression du cours", [
-                            'message' => $e->getMessage(),
-                            'id' => $supprimer_id
-                        ]);
+                        error_log("Erreur lors de la suppression du cours : " . $e->getMessage());
                         $message = "Une erreur est survenue lors de la suppression du cours. Veuillez réessayer plus tard.";
                     }
                 }

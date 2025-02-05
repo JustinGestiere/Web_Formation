@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('bdd.php'); // Inclure la connexion à la base de données
+require_once 'config.php'; // Inclure la connexion à la base de données
 
 // Vérification du rôle utilisateur et inclusion du bon header
 if (isset($_SESSION['user_role'])) {
