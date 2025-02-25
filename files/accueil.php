@@ -23,7 +23,6 @@ if (isset($_SESSION['user_role'])) {
 
 <head>
     <link href="../css/accueil.css" rel="stylesheet" />
-    <link href="../css/emploi_du_temps.css" rel="stylesheet">
 </head>
 <div class="statistiques">
     <details class="blocs_statistiques">
@@ -184,6 +183,7 @@ foreach ($days as $day) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../css/emploi_du_temps.css" rel="stylesheet">
     <title>Calendrier des cours</title>
 </head>
 <body>
