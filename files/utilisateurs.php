@@ -25,7 +25,7 @@ $error="";
 ?>
 
 <head>
-    <link href="../css/utilisateurs.css" rel="stylesheet" />
+    <link href="../css/utilisateurs.cs" rel="stylesheet" />
 </head>
 
 <section>
