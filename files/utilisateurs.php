@@ -25,7 +25,7 @@ $error="";
 ?>
 
 <head>
-    <link href="../css/utilisateurs.cs" rel="stylesheet" />
+    <link href="../css/utilisateurs.css" rel="stylesheet" />
 </head>
 
 <section>
@@ -35,9 +35,10 @@ $error="";
         </h1>
     </div>
 
-    <div class="page_utilisateurs"> 
+    <div class="page_utilisateurs">
+
         <div class="blocs_utilisateurs"> <!-- Créer les utilisateurs -->
-        <details>
+            <details>
                 <summary>
                     <h4>Créer un utilisateur</h4>
                 </summary>
@@ -88,51 +89,50 @@ $error="";
                     <button type="submit" name="create_user">Créer l'utilisateur</button>
                 </form>
             </details>
-        </div>
 
-        <?php
-        // Gestion de la création d'utilisateur
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
-            if (!empty($_POST['nom']) && !empty($_POST['prenoms']) && !empty($_POST['emails']) && !empty($_POST['ages']) && !empty($_POST['passwords']) && !empty($_POST['roles'])) {
-                $nom = $_POST['nom'];
-                $prenoms = $_POST['prenoms'];
-                $emails = $_POST['emails'];
-                $ages = $_POST['ages'];
-                $passwords = password_hash($_POST['passwords'], PASSWORD_BCRYPT);
-                $roles = $_POST['roles'];
-                $classe_id = $_POST['classe_id'];
+            <?php
+            // Gestion de la création d'utilisateur
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
+                if (!empty($_POST['nom']) && !empty($_POST['prenoms']) && !empty($_POST['emails']) && !empty($_POST['ages']) && !empty($_POST['passwords']) && !empty($_POST['roles'])) {
+                    $nom = $_POST['nom'];
+                    $prenoms = $_POST['prenoms'];
+                    $emails = $_POST['emails'];
+                    $ages = $_POST['ages'];
+                    $passwords = password_hash($_POST['passwords'], PASSWORD_BCRYPT);
+                    $roles = $_POST['roles'];
+                    $classe_id = $_POST['classe_id'];
 
-                // Vérifier si l'email existe déjà
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE emails = :emails");
-                $stmt->execute([':emails' => $emails]);
-                if ($stmt->fetchColumn() > 0) {
-                    $message = "Un utilisateur avec cet email existe déjà.";
-                } else {
-                    // Insérer un nouvel utilisateur
-                    try {
-                        $stmt = $pdo->prepare("
-                            INSERT INTO users (nom, prenoms, emails, ages, passwords, roles, classe_id)
-                            VALUES (:nom, :prenoms, :emails, :ages, :passwords, :roles, :classe_id)
-                        ");
-                        $stmt->execute([
-                            ':nom' => $nom,
-                            ':prenoms' => $prenoms,
-                            ':emails' => $emails,
-                            ':ages' => $ages,
-                            ':passwords' => $passwords,
-                            ':roles' => $roles,
-                            ':classe_id' => $classe_id
-                        ]);
-                        $message = "L'utilisateur a été créé avec succès.";
-                    } catch (PDOException $e) {
-                        $message = "Erreur lors de la création de l'utilisateur : " . $e->getMessage();
+                    // Vérifier si l'email existe déjà
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE emails = :emails");
+                    $stmt->execute([':emails' => $emails]);
+                    if ($stmt->fetchColumn() > 0) {
+                        $message = "Un utilisateur avec cet email existe déjà.";
+                    } else {
+                        // Insérer un nouvel utilisateur
+                        try {
+                            $stmt = $pdo->prepare("
+                                INSERT INTO users (nom, prenoms, emails, ages, passwords, roles, classe_id)
+                                VALUES (:nom, :prenoms, :emails, :ages, :passwords, :roles, :classe_id)
+                            ");
+                            $stmt->execute([
+                                ':nom' => $nom,
+                                ':prenoms' => $prenoms,
+                                ':emails' => $emails,
+                                ':ages' => $ages,
+                                ':passwords' => $passwords,
+                                ':roles' => $roles,
+                                ':classe_id' => $classe_id
+                            ]);
+                            $message = "L'utilisateur a été créé avec succès.";
+                        } catch (PDOException $e) {
+                            $message = "Erreur lors de la création de l'utilisateur : " . $e->getMessage();
+                        }
                     }
+                } else {
+                    $message = "Tous les champs sont obligatoires.";
                 }
-            } else {
-                $message = "Tous les champs sont obligatoires.";
             }
-        }
-        ?>
+            ?>
         </div>
 
         <div class="blocs_utilisateurs"> <!-- Modifier un utilisateur -->
@@ -284,21 +284,21 @@ $error="";
                     <button type="submit" name="delete_user_btn">Supprimer</button>
                 </form>
             </details>
+            <?php
+                // Gestion de la suppression d'utilisateur
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_btn'])) {
+                    $user_id = $_POST['delete_user'];
+                    try {
+                        $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+                        $stmt->execute([':id' => $user_id]);
+                        $message = "L'utilisateur a été supprimé avec succès.";
+                    } catch (PDOException $e) {
+                        $message = "Erreur lors de la suppression : " . $e->getMessage();
+                    }
+                }
+            ?>
         </div>
-
-        <?php
-        // Gestion de la suppression d'utilisateur
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_btn'])) {
-            $user_id = $_POST['delete_user'];
-            try {
-                $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
-                $stmt->execute([':id' => $user_id]);
-                $message = "L'utilisateur a été supprimé avec succès.";
-            } catch (PDOException $e) {
-                $message = "Erreur lors de la suppression : " . $e->getMessage();
-            }
-        }
-        ?>
+        
     </div>
 
     <div class="message">
