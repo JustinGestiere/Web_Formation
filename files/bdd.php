@@ -7,8 +7,8 @@ try {
     // Paramètres de connexion
     $host = getenv('DB_HOST') ?: '127.0.0.1'; // Correction de l'IP par défaut
     $dbname = getenv('DB_NAME') ?: 'web_formation';
-    $username = getenv('DB_USER') ?: 'web_formation';
-    $password = getenv('DB_PASS') ?: 'l2aIopUl3GqDBw5zYddF';
+    $username = getenv('DB_USER') ?: 'root';
+    $password = getenv('DB_PASS') ?: 'AulrrpTCD7Tk2nJ55H4v';
     $charset = 'utf8mb4';
 
     // Options PDO
