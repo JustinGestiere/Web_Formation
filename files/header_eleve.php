@@ -46,7 +46,7 @@ try {
             <nav class="ml-auto">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="accueil.php">Accueil</a>
+                        <a class="nav-link" href="index.php">Accueil</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="matieres.php">Matières</a>
