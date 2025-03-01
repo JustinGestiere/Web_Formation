@@ -5,7 +5,7 @@
 
 try {
     // Paramètres de connexion
-    $host = getenv('DB_HOST') ?: '180.149.196.125'; // Correction de l'IP par défaut
+    $host = getenv('DB_HOST') ?: '127.0.0.1'; // Correction de l'IP par défaut
     $dbname = getenv('DB_NAME') ?: 'web_formation';
     $username = getenv('DB_USER') ?: 'web_formation';
     $password = getenv('DB_PASS') ?: 'l2aIopUl3GqDBw5zYddF';
