@@ -5,10 +5,10 @@
 
 try {
     // Paramètres de connexion
-    $host = getenv('DB_HOST') ?: 'localhost';  
+    $host = getenv('DB_HOST') ?: 'DB_HOST=127.0.0.1';
     $dbname = getenv('DB_NAME') ?: 'web_formation';
-    $username = getenv('DB_USER') ?: 'root';
-    $password = getenv('DB_PASS') ?: '';
+    $username = getenv('DB_USER') ?: 'web_formation';
+    $password = getenv('DB_PASS') ?: 'l2aIopUl3GqDBw5zYddF';
     $charset = 'utf8mb4';
 
     // Options PDO
