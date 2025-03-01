@@ -3,9 +3,9 @@
  * Configuration de la connexion à la base de données
  */
 
-try {
+ try {
     // Paramètres de connexion
-    $host = getenv('DB_HOST') ?: '127.0.0.1'; // Correction de l'IP par défaut
+    $host = getenv('DB_HOST') ?: '127.0.0.1';
     $dbname = getenv('DB_NAME') ?: 'web_formation';
     $username = getenv('DB_USER') ?: 'root';
     $password = getenv('DB_PASS') ?: 'AulrrpTCD7Tk2nJ55H4v';
@@ -22,8 +22,8 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=$charset", $username, $password, $options);
 
 } catch (PDOException $e) {
-    // Log l'erreur et arrête le script
-    error_log("Erreur de connexion à la base de données : " . $e->getMessage(), 3, "/var/log/mon_application.log");
-    die("Une erreur est survenue lors de la connexion à la base de données.");
+    // Afficher l'erreur complète
+    die("Erreur de connexion : " . $e->getMessage());
 }
+
 ?>
