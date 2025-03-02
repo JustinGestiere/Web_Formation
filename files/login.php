@@ -3,7 +3,7 @@ session_start();
 
 // Établir la connexion à la base de données
 try {
-    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', '');
+    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', 'AulrrpTCD7Tk2nJ55H4v');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     error_log("Erreur de connexion BDD (login): " . $e->getMessage());
