@@ -100,15 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
 
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" name="remember" value="1" id="remember">
-                <label class="form-check-label" for="remember">Se souvenir de moi</label>
-            </div>
-
             <button type="submit" class="btn btn-primary">Connexion</button>
-            <div class="form-group">
-                <a href="mdpoublier.php" class="text-secondary">Mot de passe oublié ?</a>
-            </div>
             <button type="button" class="btn btn-secondary" onclick="window.location.href='register.php';">S'enregistrer</button>
         </form>
     </main>
