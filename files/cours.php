@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';  // Inclut la configuration et la connexion BDD
+require_once 'bdd.php';  // Inclut la configuration et la connexion BDD
 
 try {
     // Vérifie si l'utilisateur est connecté

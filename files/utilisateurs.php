@@ -1,6 +1,6 @@
 <?php
 session_start(); // Démarre la session si ce n'est pas déjà fait
-require_once 'config.php';
+require_once 'bdd.php';
 
 // Inclure le header approprié en fonction du rôle
 if (isset($_SESSION['user_role'])) {
