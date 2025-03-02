@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 
 // Connexion à la base de données
 try {
-    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', '');
+    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', 'AulrrpTCD7Tk2nJ55H4v');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     error_log("Erreur BDD (admin): " . $e->getMessage());
