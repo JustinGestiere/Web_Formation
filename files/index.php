@@ -22,7 +22,7 @@ if (isset($_SESSION['user_role'])) {
 ?>
 
 <head>
-    <link rel="../css/accueil.css" href="stylesheet" />
+    <link href="css/accueil.css" rel="stylesheet" />
 </head>
 <div class="statistiques">
     <details class="blocs_statistiques">
