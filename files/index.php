@@ -19,6 +19,14 @@ if (isset($_SESSION['user_role'])) {
     header("Location: login.php");
     exit();
 }
+
+if (file_exists(__DIR__ . "/css/accueil.css")) {
+    echo "Le fichier CSS existe !";
+} else {
+    echo "Le fichier CSS est introuvable.";
+}
+
+
 ?>
 
 <!DOCTYPE html>
