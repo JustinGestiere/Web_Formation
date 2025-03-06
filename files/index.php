@@ -21,8 +21,14 @@ if (isset($_SESSION['user_role'])) {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <link href="css/accueil.css?v=<?php echo time(); ?>" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../css/emploi_du_temps.css" rel="stylesheet">
+    <link href="/web-formation/css/accueil.css" rel="stylesheet" />
+    <title>Accueil</title>
 </head>
 <div class="statistiques">
     <details class="blocs_statistiques">
@@ -178,14 +184,7 @@ foreach ($days as $day) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../css/emploi_du_temps.css" rel="stylesheet">
-    <title>Calendrier des cours</title>
-</head>
+
 <body>
     <h1>Calendrier des cours</h1>
 
