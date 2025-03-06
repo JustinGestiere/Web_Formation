@@ -51,28 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->bindParam(':age', $age);
             $stmt->bindParam(':mot_de_passe', $hashed_password);
 
-            try {
-                if ($stmt->execute()) {
-                    echo "Utilisateur créé avec succès !";
-                    exit; 
-                } else {
-                    echo "Échec de l'inscription.";
-                }
-            } catch (PDOException $e) {
-                die("Erreur SQL : " . $e->getMessage());
-            }
-            
-
-            var_dump([
-                'nom' => $nom,
-                'prenom' => $prenom,
-                'email' => $email,
-                'age' => $age,
-                'mot_de_passe' => $hashed_password
-            ]);
-            exit;
-            
-
             // Exécution de la requête
             if ($stmt->execute()) {
                 // Redirection après l'inscription réussie
