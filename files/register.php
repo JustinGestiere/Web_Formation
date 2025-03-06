@@ -2,6 +2,11 @@
 session_start();
 require_once 'bdd.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
 $error = ''; // Variable pour afficher les erreurs
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -45,6 +50,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->bindParam(':email', $email);
             $stmt->bindParam(':age', $age);
             $stmt->bindParam(':mot_de_passe', $hashed_password);
+
+            try {
+                if ($stmt->execute()) {
+                    echo "Utilisateur créé avec succès !";
+                    exit; 
+                } else {
+                    echo "Échec de l'inscription.";
+                }
+            } catch (PDOException $e) {
+                die("Erreur SQL : " . $e->getMessage());
+            }
+            
+
+            var_dump([
+                'nom' => $nom,
+                'prenom' => $prenom,
+                'email' => $email,
+                'age' => $age,
+                'mot_de_passe' => $hashed_password
+            ]);
+            exit;
+            
 
             // Exécution de la requête
             if ($stmt->execute()) {
