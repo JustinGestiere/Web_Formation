@@ -16,7 +16,7 @@ if (isset($_SESSION['user_role'])) {
     }
 } else {
     // Si l'utilisateur n'est pas connecté, on peut rediriger vers login
-    header("Location: login.php");
+    header("Location: ../files/login.php");
     exit();
 }
 
