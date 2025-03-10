@@ -5,7 +5,7 @@
 
  try {
     // Paramètres de connexion
-    $host = getenv('DB_HOST') ?: '127.0.0.1';
+    $host = getenv('DB_HOST') ?: 'localhost';
     $dbname = getenv('DB_NAME') ?: 'web_formation';
     $username = getenv('DB_USER') ?: 'root';
     $password = getenv('DB_PASS') ?: 'AulrrpTCD7Tk2nJ55H4v';
