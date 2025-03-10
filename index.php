@@ -21,7 +21,7 @@ if (isset($_SESSION['user_role'])) {
 }
 
 if (file_exists(__DIR__ . "/css/accueil.css")) {
-    echo "Le fichier CSS existeeeeeee !";
+    echo "Le fichier CSS existe !";
 } else {
     echo "Le fichier CSS est introuvable.";
 }
