@@ -45,19 +45,19 @@ try {
             <nav>
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
+                        <a class="nav-link" href="../index.php">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="classes.php">Classes</a>
+                        <a class="nav-link" href="/files/classes.php">Classes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="eleve.php">Élèves</a>
+                        <a class="nav-link" href="/files/eleve.php">Élèves</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
+                        <a class="nav-link" href="/files/emploi_du_temps.php">Emploi du temps</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="signature.php">Signature</a>
+                        <a class="nav-link" href="/files/signature.php">Signature</a>
                     </li>
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="contact.php">Compte</a>
@@ -66,13 +66,13 @@ try {
                     <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li class="nav-item">
-                            <form method="post" action="logout.php" class="d-inline">
+                            <form method="post" action="/files/logout.php" class="d-inline">
                                 <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
                             </form>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="login.php">Se connecter</a>
+                            <a class="nav-link" href="/files/login.php">Se connecter</a>
                         </li>
                     <?php endif; ?>
                 </ul>
