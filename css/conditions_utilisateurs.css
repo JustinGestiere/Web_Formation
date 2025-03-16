@@ -1,0 +1,5 @@
+.long-text {
+    word-break: break-word; /* Couper le texte s'il est trop long */
+    overflow-wrap: break-word; /* Assure la coupure */
+    white-space: normal; /* Permet le retour à la ligne */
+}

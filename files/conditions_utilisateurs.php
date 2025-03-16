@@ -21,6 +21,10 @@ if (isset($_SESSION['user_role'])) {
 }
 ?>
 
+<head>
+    <link href="../css/conditions_utilisateurs.css" rel="stylesheet" />
+</head>
+
 <div class="container mt-5">
     <!-- Global Section -->
     <section>
