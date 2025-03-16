@@ -30,231 +30,177 @@ if (isset($_SESSION['user_role'])) {
     <link href="css/accueil.css" rel="stylesheet" />
     <title>Accueil</title>
 </head>
-<div class="statistiques">
-    <details class="blocs_statistiques">
-        <summary>
-            <?php
-                try {
-                    // Récupérer les classes
-                    $sql = "SELECT name FROM class ORDER BY name";
-                    $stmt = $pdo->query($sql);
-                    $names = $stmt->fetchAll();
-                    $namesCount = count($names);
-                } catch (PDOException $e) {
-                    error_log("Erreur lors de la récupération des classes : " . $e->getMessage());
-                    $names = [];
-                    $namesCount = 0;
-                }
-            ?>
-            <p>
-                <h4>Classes ( <?php echo $namesCount; ?> )</h4>
-            </p>
-        </summary>
-        <div class="liste_statistiques">
-            <ul>
-                <?php
-                if ($namesCount > 0) {
-                    foreach ($names as $name) {
-                        echo "<li>" . htmlspecialchars($name["name"]) . "</li>";
-                    }
-                } else {
-                    echo "<p>Aucune classe trouvé.</p>";
-                }
-                ?>
-            </ul>
-        </div>
-    </details>
-
-    <details class="blocs_statistiques">
-        <summary>
-            <?php
-                try {
-                    // Récupérer les élèves
-                    $sql = "SELECT * FROM users WHERE roles = 'eleve' ORDER BY emails";
-                    $stmt = $pdo->query($sql);
-                    $eleves = $stmt->fetchAll();
-                    $elevesCount = count($eleves);
-                } catch (PDOException $e) {
-                    error_log("Erreur lors de la récupération des élèves : " . $e->getMessage());
-                    $eleves = [];
-                    $elevesCount = 0;
-                }
-            ?>
-            <p>
-                <h4>Élèves ( <?php echo $elevesCount; ?> )</h4>
-            </p>
-        </summary>
-        <div class="liste_statistiques">
-            <ul>
-                <?php
-                if ($elevesCount > 0) {
-                    foreach ($eleves as $eleve) {
-                        echo "<li>" . htmlspecialchars($eleve["nom"]) . " " . htmlspecialchars($eleve["prenoms"]) . " (" . htmlspecialchars($eleve["emails"]) . ")</li>";
-                    }
-                } else {
-                    echo "<p>Aucun élève trouvé.</p>";
-                }
-                ?>
-            </ul>
-        </div>
-    </details>
-
-    <details class="blocs_statistiques">
-        <summary>
-            <?php
-                try {
-                    // Récupérer les professeurs
-                    $sql = "SELECT * FROM users WHERE roles = 'prof' ORDER BY emails";
-                    $stmt = $pdo->query($sql);
-                    $professeurs = $stmt->fetchAll();
-                    $professeursCount = count($professeurs);
-                } catch (PDOException $e) {
-                    error_log("Erreur lors de la récupération des professeurs : " . $e->getMessage());
-                    $professeurs = [];
-                    $professeursCount = 0;
-                }
-            ?>
-            <p>
-                <h4>Professeurs ( <?php echo $professeursCount; ?> )</h4>
-            </p>
-        </summary>
-        <div class="liste_statistiques">
-            <ul>
-                <?php
-                if ($professeursCount > 0) {
-                    foreach ($professeurs as $prof) {
-                        echo "<li>" . htmlspecialchars($prof["nom"]) . " " . htmlspecialchars($prof["prenoms"]) . " (" . htmlspecialchars($prof["emails"]) . ")</li>";
-                    }
-                } else {
-                    echo "<p>Aucun professeur trouvé.</p>";
-                }
-                ?>
-            </ul>
-        </div>
-    </details>
-</div>
-
-<!--  Emploi du temps -->
-<?php
-// Variables principales
-$week_offset = isset($_GET['week_offset']) ? (int)$_GET['week_offset'] : 0;
-$selected_class_id = isset($_GET['class_id']) ? (int)$_GET['class_id'] : 0;
-
-// Définir le premier lundi de 2025 comme point de départ
-$start_date = new DateTime('2025-01-06');
-$start_date->modify("{$week_offset} week");
-
-// Calcul des jours de la semaine (du lundi au vendredi)
-$days = [];
-$week_start = clone $start_date;
-for ($i = 0; $i < 5; $i++) {
-    $days[] = clone $week_start;
-    $week_start->modify('+1 day');
-}
-
-// Récupération des classes disponibles
-$classes = $pdo->query("SELECT id, name FROM class")->fetchAll(PDO::FETCH_ASSOC);
-
-// Récupération des cours pour la classe sélectionnée (ou tous les cours si aucune classe n'est sélectionnée)
-$cours = [];
-$query = "
-    SELECT titre, date_debut, date_fin, class_id
-    FROM cours
-    WHERE DATE(date_debut) BETWEEN :start_date AND :end_date
-";
-$params = [
-    ':start_date' => $start_date->format('Y-m-d'),
-    ':end_date' => $week_start->modify('-1 day')->format('Y-m-d') // Vendredi
-];
-
-if ($selected_class_id > 0) {
-    $query .= " AND class_id = :class_id";
-    $params[':class_id'] = $selected_class_id;
-}
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Organisation des cours par jour
-$cours_par_jour = [];
-foreach ($days as $day) {
-    $cours_par_jour[$day->format('Y-m-d')] = array_filter($cours, function ($cours_item) use ($day) {
-        return date('Y-m-d', strtotime($cours_item['date_debut'])) === $day->format('Y-m-d');
-    });
-}
-?>
-
-
 <body>
-    <h1>Calendrier des cours</h1>
+    <div class="statistiques">
+        <details class="blocs_statistiques">
+            <summary>
+                <?php
+                    try {
+                        // Récupérer les classes
+                        $sql = "SELECT name FROM class ORDER BY name";
+                        $stmt = $pdo->query($sql);
+                        $names = $stmt->fetchAll();
+                        $namesCount = count($names);
+                    } catch (PDOException $e) {
+                        error_log("Erreur lors de la récupération des classes : " . $e->getMessage());
+                        $names = [];
+                        $namesCount = 0;
+                    }
+                ?>
+                <h4>Classes ( <?php echo $namesCount; ?> )</h4>
+            </summary>
+            <div class="liste_statistiques">
+                <ul>
+                    <?php
+                    if ($namesCount > 0) {
+                        foreach ($names as $name) {
+                            echo "<li>" . htmlspecialchars($name["name"]) . "</li>";
+                        }
+                    } else {
+                        echo "<p>Aucune classe trouvée.</p>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </details>
 
-    <!-- Formulaire de sélection de classe -->
-    <form method="GET" action="">
-        <input type="hidden" name="week_offset" value="<?php echo $week_offset; ?>">
-        <label for="class_id">Sélectionnez une classe :</label>
-        <select id="class_id" name="class_id" onchange="this.form.submit()">
-            <option value="">-- Toutes les classes --</option>
-            <?php foreach ($classes as $class): ?>
-                <option value="<?php echo $class['id']; ?>" <?php echo ($class['id'] == $selected_class_id) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($class['name']); ?>
-                </option>
+        <details class="blocs_statistiques">
+            <summary>
+                <?php
+                    try {
+                        // Récupérer les élèves
+                        $sql = "SELECT * FROM users WHERE roles = 'eleve' ORDER BY emails";
+                        $stmt = $pdo->query($sql);
+                        $eleves = $stmt->fetchAll();
+                        $elevesCount = count($eleves);
+                    } catch (PDOException $e) {
+                        error_log("Erreur lors de la récupération des élèves : " . $e->getMessage());
+                        $eleves = [];
+                        $elevesCount = 0;
+                    }
+                ?>
+                <h4>Élèves ( <?php echo $elevesCount; ?> )</h4>
+            </summary>
+            <div class="liste_statistiques">
+                <ul>
+                    <?php
+                    if ($elevesCount > 0) {
+                        foreach ($eleves as $eleve) {
+                            echo "<li>" . htmlspecialchars($eleve["nom"]) . " " . htmlspecialchars($eleve["prenoms"]) . " (" . htmlspecialchars($eleve["emails"]) . ")</li>";
+                        }
+                    } else {
+                        echo "<p>Aucun élève trouvé.</p>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </details>
+
+        <details class="blocs_statistiques">
+            <summary>
+                <?php
+                    try {
+                        // Récupérer les professeurs
+                        $sql = "SELECT * FROM users WHERE roles = 'prof' ORDER BY emails";
+                        $stmt = $pdo->query($sql);
+                        $professeurs = $stmt->fetchAll();
+                        $professeursCount = count($professeurs);
+                    } catch (PDOException $e) {
+                        error_log("Erreur lors de la récupération des professeurs : " . $e->getMessage());
+                        $professeurs = [];
+                        $professeursCount = 0;
+                    }
+                ?>
+                <h4>Professeurs ( <?php echo $professeursCount; ?> )</h4>
+            </summary>
+            <div class="liste_statistiques">
+                <ul>
+                    <?php
+                    if ($professeursCount > 0) {
+                        foreach ($professeurs as $prof) {
+                            echo "<li>" . htmlspecialchars($prof["nom"]) . " " . htmlspecialchars($prof["prenoms"]) . " (" . htmlspecialchars($prof["emails"]) . ")</li>";
+                        }
+                    } else {
+                        echo "<p>Aucun professeur trouvé.</p>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </details>
+    </div>
+
+    <!--  Emploi du temps -->
+    <?php
+    // Variables principales
+    $week_offset = isset($_GET['week_offset']) ? (int)$_GET['week_offset'] : 0;
+    $selected_class_id = isset($_GET['class_id']) ? (int)$_GET['class_id'] : 0;
+
+    // Définir le premier lundi de 2025 comme point de départ
+    $start_date = new DateTime('2025-01-06');
+    $start_date->modify("{$week_offset} week");
+
+    // Calcul des jours de la semaine (du lundi au vendredi)
+    $days = [];
+    $week_start = clone $start_date;
+    for ($i = 0; $i < 5; $i++) {
+        $days[] = clone $week_start;
+        $week_start->modify('+1 day');
+    }
+
+    // Récupération des classes disponibles
+    $classes = $pdo->query("SELECT id, name FROM class")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Récupération des emplois du temps pour la semaine
+    $sql = "
+    SELECT e.id, e.start_datetime, e.end_datetime, m.name as matiere, p.nom as professeur
+    FROM emploi_du_temps e
+    JOIN matiere m ON e.matiere_id = m.id
+    JOIN users p ON e.professeur_id = p.id
+    WHERE e.class_id = :class_id AND e.start_datetime BETWEEN :start_date AND :end_date
+    ORDER BY e.start_datetime";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':class_id' => $selected_class_id,
+        ':start_date' => $days[0]->format('Y-m-d'),
+        ':end_date' => end($days)->format('Y-m-d'),
+    ]);
+
+    $classes_schedule = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    ?>
+
+    <!-- Sélection de la classe -->
+    <div class="class_selector">
+        <form method="get">
+            <select name="class_id" onchange="this.form.submit()">
+                <option value="0">Sélectionner une classe</option>
+                <?php foreach ($classes as $class) : ?>
+                    <option value="<?php echo $class['id']; ?>" <?php echo ($class['id'] == $selected_class_id) ? 'selected' : ''; ?>><?php echo htmlspecialchars($class['name']); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    </div>
+
+    <!-- Affichage du planning -->
+    <div class="calendar">
+        <div class="week">
+            <?php foreach ($days as $day) : ?>
+                <div class="day">
+                    <h5><?php echo $day->format('l'); ?></h5>
+                    <p><?php echo $day->format('d/m'); ?></p>
+                </div>
             <?php endforeach; ?>
-        </select>
-    </form>
+        </div>
 
-    <!-- Navigation entre les semaines -->
-    <div class="navigation-semaine">
-        <form method="GET" action="" style="display: inline;">
-            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
-            <input type="hidden" name="week_offset" value="<?php echo $week_offset - 1; ?>">
-            <button type="submit">← Semaine précédente</button>
-        </form>
-        <span>
-            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->modify('-1 day')->format('d/m/Y'); ?>
-        </span>
-        <form method="GET" action="" style="display: inline;">
-            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
-            <input type="hidden" name="week_offset" value="<?php echo $week_offset + 1; ?>">
-            <button type="submit">Semaine suivante →</button>
-        </form>
+        <div class="schedules">
+            <?php foreach ($classes_schedule as $schedule) : ?>
+                <div class="schedule">
+                    <h6><?php echo htmlspecialchars($schedule['matiere']); ?></h6>
+                    <p><?php echo htmlspecialchars($schedule['professeur']); ?></p>
+                    <p><?php echo (new DateTime($schedule['start_datetime']))->format('H:i') . ' - ' . (new DateTime($schedule['end_datetime']))->format('H:i'); ?></p>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 
-    <!-- Calendrier -->
-    <div class="calendrier">
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Lundi</th>
-                    <th>Mardi</th>
-                    <th>Mercredi</th>
-                    <th>Jeudi</th>
-                    <th>Vendredi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <?php foreach ($days as $day): ?>
-                        <td>
-                            <strong><?php echo $day->format('d/m/Y'); ?></strong><br>
-                            <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
-                                <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
-                                    <div class="cours">
-                                        <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
-                                        <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
-                                    </div><br>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                Aucun cours
-                            <?php endif; ?>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 </body>
 </html>
-
-<?php
-  include "files/footer.php";
-?>

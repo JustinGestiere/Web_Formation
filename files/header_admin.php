@@ -24,7 +24,6 @@ try {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -66,9 +65,6 @@ try {
                     <li class="nav-item">
                         <a class="nav-link" href="/files/statistique.php">Statistiques</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="contact.php">Compte</a>
-                    </li> -->
                     <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
                     <li class="nav-item">
                         <form method="post" action="logout.php" class="d-inline">
