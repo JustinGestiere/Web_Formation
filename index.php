@@ -26,8 +26,8 @@ if (isset($_SESSION['user_role'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../css/emploi_du_temps.css" rel="stylesheet">
-    <link href="../css/accueil.css" rel="stylesheet" />
+    <link href="css/emploi_du_temps.css" rel="stylesheet">
+    <link href="css/accueil.css" rel="stylesheet" />
     <title>Accueil</title>
 </head>
 <div class="statistiques">
