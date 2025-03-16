@@ -52,7 +52,7 @@ $message = "";
         <div class="blocs_cours"> <!-- Créer les cours -->
             <?php
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (isset($_POST['titre'], $_POST['description'], $_POST['date_debut'], $_POST['date_fin'], $_POST['professeur_id'], $_POST['class_id'])) {
+                if (isset($_POST['titre'], $_POST['description'], $_POST['date_debut'], $_POST['date_fin'], $_POST['professeur_id'], $_POST['class_id'], $_POST['matiere_id'])) {
                     // Récupérer les données du formulaire
                     $titre = $_POST['titre'];
                     $description = $_POST['description'];
@@ -60,6 +60,7 @@ $message = "";
                     $date_fin = $_POST['date_fin'];
                     $professeur_id = $_POST['professeur_id'];
                     $class_id = $_POST['class_id'];
+                    $matiere_id = $_POST['matiere_id'];
             
                     // Vérifier si un cours avec ce titre existe déjà
                     $stmt = $pdo->prepare("SELECT COUNT(*) FROM cours WHERE titre = :titre");
@@ -72,8 +73,8 @@ $message = "";
                         // Insérer les données dans la table "cours"
                         try {
                             $stmt = $pdo->prepare("
-                                INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, class_id)
-                                VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :class_id)
+                                INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, class_id, :matiere_id)
+                                VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :class_id, :matiere_id)
                             ");
                             $stmt->execute([
                                 ':titre' => $titre,
@@ -81,7 +82,8 @@ $message = "";
                                 ':date_debut' => $date_debut,
                                 ':date_fin' => $date_fin,
                                 ':professeur_id' => $professeur_id,
-                                ':class_id' => $class_id
+                                ':class_id' => $class_id,
+                                ':matiere_id' => $matiere_id
                             ]);
                             $message = "Le cours a été créé avec succès.";
                         } catch (PDOException $e) {
@@ -152,8 +154,8 @@ $message = "";
                     </select>
                     <br><br>
 
-                    <label for="class_id">Matière :</label>
-                    <select id="class_id" name="class_id" required>
+                    <label for="matiere_id">Matière :</label>
+                    <select id="matiere_id" name="matiere_id" required>
                         <option value="">-- Sélectionner une matière --</option>
                         <?php foreach ($matieres as $matiere): ?>
                             <option value="<?php echo $matiere['id']; ?>">
@@ -197,7 +199,7 @@ $message = "";
                 $coursId = $_GET['cours_id'];
 
                 // Récupérer les détails du cours sélectionné
-                $stmt = $pdo->prepare("SELECT id, titre, description, date_debut, date_fin, professeur_id, class_id FROM cours WHERE id = :id");
+                $stmt = $pdo->prepare("SELECT id, titre, description, date_debut, date_fin, professeur_id, class_id, matiere_id FROM cours WHERE id = :id");
                 $stmt->execute([':id' => $coursId]);
                 $cours = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -210,6 +212,11 @@ $message = "";
                 $class_stmt = $pdo->prepare("SELECT name FROM class WHERE id = :id");
                 $class_stmt->execute([':id' => $cours['class_id']]);
                 $classe = $class_stmt->fetch(PDO::FETCH_ASSOC);
+
+                // Récupérer le nom de la matière
+                $matiere_stmt = $pdo->prepare("SELECT name FROM matieres WHERE id = :id");
+                $matiere_stmt->execute([':id' => $cours['matiere_id']]);
+                $matiere = $matiere_stmt->fetch(PDO::FETCH_ASSOC);
             ?>
                 <form method="POST" action="modifier_cours.php" class="cours-form">
                     <div class="form-group">
@@ -250,6 +257,20 @@ $message = "";
                         <label for="class_id">Classe :</label>
                         <select id="class_id" name="class_id" required>
                             <option value="<?php echo $cours['class_id']; ?>"><?php echo htmlspecialchars($classe['name']); ?></option>
+                            <?php
+                            // Récupérer toutes les classes
+                            $class_stmt = $pdo->query("SELECT id, name FROM class");
+                            while ($class = $class_stmt->fetch(PDO::FETCH_ASSOC)):
+                            ?>
+                                <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['name']); ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="matiere_id">Matière :</label>
+                        <select id="matiere_id" name="matiere_id" required>
+                            <option value="<?php echo $cours['matiere_id']; ?>"><?php echo htmlspecialchars($classe['name']); ?></option>
                             <?php
                             // Récupérer toutes les classes
                             $class_stmt = $pdo->query("SELECT id, name FROM class");
