@@ -1,9 +1,5 @@
 <?php
-/**
- * En-tête administrateur - Gestion des accès et de la navigation
- */
 
-// Démarrage de la session
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
