@@ -270,13 +270,13 @@ $message = "";
                     <div class="form-group">
                         <label for="matiere_id">Matière :</label>
                         <select id="matiere_id" name="matiere_id" required>
-                            <option value="<?php echo $cours['matiere_id']; ?>"><?php echo htmlspecialchars($classe['name']); ?></option>
+                            <option value="<?php echo $cours['matiere_id']; ?>"><?php echo htmlspecialchars($matiere['name']); ?></option>
                             <?php
-                            // Récupérer toutes les classes
-                            $class_stmt = $pdo->query("SELECT id, name FROM class");
-                            while ($class = $class_stmt->fetch(PDO::FETCH_ASSOC)):
+                            // Récupérer toutes les matieres
+                            $matiere_stmt = $pdo->query("SELECT id, name FROM matieres");
+                            while ($matiere = $matiere_stmt->fetch(PDO::FETCH_ASSOC)):
                             ?>
-                                <option value="<?php echo $class['id']; ?>"><?php echo htmlspecialchars($class['name']); ?></option>
+                                <option value="<?php echo $matiere['id']; ?>"><?php echo htmlspecialchars($matiere['name']); ?></option>
                             <?php endwhile; ?>
                         </select>
                     </div>
