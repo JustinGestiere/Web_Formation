@@ -5,18 +5,18 @@ session_start(); // Démarre la session si ce n'est pas déjà fait
 if (isset($_SESSION['user_role'])) {
     switch ($_SESSION['user_role']) {
         case 'admin':
-            include "../files/header_admin.php"; // Si rôle admin
+            include "files/header_admin.php"; // Si rôle admin
             break;
         case 'prof':
-            include "../files/header_prof.php"; // Si rôle prof
+            include "files/header_prof.php"; // Si rôle prof
             break;
         default:
-            include "../files/header.php"; // Sinon le header par défaut
+            include "files/header.php"; // Sinon le header par défaut
             break;
     }
 } else {
     // Si l'utilisateur n'est pas connecté, on peut rediriger vers login
-    header("Location: ../files/login.php");
+    header("Location: files/login.php");
     exit();
 }
 ?>
@@ -26,8 +26,8 @@ if (isset($_SESSION['user_role'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../css/emploi_du_temps.css" rel="stylesheet">
-    <link href="../css/accueil.css" rel="stylesheet" />
+    <link href="css/emploi_du_temps.css" rel="stylesheet">
+    <link href="css/accueil.css" rel="stylesheet" />
     <title>Accueil</title>
 </head>
 <div class="statistiques">
@@ -256,5 +256,5 @@ foreach ($days as $day) {
 </html>
 
 <?php
-  include "../files/footer.php";
+  include "files/footer.php";
 ?>
