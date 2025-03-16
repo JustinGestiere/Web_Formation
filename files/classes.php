@@ -5,13 +5,13 @@ session_start(); // Démarre la session si ce n'est pas déjà fait
 if (isset($_SESSION['user_role'])) {
     switch ($_SESSION['user_role']) {
         case 'admin':
-            include "files/header_admin.php"; // Si rôle admin
+            include "header_admin.php"; // Si rôle admin
             break;
         case 'prof':
-            include "files/header_prof.php"; // Si rôle prof
+            include "header_prof.php"; // Si rôle prof
             break;
         default:
-            include "files/header.php"; // Sinon le header par défaut
+            include "header.php"; // Sinon le header par défaut
             break;
     }
 } else {
@@ -207,5 +207,5 @@ $message="";
 </section>
 
 <?php
-  include "files/footer.php";
+  include "footer.php";
 ?>

@@ -10,7 +10,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Vérification des droits d'accès
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-    header("Location: ../files/login.php");
+    header("Location: login.php");
     exit();
 }
 
@@ -49,29 +49,29 @@ try {
                         <a class="nav-link" href="../index.php">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../files/matieres.php">Matières</a>
+                        <a class="nav-link" href="matieres.php">Matières</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../files/classes.php">Classes</a>
+                        <a class="nav-link" href="classes.php">Classes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../files/cours.php">Cours</a>
+                        <a class="nav-link" href="cours.php">Cours</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../files/utilisateurs.php">Utilisateurs</a>
+                        <a class="nav-link" href="utilisateurs.php">Utilisateurs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../files/emploi_du_temps.php">Emploi du temps</a>
+                        <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../files/statistique.php">Statistiques</a>
+                        <a class="nav-link" href="statistique.php">Statistiques</a>
                     </li>
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="contact.php">Compte</a>
                     </li> -->
                     <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
                     <li class="nav-item">
-                        <form method="post" action="../files/logout.php" class="d-inline">
+                        <form method="post" action="logout.php" class="d-inline">
                             <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
                         </form>
                     </li>
