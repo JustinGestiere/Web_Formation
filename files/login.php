@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <button type="submit" class="btn btn-primary">Connexion</button>
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='../files/register.php';">S'enregistrer</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='register.php';">S'enregistrer</button>
         </form>
     </main>
 
