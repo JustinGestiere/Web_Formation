@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'bdd.php';
 
 // Récupérer les matières
