@@ -2,7 +2,7 @@
 session_start();
 
 try {
-    require_once 'config.php';  // Inclut la configuration et la connexion BDD
+    require_once 'bdd.php';  // Inclut la configuration et la connexion BDD
     
     // Vérifie si l'utilisateur est connecté
     if (!isset($_SESSION['user_id'])) {
