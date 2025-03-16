@@ -49,10 +49,10 @@ try {
                         <a class="nav-link" href="../index.php">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="files/matieres.php">Matières</a>
+                        <a class="nav-link" href="../files/matieres.php">Matières</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="files/classes.php">Classes</a>
+                        <a class="nav-link" href="../files/classes.php">Classes</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="files/cours.php">Cours</a>
