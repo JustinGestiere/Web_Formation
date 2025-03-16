@@ -1,5 +1,4 @@
 <?php
-require_once 'bdd.php';  // Inclut la configuration et la connexion BDD
 
 try {
     // Vérifie si l'utilisateur est connecté
@@ -26,7 +25,7 @@ try {
         exit();
     }
 } catch (Exception $e) {
-    error_log("Erreur dans cours.php : " . $e->getMessage());
+    error_log("Erreur dans cours : " . $e->getMessage());
     header("Location: login.php");
     exit();
 }
