@@ -52,7 +52,7 @@ try {
                         <a class="nav-link" href="files/matieres.php">Matières</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="classes.php">Classes</a>
+                        <a class="nav-link" href="/classes.php">Classes</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="cours.php">Cours</a>
