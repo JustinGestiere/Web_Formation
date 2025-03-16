@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     }
 
     // Rediriger vers la page de gestion des utilisateurs
-    header("Location: utilisateurs.php");
+    header("Location: /files/utilisateurs.php");
     exit();
 }
 ?>

@@ -36,7 +36,7 @@
         ]);
 
         // Redirection
-        header("Location: classes.php");
+        header("Location: /files/classes.php");
         exit;
     }
 ?>

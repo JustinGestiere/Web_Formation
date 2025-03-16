@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = "Le cours a été mis à jour avec succès.";
 
     // Redirection
-    header("Location: cours.php");
+    header("Location: /files/cours.php");
     exit;
 }
 ?>

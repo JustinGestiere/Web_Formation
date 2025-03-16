@@ -36,7 +36,7 @@
         ]);
 
         // Redirection
-        header("Location: matieres.php");
+        header("Location: /files/matieres.php");
         exit;
     }
 ?>
