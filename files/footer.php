@@ -31,8 +31,8 @@
             <div class="blocks_footer text-center text-md-left">
                 <h4>Informations</h4>
                 <div class="info_information">
-                    <a class="btn btn-link" href="mentions_legales.php" aria-label="Mentions légales">Mentions Légales</a>
-                    <a class="btn btn-link" href="conditions_utilisateurs.php" aria-label="Conditions d'utilisation">Conditions d'utilisation</a>
+                    <a class="btn btn-link" href="/files/mentions_legales.php" aria-label="Mentions légales">Mentions Légales</a>
+                    <a class="btn btn-link" href="/files/conditions_utilisateurs.php" aria-label="Conditions d'utilisation">Conditions d'utilisation</a>
                 </div>
             </div>
         </div>
