@@ -14,14 +14,14 @@ try {
 if (isset($_SESSION['user_id'])) {
     switch ($_SESSION['user_role']) {
         case 'admin':
-            header("Location: index.php");
+            header("Location: ../index.php");
             exit();
         case 'prof':
-            header("Location: index.php");
+            header("Location: ../index.php");
             exit();
         case 'eleve':
         case 'visiteur':
-            header("Location: index.php");
+            header("Location: ../index.php");
             exit();
         default:
             header("Location: login.php");  // En cas de rôle invalide
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Redirection vers la page d'accueil
-        header("Location: index.php");
+        header("Location: ../index.php");
         exit();
     } else {
         $error_message = "Erreur d'authentification. Vérifiez votre email et votre mot de passe.";
