@@ -67,7 +67,7 @@ try {
                     </li>
                     <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
                     <li class="nav-item">
-                        <form method="post" action="logout.php" class="d-inline">
+                        <form method="post" action="/files/logout.php" class="d-inline">
                             <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
                         </form>
                     </li>
