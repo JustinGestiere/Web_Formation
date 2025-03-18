@@ -1,36 +1,40 @@
 <?php
-session_start(); // Démarre la session si ce n'est pas déjà fait
+// Démarre la session PHP si elle n'est pas déjà commencée, ce qui est nécessaire pour gérer les variables de session.
+session_start(); 
 
-// Inclure le header approprié en fonction du rôle
+// Vérifie si l'utilisateur a un rôle défini dans la session
 if (isset($_SESSION['user_role'])) {
+    // En fonction du rôle de l'utilisateur, on inclut le header correspondant.
     switch ($_SESSION['user_role']) {
         case 'admin':
-            include "header_admin.php"; // Si rôle admin
+            include "header_admin.php"; // Si l'utilisateur est un administrateur
             break;
         case 'prof':
-            include "header_prof.php"; // Si rôle prof
+            include "header_prof.php"; // Si l'utilisateur est un professeur
             break;
         default:
-            include "header.php"; // Sinon le header par défaut
+            include "header.php"; // Pour les autres rôles (par exemple : élèves, parents)
             break;
     }
 } else {
-    // Si l'utilisateur n'est pas connecté, on peut rediriger vers login
+    // Si l'utilisateur n'est pas connecté, on le redirige vers la page de connexion.
     header("Location: login.php");
-    exit();
+    exit(); // Arrête l'exécution du script après la redirection
 }
 ?>
 
 <head>
+    <!-- Lien vers la feuille de style CSS spécifique à cette page -->
     <link href="../css/conditions_utilisateurs.css" rel="stylesheet" />
 </head>
 
 <div class="container mt-5">
-    <!-- Global Section -->
+    <!-- Section principale qui contient toutes les Conditions Générales d'Utilisation (CGU) -->
     <section>
-        <!-- Titre Principal -->
+        <!-- Titre principal de la page -->
         <header>
             <h1>Conditions Générales d'Utilisation de Web Formation</h1>
+            <!-- Paragraphe d'introduction sur les CGU -->
             <p class="long-text">Bienvenue sur Web Formation, une plateforme éducative conçue pour faciliter 
                 l'accès aux cours, emplois du temps, classes et matières pour les élèves, 
                 professeurs, parents, administrateurs, et visiteurs. Avant d'utiliser Web 
@@ -39,7 +43,7 @@ if (isset($_SESSION['user_role'])) {
             </p>
         </header>
         
-        <!-- Sections des CGU -->
+        <!-- Section présentant le site -->
         <section>
             <h2>1. Présentation du site</h2>
             <p class="long-text">Web Formation est une plateforme éducative accessible à 
@@ -50,6 +54,7 @@ if (isset($_SESSION['user_role'])) {
             </p>
         </section>
 
+        <!-- Section expliquant l'acceptation des CGU -->
         <section>
             <h2>2. Acceptation des CGU</h2>
             <p class="long-text">En utilisant le Site, vous confirmez avoir lu et accepté ces CGU. Si vous ne les 
@@ -57,6 +62,7 @@ if (isset($_SESSION['user_role'])) {
             </p>
         </section>
 
+        <!-- Section sur les différents types d'utilisateurs -->
         <section>
             <h2>3. Accès et profils utilisateur</h2>
             <p class="long-text">L'accès aux services de Web Formation est ouvert aux types d'utilisateurs suivants :
@@ -71,6 +77,7 @@ if (isset($_SESSION['user_role'])) {
             </p>
         </section>
 
+        <!-- Section détaillant les règles d'utilisation des services -->
         <section>
             <h2>4. Utilisation des services</h2>
             <pre class="long-text">
@@ -82,6 +89,7 @@ Les utilisateurs de Web Formation s'engagent à :
             </pre>
         </section>
 
+        <!-- Section expliquant la signature de présence aux cours -->
         <section>
             <h2>5. Signature de présence aux cours</h2>
             <p class="long-text">Les signatures de présence sont destinées à un usage éducatif pour suivre la 
@@ -90,6 +98,7 @@ Les utilisateurs de Web Formation s'engagent à :
             </p>
         </section>
 
+        <!-- Section sur les droits de propriété intellectuelle -->
         <section>
             <h2>6. Droits de propriété intellectuelle</h2>
             <p class="long-text">Tous les contenus (textes, images, vidéos) diffusés sur Web Formation sont protégés 
@@ -98,6 +107,7 @@ Les utilisateurs de Web Formation s'engagent à :
             </p>
         </section>
 
+        <!-- Section sur la protection des données personnelles -->
         <section>
             <h2>7. Protection des données personnelles</h2>
             <p class="long-text">Web Formation respecte les réglementations en matière de protection des données 
@@ -106,6 +116,7 @@ Les utilisateurs de Web Formation s'engagent à :
             </p>
         </section>
 
+        <!-- Section sur la limitation de responsabilité -->
         <section>
             <h2>8. Limitation de responsabilité</h2>
             <p class="long-text">Web Formation ne garantit pas que le service sera exempt de défauts ou 
@@ -114,6 +125,7 @@ Les utilisateurs de Web Formation s'engagent à :
             </p>
         </section>
 
+        <!-- Section expliquant la possibilité de modification des CGU -->
         <section>
             <h2>9. Modification des CGU</h2>
             <p class="long-text">Les CGU peuvent être modifiées à tout moment. Nous vous invitons à consulter 
@@ -121,6 +133,7 @@ Les utilisateurs de Web Formation s'engagent à :
             </p>
         </section>
 
+        <!-- Section sur le droit applicable et la juridiction compétente -->
         <section>
             <h2>10. Droit applicable et juridiction</h2>
             <p class="long-text">Ces CGU sont régies par la loi française. En cas de litige, les tribunaux 
@@ -128,6 +141,7 @@ Les utilisateurs de Web Formation s'engagent à :
             </p>
         </section>
 
+        <!-- Section pour le contact -->
         <section>
             <h2>11. Contact</h2>
             <p class="long-text">Pour toute question relative aux présentes CGU, vous pouvez nous contacter à 
@@ -138,5 +152,6 @@ Les utilisateurs de Web Formation s'engagent à :
 </div>
 
 <?php
-  include "footer.php";
+// Inclut le footer à la fin de la page pour assurer la cohérence de la présentation sur toutes les pages.
+include "footer.php";
 ?>
