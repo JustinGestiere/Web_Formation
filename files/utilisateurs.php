@@ -1,34 +1,41 @@
 <?php
-session_start(); // Démarre la session si ce n'est pas déjà fait
+// Démarrage de la session pour gérer l'authentification utilisateur
+session_start(); 
+
+// Inclusion du fichier de connexion à la base de données
 require_once 'bdd.php';
 
-// Inclure le header approprié en fonction du rôle
+// Gestion des droits d'accès selon le rôle de l'utilisateur
+// Chaque rôle a un header spécifique avec des options adaptées
 if (isset($_SESSION['user_role'])) {
     switch ($_SESSION['user_role']) {
         case 'admin':
-            include "header_admin.php"; // Si rôle admin
+            include "header_admin.php"; // Interface administrateur avec toutes les fonctionnalités
             break;
         case 'prof':
-            include "header_prof.php"; // Si rôle prof
+            include "header_prof.php"; // Interface professeur avec des fonctionnalités limitées
             break;
         default:
-            include "header.php"; // Sinon le header par défaut
+            include "header.php"; // Interface par défaut pour les autres rôles
             break;
     }
 } else {
-    // Si l'utilisateur n'est pas connecté, on peut rediriger vers login
+    // Redirection vers la page de connexion si l'utilisateur n'est pas authentifié
     header("Location: login.php");
     exit();
 }
 
-$error="";
+// Variable pour stocker les messages d'erreur
+$error = "";
 ?>
 
 <head>
+    <!-- Inclusion de la feuille de style spécifique à cette page -->
     <link href="../css/utilisateurs.css" rel="stylesheet" />
 </head>
 
 <section>
+    <!-- En-tête de la page -->
     <div class="titre_utilisateurs">
         <h1>
             Gestion des utilisateurs
@@ -37,12 +44,15 @@ $error="";
 
     <div class="page_utilisateurs">
 
-        <div class="blocs_utilisateurs"> <!-- Créer les utilisateurs -->
+        <!-- BLOC 1: CRÉATION D'UTILISATEUR -->
+        <div class="blocs_utilisateurs">
             <details>
                 <summary>
                     <h4>Créer un utilisateur</h4>
                 </summary>
+                <!-- Formulaire de création avec les champs nécessaires -->
                 <form method="POST" action="">
+                    <!-- Champs pour les informations de base -->
                     <label for="nom">Nom :</label>
                     <input type="text" id="nom" name="nom" required>
                     <br><br>
@@ -63,6 +73,7 @@ $error="";
                     <input type="password" id="passwords" name="passwords" required>
                     <br><br>
 
+                    <!-- Menu déroulant pour sélectionner le rôle -->
                     <label for="roles">Rôle :</label>
                     <select id="roles" name="roles" required>
                         <option value="admin">Admin</option>
@@ -72,12 +83,14 @@ $error="";
                     </select>
                     <br><br>
 
+                    <!-- Menu déroulant pour sélectionner la classe -->
                     <label for="classe_id">Classe :</label>
                     <select id="classe_id" name="classe_id">
                         <option value="">-- Sélectionner une classe --</option>
                         <?php
-                        // Récupérer toutes les classes
+                        // Récupération de toutes les classes disponibles depuis la base de données
                         $stmt = $pdo->query("SELECT id, name FROM class");
+                        // Boucle pour afficher chaque classe comme option
                         while ($classe = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                             <option value="<?php echo $classe['id']; ?>">
                                 <?php echo htmlspecialchars($classe['name']); ?>
@@ -91,24 +104,29 @@ $error="";
             </details>
 
             <?php
-            // Gestion de la création d'utilisateur
+            // Traitement du formulaire de création d'utilisateur
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
-                if (!empty($_POST['nom']) && !empty($_POST['prenoms']) && !empty($_POST['emails']) && !empty($_POST['ages']) && !empty($_POST['passwords']) && !empty($_POST['roles'])) {
+                // Vérification que tous les champs obligatoires sont remplis
+                if (!empty($_POST['nom']) && !empty($_POST['prenoms']) && !empty($_POST['emails']) && 
+                    !empty($_POST['ages']) && !empty($_POST['passwords']) && !empty($_POST['roles'])) {
+                    
+                    // Récupération des valeurs du formulaire
                     $nom = $_POST['nom'];
                     $prenoms = $_POST['prenoms'];
                     $emails = $_POST['emails'];
                     $ages = $_POST['ages'];
+                    // Hachage du mot de passe pour sécuriser le stockage
                     $passwords = password_hash($_POST['passwords'], PASSWORD_BCRYPT);
                     $roles = $_POST['roles'];
-                    $classe_id = $_POST['classe_id'];
+                    $classe_id = $_POST['classe_id']; // Peut être vide si non applicable
 
-                    // Vérifier si l'email existe déjà
+                    // Vérification de l'unicité de l'email (évite les doublons)
                     $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE emails = :emails");
                     $stmt->execute([':emails' => $emails]);
                     if ($stmt->fetchColumn() > 0) {
                         $message = "Un utilisateur avec cet email existe déjà.";
                     } else {
-                        // Insérer un nouvel utilisateur
+                        // Insertion du nouvel utilisateur dans la base de données
                         try {
                             $stmt = $pdo->prepare("
                                 INSERT INTO users (nom, prenoms, emails, ages, passwords, roles, classe_id)
@@ -125,6 +143,7 @@ $error="";
                             ]);
                             $message = "L'utilisateur a été créé avec succès.";
                         } catch (PDOException $e) {
+                            // Gestion des erreurs lors de l'insertion
                             $message = "Erreur lors de la création de l'utilisateur : " . $e->getMessage();
                         }
                     }
@@ -135,19 +154,23 @@ $error="";
             ?>
         </div>
 
-        <div class="blocs_utilisateurs"> <!-- Modifier un utilisateur -->
+        <!-- BLOC 2: MODIFICATION D'UTILISATEUR -->
+        <div class="blocs_utilisateurs">
             <details>
                 <summary><h4>Modifier un utilisateur</h4></summary>
+                <!-- Formulaire de sélection d'utilisateur à modifier -->
                 <form method="GET" action="">
                     <label for="select_user">Sélectionnez un utilisateur :</label>
                     <select id="select_user" name="user_id" onchange="this.form.submit()">
                         <option value="">-- Choisissez un utilisateur --</option>
                         <?php
-                        // Récupérer les utilisateurs
+                        // Récupération de tous les utilisateurs pour le menu déroulant
                         $stmt = $pdo->query("SELECT id, nom, prenoms FROM users");
                         while ($user = $stmt->fetch(PDO::FETCH_ASSOC)):
                         ?>
-                            <option value="<?php echo $user['id']; ?>" <?php if (isset($_GET['user_id']) && $_GET['user_id'] == $user['id']) echo 'selected'; ?>>
+                            <!-- Option avec préselection si l'utilisateur est déjà choisi -->
+                            <option value="<?php echo $user['id']; ?>" 
+                                <?php if (isset($_GET['user_id']) && $_GET['user_id'] == $user['id']) echo 'selected'; ?>>
                                 <?php echo htmlspecialchars($user['nom']) . " " . htmlspecialchars($user['prenoms']); ?>
                             </option>
                         <?php endwhile; ?>
@@ -155,19 +178,22 @@ $error="";
                 </form>
 
                 <?php
-                // Charger les détails de l'utilisateur sélectionné
+                // Affichage et traitement du formulaire de modification pour l'utilisateur sélectionné
                 if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
                     $userId = $_GET['user_id'];
 
-                    // Récupérer les détails de l'utilisateur
+                    // Récupération des données de l'utilisateur sélectionné
                     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
                     $stmt->execute([':id' => $userId]);
                     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+                    // Affichage du formulaire pré-rempli avec les données actuelles
                     if ($user): ?>
                         <form method="POST" action="modifier_utilisateur.php">
+                            <!-- Champ caché pour l'ID de l'utilisateur -->
                             <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
 
+                            <!-- Champs pour modifier les informations utilisateur -->
                             <label for="nom">Nom :</label>
                             <input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required>
                             <br><br>
@@ -184,6 +210,7 @@ $error="";
                             <input type="number" id="ages" name="ages" value="<?php echo $user['ages']; ?>" required>
                             <br><br>
 
+                            <!-- Menu déroulant pour le rôle avec option actuelle présélectionnée -->
                             <label for="roles">Rôle :</label>
                             <select id="roles" name="roles" required>
                                 <option value="admin" <?php echo $user['roles'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
@@ -193,15 +220,16 @@ $error="";
                             </select>
                             <br><br>
 
+                            <!-- Menu déroulant pour la classe avec option actuelle présélectionnée -->
                             <label for="classe_id">Classe :</label>
                             <select id="classe_id" name="classe_id">
                                 <?php
-                                // Charger les informations actuelles de la classe
+                                // Récupération du nom de la classe actuelle
                                 $currentClasseStmt = $pdo->prepare("SELECT name FROM class WHERE id = :id");
                                 $currentClasseStmt->execute([':id' => $user['classe_id']]);
                                 $currentClasse = $currentClasseStmt->fetch(PDO::FETCH_ASSOC);
 
-                                // Vérification si la classe existe
+                                // Affichage de la classe actuelle en premier si elle existe
                                 if ($currentClasse): ?>
                                     <option value="<?php echo $user['classe_id']; ?>" selected>
                                         <?php echo htmlspecialchars($currentClasse['name']); ?>
@@ -210,7 +238,7 @@ $error="";
 
                                 <option value="">-- Sélectionner une autre classe --</option>
                                 <?php
-                                // Charger toutes les autres classes disponibles
+                                // Liste des autres classes disponibles
                                 $stmt = $pdo->query("SELECT id, name FROM class");
                                 while ($classe = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                                     <option value="<?php echo $classe['id']; ?>">
@@ -228,17 +256,19 @@ $error="";
             </details>
         </div>
 
-        <div class="blocs_utilisateurs"> <!-- Voir les utilisateurs -->
+        <!-- BLOC 3: LISTE DES UTILISATEURS -->
+        <div class="blocs_utilisateurs">
             <details>
                 <summary>
                     <?php
                         try {
-                            // Récupérer les utilisateurs
+                            // Récupération de tous les utilisateurs triés par nom, prénom et rôle
                             $sql = "SELECT nom, prenoms, roles FROM users ORDER BY nom, prenoms, roles";
                             $stmt = $pdo->query($sql);
                             $names = $stmt->fetchAll();
                             $namesCount = count($names);
                         } catch (PDOException $e) {
+                            // Journalisation des erreurs sans les afficher aux utilisateurs
                             error_log("Erreur lors de la récupération des utilisateurs : " . $e->getMessage());
                             $names = [];
                             $namesCount = 0;
@@ -248,12 +278,18 @@ $error="";
                         <h4>Voir les utilisateurs</h4>
                     </p>
                 </summary>
+                <!-- Affichage de la liste des utilisateurs -->
                 <div class="liste_statistiques">
                     <ul>
                         <?php
+                        // Vérification qu'il y a des utilisateurs à afficher
                         if ($namesCount > 0) {
+                            // Boucle sur tous les utilisateurs pour les afficher
                             foreach ($names as $name) {
-                                echo "<li>" . htmlspecialchars($name["nom"]) . " " . htmlspecialchars($name["prenoms"]) . " : " . htmlspecialchars($name["roles"]) ."</li>";
+                                // Échappement des caractères spéciaux pour éviter les attaques XSS
+                                echo "<li>" . htmlspecialchars($name["nom"]) . " " . 
+                                     htmlspecialchars($name["prenoms"]) . " : " . 
+                                     htmlspecialchars($name["roles"]) ."</li>";
                             }
                         } else {
                             echo "<p>Aucun utilisateurs trouvé.</p>";
@@ -264,19 +300,24 @@ $error="";
             </details>
         </div>
 
-        <div class="blocs_utilisateurs"> <!-- Supprimer les utilisateurs -->
+        <!-- BLOC 4: SUPPRESSION D'UTILISATEUR -->
+        <div class="blocs_utilisateurs">
             <details>
                 <summary>
                     <h4>Supprimer un utilisateur</h4>
                 </summary> 
+                <!-- Formulaire de suppression d'utilisateur -->
                 <form method="POST" action="">
                     <label for="delete_user">Sélectionner un utilisateur :</label>
                     <select id="delete_user" name="delete_user" required>
                         <option value="">-- Sélectionner un utilisateur --</option>
                         <?php
+                        // Récupération de tous les utilisateurs pour le menu déroulant
                         $stmt = $pdo->query("SELECT id, nom, prenoms FROM users");
                         while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                            echo "<option value='" . $user['id'] . "'>" . htmlspecialchars($user['nom']) . " " . htmlspecialchars($user['prenoms']) . "</option>";
+                            echo "<option value='" . $user['id'] . "'>" . 
+                                 htmlspecialchars($user['nom']) . " " . 
+                                 htmlspecialchars($user['prenoms']) . "</option>";
                         }
                         ?>
                     </select>
@@ -285,14 +326,16 @@ $error="";
                 </form>
             </details>
             <?php
-                // Gestion de la suppression d'utilisateur
+                // Traitement de la demande de suppression d'utilisateur
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_btn'])) {
                     $user_id = $_POST['delete_user'];
                     try {
+                        // Suppression de l'utilisateur de la base de données
                         $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
                         $stmt->execute([':id' => $user_id]);
                         $message = "L'utilisateur a été supprimé avec succès.";
                     } catch (PDOException $e) {
+                        // Gestion des erreurs lors de la suppression
                         $message = "Erreur lors de la suppression : " . $e->getMessage();
                     }
                 }
@@ -301,8 +344,8 @@ $error="";
         
     </div>
 
+    <!-- Affichage des messages de confirmation ou d'erreur -->
     <div class="message">
-        <!-- Afficher les erreurs ici -->
         <?php if (isset($message) && $message): ?>
             <p><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
@@ -310,5 +353,6 @@ $error="";
 </section>
 
 <?php
+  // Inclusion du pied de page commun à toutes les pages
   include "footer.php";
 ?>
