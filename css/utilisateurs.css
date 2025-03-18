@@ -1,63 +1,188 @@
-.titre_utilisateurs {
+/* Variables globales (à maintenir cohérentes avec le style principal) */
+:root {
+    --primary-color: #2e31cc;
+    --secondary-color: #0078D7;
+    --accent-color: #5d8db3;
+    --background-color: #f4f4f4;
+    --card-background: #fff;
+    --border-color: #ddd;
+    --text-color: #333;
+    --text-light: #fff;
+    --border-radius: 5px;
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  /* Structure de page */
+  .titre_utilisateurs {
     text-align: center;
     margin: 40px 0;
-}
-
-.section {
-    display: flex;
-    flex-direction: column;
-}
-
-.blocs_utilisateurs {
+  }
+  
+  .titre_utilisateurs h1 {
+    color: var(--secondary-color);
+  }
+  
+  .page_utilisateurs {
     display: flex;
     flex-wrap: wrap;
-    margin: 80px 20px;
-    gap: 25px 10px; 
-    justify-content: center; 
-    align-items: flex-start; 
-}
-
-.blocs_utilisateurs {
-    background-color: #2e31cc;
-    color: white;
-    padding: 15px;
+    margin: 30px 20px;
+    gap: 25px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
+  /* Blocs utilisateurs */
+  .blocs_utilisateurs {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 20px;
     text-align: center;
-    border-radius: 5px;
-    flex: 0 1 calc(100% - 100px); 
-    box-sizing: border-box; 
-    width: 268.41px;
-}
-
-.blocs_utilisateurs summary {
+    border-radius: var(--border-radius);
+    flex: 0 1 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+  }
+  
+  .blocs_utilisateurs:hover {
+    transform: translateY(-5px);
+  }
+  
+  .blocs_utilisateurs summary {
     list-style: none;
     font-weight: bold;
-    padding: 15px 0px;
+    padding: 15px 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 95.58px;
-}
-
-.liste_utilisateurs {
-    height: 120px;
-    overflow: auto;
-}
-
-.blocs_utilisateurs ul {
+    cursor: pointer;
+  }
+  
+  .blocs_utilisateurs summary::after {
+    content: '▼';
+    margin-left: 10px;
+    font-size: 0.8em;
+  }
+  
+  .blocs_utilisateurs[open] summary::after {
+    content: '▲';
+  }
+  
+  .blocs_utilisateurs summary h4 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  /* Liste utilisateurs */
+  .liste_statistiques {
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    padding: 10px;
+    margin-top: 15px;
+  }
+  
+  .blocs_utilisateurs ul {
     list-style: none;
+    text-align: left;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .blocs_utilisateurs li {
+    margin: 10px 0;
+    padding: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .blocs_utilisateurs li:last-child {
+    border-bottom: none;
+  }
+  
+  /* Formulaires */
+  .blocs_utilisateurs form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+    margin-top: 15px;
+  }
+  
+  .blocs_utilisateurs label {
+    margin: 5px 0;
+    align-self: flex-start;
+    font-weight: bold;
+  }
+  
+  .blocs_utilisateurs input,
+  .blocs_utilisateurs select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px;
+    border: none;
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--text-color);
+  }
+  
+  .blocs_utilisateurs input:focus,
+  .blocs_utilisateurs select:focus {
+    outline: none;
+    box-shadow: 0 0 3px 2px rgba(255, 255, 255, 0.5);
+  }
+  
+  .blocs_utilisateurs button {
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 12px 25px;
+    margin-top: 10px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: bold;
+    transition: var(--transition);
+  }
+  
+  .blocs_utilisateurs button:hover {
+    background-color: #005bb5;
+    transform: translateY(-2px);
+  }
+  
+  /* Message d'information */
+  .message {
     text-align: center;
-    padding: 0;
-}
-
-.blocs_utilisateurs li {
-    margin: 10px;
-    padding: 0;
-}
-
-.blocs_utilisateurs p {
-    color: white;
-}
-
-.input_utilisateurs {
-    display: block;
-}
+    margin: 20px auto;
+    max-width: 80%;
+  }
+  
+  .message p {
+    background-color: rgba(46, 49, 204, 0.2);
+    color: var(--primary-color);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    border-left: 5px solid var(--primary-color);
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .blocs_utilisateurs {
+      max-width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .blocs_utilisateurs form {
+      width: 100%;
+    }
+    
+    .blocs_utilisateurs input,
+    .blocs_utilisateurs select {
+      width: 100%;
+    }
+  }
