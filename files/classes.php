@@ -1,76 +1,95 @@
 <?php
-session_start(); // Démarre la session si elle n'est pas déjà démarrée, pour gérer les utilisateurs connectés
+// ======== INITIALISATION DE LA SESSION ET VÉRIFICATION DE CONNEXION ========
+session_start(); // Démarre la session pour gérer les utilisateurs connectés
 
-// Inclusion du header approprié en fonction du rôle de l'utilisateur
+// Vérification du rôle de l'utilisateur et inclusion du header approprié
 if (isset($_SESSION['user_role'])) {
+    // Utilisation d'un switch pour choisir le header selon le rôle
     switch ($_SESSION['user_role']) {
         case 'admin':
-            include "header_admin.php"; // Inclure le header pour un utilisateur avec le rôle 'admin'
+            include "header_admin.php"; // Header pour administrateurs
             break;
         case 'prof':
-            include "header_prof.php"; // Inclure le header pour un utilisateur avec le rôle 'prof'
+            include "header_prof.php"; // Header pour professeurs
             break;
         default:
-            include "header.php"; // Inclure le header par défaut pour les autres utilisateurs
+            include "header.php"; // Header par défaut pour autres rôles
             break;
     }
 } else {
-    // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
+    // Redirection vers la page de connexion si l'utilisateur n'est pas connecté
     header("Location: login.php");
-    exit(); // Terminer le script pour éviter que le reste du code s'exécute
+    exit(); // Arrêt du script pour éviter tout traitement supplémentaire
 }
 
-$message = ""; // Initialisation d'une variable pour afficher des messages d'erreur ou de succès
+// Variable pour stocker les messages d'erreur ou de succès
+$message = ""; 
+
+// ======== FONCTIONS UTILITAIRES ========
+/**
+ * Sécurise les données entrées par l'utilisateur
+ * @param string $data Donnée à nettoyer
+ * @return string Donnée nettoyée
+ */
+function securiser($data) {
+    $data = trim($data); // Supprime les espaces en début et fin
+    $data = stripslashes($data); // Supprime les antislashs
+    $data = htmlspecialchars($data); // Convertit les caractères spéciaux en entités HTML
+    return $data;
+}
 
 ?>
 <head>
-    <link href="../css/classes.css" rel="stylesheet" /> <!-- Lien vers le fichier CSS pour styliser la page -->
+    <link href="../css/classes.css" rel="stylesheet" /> <!-- Chargement du style CSS -->
 </head>
 
 <section>
+    <!-- Titre principal de la page -->
     <div class="titre_classes">
-        <h1>Gestion des classes</h1> <!-- Titre principal de la page -->
+        <h1>Gestion des classes</h1>
     </div>
 
     <div class="page_classes">
         
-        <!-- Bloc pour créer une nouvelle classe -->
+        <!-- ======== BLOC CRÉATION DE CLASSE ======== -->
         <div class="blocs_classes"> 
             <details>
                 <summary><h4>Créer une classe</h4></summary>
                 <form method="post" class="p-4 border border-light rounded">
                     <?php
-                        if ($_SERVER['REQUEST_METHOD'] == 'POST') { // Si la requête est de type POST (soumission du formulaire)
-                            // Récupérer et nettoyer le nom de la classe
-                            $name_classe = trim($_POST['name']);
-                        
-                            // Validation des données
-                            if (empty($name_classe)) {
-                                $message = "Le nom de la classe doit être rempli."; // Message d'erreur si le champ est vide
-                            } else {
-                                // Vérifier si une classe avec ce nom existe déjà dans la base de données
-                                $sql = "SELECT * FROM class WHERE name = :name";
+                    // Traitement du formulaire de création de classe
+                    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name'])) {
+                        // Récupération et nettoyage du nom de classe
+                        $name_classe = securiser($_POST['name']);
+                    
+                        // Validation: vérifier que le champ n'est pas vide
+                        if (empty($name_classe)) {
+                            $message = "Le nom de la classe doit être rempli.";
+                        } else {
+                            // Vérification de l'existence de la classe dans la base
+                            $sql = "SELECT * FROM class WHERE name = :name";
+                            $stmt = $pdo->prepare($sql);
+                            $stmt->bindParam(':name', $name_classe);
+                            $stmt->execute();
+                            
+                            // Si la classe existe déjà
+                            if ($stmt->rowCount() > 0) {
+                                $message = "Cette classe existe déjà.";
+                            } else {           
+                                // Insertion de la nouvelle classe dans la base de données
+                                $sql = "INSERT INTO class (name) VALUES (:name)";
                                 $stmt = $pdo->prepare($sql);
                                 $stmt->bindParam(':name', $name_classe);
-                                $stmt->execute();
                                 
-                                if ($stmt->rowCount() > 0) {
-                                    $message = "Cette classe existe déjà."; // Message si la classe existe déjà
-                                } else {           
-                                    // Si la classe n'existe pas, on peut l'ajouter
-                                    $sql = "INSERT INTO class (name) VALUES (:name)";
-                                    $stmt = $pdo->prepare($sql);
-                                    $stmt->bindParam(':name', $name_classe);
-                                    
-                                    // Exécution de la requête pour insérer la classe
-                                    if ($stmt->execute()) {
-                                        $message = "Nouvelle classe enregistrée."; // Message de succès
-                                    } else {
-                                        $message = "Erreur lors de l'enregistrement de la classe. Veuillez réessayer."; // Message d'erreur
-                                    }
+                                // Exécution et vérification de la requête
+                                if ($stmt->execute()) {
+                                    $message = "Nouvelle classe enregistrée.";
+                                } else {
+                                    $message = "Erreur lors de l'enregistrement de la classe. Veuillez réessayer.";
                                 }
                             }
                         }
+                    }
                     ?>
                     <div class="form-group">
                         <label for="name">Nom de la classe :</label>
@@ -82,16 +101,16 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
             </details>
         </div>
 
-        <!-- Bloc pour modifier une classe -->
+        <!-- ======== BLOC MODIFICATION DE CLASSE ======== -->
         <div class="blocs_classes">
             <details>
                 <summary><h4>Modifier les classes</h4></summary>
                 <div>
                     <?php
-                    // Récupérer toutes les classes de la base de données
-                    $stmt = $pdo->query("SELECT id, name FROM class");
+                    // Récupération de toutes les classes pour modification
+                    $stmt = $pdo->query("SELECT id, name FROM class ORDER BY name");
 
-                    // Afficher chaque classe dans un formulaire pour modification
+                    // Affichage d'un formulaire par classe
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                         <form method="POST" action="modifier_class.php" style="margin-bottom: 10px;">
                             <label for="classe_<?php echo $row['id']; ?>">Classe :</label>
@@ -104,7 +123,7 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
             </details>
         </div>
 
-        <!-- Bloc pour voir toutes les classes -->
+        <!-- ======== BLOC VISUALISATION DES CLASSES ======== -->
         <div class="blocs_classes">
             <details>
                 <summary><h4>Voir les classes</h4></summary>
@@ -112,24 +131,25 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
                     <ul>
                         <?php
                         try {
-                            // Récupérer toutes les classes par ordre alphabétique
+                            // Récupération des classes par ordre alphabétique
                             $sql = "SELECT name FROM class ORDER BY name";
                             $stmt = $pdo->query($sql);
                             $names = $stmt->fetchAll();
                             $namesCount = count($names);
                         } catch (PDOException $e) {
-                            // Gestion des erreurs de récupération des classes
+                            // Gestion des erreurs de base de données
                             error_log("Erreur lors de la récupération des classes : " . $e->getMessage());
                             $names = [];
                             $namesCount = 0;
                         }
 
+                        // Affichage des classes ou message si aucune classe
                         if ($namesCount > 0) {
                             foreach ($names as $name) {
                                 echo "<li>" . htmlspecialchars($name["name"]) . "</li>";
                             }
                         } else {
-                            echo "<p>Aucune classe trouvée.</p>"; // Message si aucune classe n'est trouvée
+                            echo "<p>Aucune classe trouvée.</p>";
                         }
                         ?>
                     </ul>
@@ -137,7 +157,7 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
             </details>
         </div>
 
-        <!-- Bloc pour supprimer une classe -->
+        <!-- ======== BLOC SUPPRESSION DE CLASSE ======== -->
         <div class="blocs_classes">
             <details>
                 <summary><h4>Supprimer les classes</h4></summary>
@@ -147,18 +167,18 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
                         <select name="classe_id" id="classe" required>
                             <option value="">-- Sélectionnez une classe --</option>
                             <?php
-                            // Récupérer toutes les classes pour les afficher dans un menu déroulant
-                            $sql = "SELECT id, name FROM class";
+                            // Récupération de toutes les classes pour le menu déroulant
+                            $sql = "SELECT id, name FROM class ORDER BY name";
                             $stmt = $pdo->query($sql);
-                            $classes = $stmt->fetchAll(); // Récupérer les classes
+                            $classes = $stmt->fetchAll();
 
+                            // Affichage des options du menu déroulant
                             if (count($classes) > 0) {
-                                // Afficher chaque classe comme option dans le menu
                                 foreach ($classes as $classe) {
                                     echo "<option value='" . htmlspecialchars($classe['id']) . "'>" . htmlspecialchars($classe['name']) . "</option>";
                                 }
                             } else {
-                                echo "<option value=''>Aucune classe disponible</option>"; // Si aucune classe n'est trouvée
+                                echo "<option value=''>Aucune classe disponible</option>";
                             }
                             ?>
                         </select>
@@ -166,20 +186,23 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
                     </form>
 
                     <?php
-                    // Traitement de la suppression de la classe
+                    // Traitement de la suppression d'une classe
                     if (isset($_POST['submit'])) {
                         if (isset($_POST['classe_id']) && !empty($_POST['classe_id'])) {
+                            // Conversion en entier pour s'assurer que c'est un nombre
                             $classe_id = intval($_POST['classe_id']);
+                            
+                            // Préparation et exécution de la requête de suppression
                             $sql = "DELETE FROM class WHERE id = ?";
                             $stmt = $pdo->prepare($sql);
                             
                             if ($stmt->execute([$classe_id])) {
-                                $_SESSION['message'] = "Classe supprimée avec succès."; // Message de succès
+                                $_SESSION['message'] = "Classe supprimée avec succès.";
                             } else {
-                                $_SESSION['message'] = "Erreur lors de la suppression."; // Message d'erreur
+                                $_SESSION['message'] = "Erreur lors de la suppression.";
                             }
                         } else {
-                            $_SESSION['message'] = "Aucune classe sélectionnée."; // Message si aucune classe n'est sélectionnée
+                            $_SESSION['message'] = "Aucune classe sélectionnée.";
                         }
                     }
                     ?>
@@ -188,7 +211,7 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
         </div>
     </div>
 
-    <!-- Affichage des messages d'erreur ou de succès -->
+    <!-- ======== AFFICHAGE DES MESSAGES ======== -->
     <div class="message">
         <?php if (isset($message) && $message): ?>
             <p><?php echo htmlspecialchars($message); ?></p>
@@ -197,5 +220,5 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
 </section>
 
 <?php
-  include "footer.php"; // Inclusion du footer à la fin de la page
+  include "footer.php"; // Inclusion du pied de page
 ?>
