@@ -77,11 +77,6 @@ $message = ""; // Initialisation d'une variable pour afficher des messages d'err
                         <input type="text" placeholder="Nom de la classe" class="form-control" id="name" name="name" required>
                     </div>
 
-                    <!-- Affichage des messages d'erreur ou de succès -->
-                    <?php if ($message): ?>
-                        <p style="color: red;"><?php echo htmlspecialchars($message); ?></p>
-                    <?php endif; ?>
-
                     <button type="submit" class="btn btn-primary">Enregistrement</button>
                 </form>
             </details>
