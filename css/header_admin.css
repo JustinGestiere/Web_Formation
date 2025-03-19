@@ -1,40 +1,124 @@
+/* Styles optimisés pour le header administrateur */
 .container_header_admin {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgb(212, 212, 212);
+    width: 100%;
+    background-color: #f8f9fa;
     padding: 10px 15px;
   }
   
   .logo_header_admin {
     width: 50px;
     height: 50px;
-    margin: 0 0 0 30px;
-  } 
-  
-  h2 {
-    margin: 0 50px 0 10px;
+    margin-right: 10px;
   }
   
-  /* Responsive design */
+  /* Styles pour la navigation */
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .nav-item {
+    margin: 0 5px;
+  }
+  
+  .nav-link {
+    color: #333;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  /* Bouton de déconnexion */
+  .btn-danger.nav-link {
+    color: white;
+    background-color: #dc3545;
+    border-color: #dc3545;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  
+  .btn-danger.nav-link:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+  }
+  
+  /* Hamburger menu pour mobile */
+  .navbar-toggler {
+    display: none;
+    background-color: transparent;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .navbar-toggler-icon {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: #333;
+    margin: 5px 0;
+    transition: transform 0.3s ease;
+  }
+  
+  /* Media queries pour l'affichage responsive */
+  @media screen and (max-width: 992px) {
+    .navbar-toggler {
+      display: block;
+    }
+    
+    .nav {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      margin-top: 15px;
+    }
+    
+    .nav.show {
+      display: flex;
+    }
+    
+    .nav-item {
+      width: 100%;
+      margin: 3px 0;
+    }
+    
+    .nav-link {
+      display: block;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .d-flex.justify-content-between {
+      flex-wrap: wrap;
+    }
+  }
+  
   @media screen and (max-width: 768px) {
     .container_header_admin {
-      flex-direction: column;
-      padding: 15px;
+      padding: 10px;
     }
     
     .logo_header_admin {
-      margin: 0 0 10px 0;
+      margin-right: 5px;
     }
     
-    h2 {
-      margin: 0 0 15px 0;
+    h2.h3 {
+      font-size: 1.2rem;
     }
   }
   
   @media screen and (max-width: 480px) {
     .container_header_admin {
       text-align: center;
+    }
+    
+    .d-flex.align-items-center {
+      justify-content: center;
+      width: 100%;
     }
   }
