@@ -1,6 +1,17 @@
 .container_header_prof {
     display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-evenly;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     background-color: rgb(212, 212, 212);
-}
+    padding: 10px 15px;
+  }
+  
+  /* Responsive design */
+  @media screen and (max-width: 768px) {
+    .container_header_prof {
+      flex-direction: column;
+      padding: 15px;
+      text-align: center;
+    }
+  }
