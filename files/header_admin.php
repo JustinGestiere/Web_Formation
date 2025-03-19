@@ -1,5 +1,23 @@
 <?php
-// Partie PHP inchangée...
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Vérification des droits d'accès
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
+
+// Connexion à la base de données
+try {
+    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', 'AulrrpTCD7Tk2nJ55H4v');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    error_log("Erreur BDD (admin): " . $e->getMessage());
+    exit("Erreur de connexion à la base de données.");
+}
 ?>
 
 <!DOCTYPE html>
@@ -20,12 +38,6 @@
                 <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin mr-2">
                 <h2 class="h3 mb-0">Web Formation</h2>
             </div>
-            <!-- Bouton hamburger pour mobile -->
-            <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <nav>
                 <ul class="nav">
                     <li class="nav-item">
@@ -49,6 +61,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/files/statistique.php">Statistiques</a>
                     </li>
+                    <!-- Afficher le bouton Déconnexion seulement si l'utilisateur est connecté -->
                     <li class="nav-item">
                         <form method="post" action="/files/logout.php" class="d-inline">
                             <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
@@ -64,23 +77,6 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<!-- Script pour le menu hamburger -->
-<script>
-// Fonction pour basculer l'affichage du menu
-function toggleNavbar() {
-  const navMenu = document.querySelector('.nav');
-  navMenu.classList.toggle('show');
-}
-
-// Ajout de l'événement au chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-  const navbarToggler = document.querySelector('.navbar-toggler');
-  if (navbarToggler) {
-    navbarToggler.addEventListener('click', toggleNavbar);
-  }
-});
-</script>
 
 </body>
 </html>

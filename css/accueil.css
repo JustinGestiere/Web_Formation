@@ -1,339 +1,256 @@
 /* Variables globales */
 :root {
-    --primary-color: #2e31cc;
-    --secondary-color: #0078D7;
-    --accent-color: #5d8db3;
-    --background-color: #f4f4f4;
-    --card-background: #fff;
-    --border-color: #ddd;
-    --text-color: #333;
-    --text-light: #fff;
-    --border-radius: 5px;
-    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-  }
-  
-  /* Style global */
-  body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    font-size: 16px;
-  }
-  
-  h1 {
-    text-align: center;
-    margin: 20px 0;
-    color: var(--secondary-color);
-    font-size: 2rem;
-  }
-  
-  /* Statistiques */
-  .statistiques {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 40px 20px;
-    gap: 25px 10px;
-    justify-content: center;
-    align-items: flex-start;
-  }
-  
+  --primary-color: #2e31cc;
+  --secondary-color: #0078D7;
+  --accent-color: #5d8db3;
+  --background-color: #f4f4f4;
+  --card-background: #fff;
+  --border-color: #ddd;
+  --text-color: #333;
+  --text-light: #fff;
+  --border-radius: 5px;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+/* Style global */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+  color: var(--secondary-color);
+}
+
+/* Statistiques */
+.statistiques {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 40px 20px;
+  gap: 25px 10px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.blocs_statistiques {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  padding: 15px;
+  text-align: center;
+  border-radius: var(--border-radius);
+  flex: 0 1 calc(33.33% - 10px);
+  box-sizing: border-box;
+  width: 268px;
+  transition: var(--transition);
+  box-shadow: var(--box-shadow);
+}
+
+.blocs_statistiques:hover {
+  transform: translateY(-5px);
+}
+
+.blocs_statistiques summary {
+  list-style: none;
+  font-weight: bold;
+  padding: 15px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 96px;
+  cursor: pointer;
+}
+
+.blocs_statistiques summary::after {
+  content: '▼';
+  margin-left: 10px;
+  font-size: 0.8em;
+}
+
+.blocs_statistiques[open] summary::after {
+  content: '▲';
+}
+
+.liste_statistiques {
+  height: 120px;
+  overflow: auto;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  padding: 10px 0;
+  margin-top: 10px;
+}
+
+.blocs_statistiques ul {
+  list-style: none;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+.blocs_statistiques li {
+  margin: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.blocs_statistiques li:last-child {
+  border-bottom: none;
+}
+
+/* Formulaires */
+form {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+form label {
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+form select {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-background);
+}
+
+button, form button {
+  background-color: var(--secondary-color);
+  color: var(--text-light);
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+button:hover, form button:hover {
+  background-color: #005bb5;
+  transform: translateY(-2px);
+}
+
+/* Navigation entre les semaines */
+.navigation-semaine {
+  text-align: center;
+  margin: 30px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.navigation-semaine span {
+  font-weight: bold;
+  font-size: 1.1rem;
+  background-color: var(--card-background);
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+/* Calendrier */
+.calendrier {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 40px;
+}
+
+table {
+  width: 90%;
+  max-width: 1200px;
+  border-collapse: collapse;
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow);
+}
+
+thead th {
+  background-color: var(--secondary-color);
+  color: var(--text-light);
+  padding: 15px;
+  font-size: 1.1rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+tbody td {
+  height: 150px;
+  vertical-align: top;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  background-color: #f9f9f9;
+  transition: var(--transition);
+}
+
+tbody td strong {
+  display: block;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+tbody td:hover {
+  background-color: #eaf4ff;
+}
+
+/* Cours */
+.cours {
+  background-color: var(--accent-color);
+  color: var(--text-light);
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+}
+
+.cours:hover {
+  transform: scale(1.03);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cours strong {
+  font-size: 1rem;
+  border-bottom: none;
+  margin-bottom: 5px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
   .blocs_statistiques {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    padding: 15px;
-    text-align: center;
-    border-radius: var(--border-radius);
-    flex: 0 1 calc(33.33% - 10px);
-    box-sizing: border-box;
-    width: 268px;
-    transition: var(--transition);
-    box-shadow: var(--box-shadow);
-    max-width: 100%;
+    flex: 0 1 calc(50% - 10px);
   }
   
-  .blocs_statistiques:hover {
-    transform: translateY(-5px);
+  table {
+    width: 95%;
   }
   
-  .blocs_statistiques summary {
-    list-style: none;
-    font-weight: bold;
-    padding: 15px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 96px;
-    cursor: pointer;
-  }
-  
-  .blocs_statistiques summary::after {
-    content: '▼';
-    margin-left: 10px;
-    font-size: 0.8em;
-  }
-  
-  .blocs_statistiques[open] summary::after {
-    content: '▲';
-  }
-  
-  .liste_statistiques {
-    height: 120px;
-    overflow: auto;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: var(--border-radius);
-    padding: 10px 0;
-    margin-top: 10px;
-  }
-  
-  .blocs_statistiques ul {
-    list-style: none;
-    text-align: center;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .blocs_statistiques li {
-    margin: 10px;
-    padding: 5px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  .blocs_statistiques li:last-child {
-    border-bottom: none;
-  }
-  
-  /* Formulaires */
-  form {
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 0 15px;
-  }
-  
-  form label {
-    font-size: 1.2rem;
-    margin-right: 10px;
-    display: inline-block;
-    margin-bottom: 10px;
-  }
-  
-  form select {
-    padding: 10px;
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--card-background);
-    max-width: 100%;
-  }
-  
-  button, form button {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-    padding: 10px 20px;
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-  }
-  
-  button:hover, form button:hover {
-    background-color: #005bb5;
-    transform: translateY(-2px);
-  }
-  
-  /* Navigation entre les semaines */
   .navigation-semaine {
-    text-align: center;
-    margin: 30px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    padding: 0 15px;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .blocs_statistiques {
+    flex: 0 1 100%;
   }
   
-  .navigation-semaine span {
-    font-weight: bold;
-    font-size: 1.1rem;
-    background-color: var(--card-background);
-    padding: 10px 15px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-  }
-  
-  /* Calendrier */
   .calendrier {
-    display: flex;
-    justify-content: center;
-    margin: 0 auto 40px;
-    padding: 0 15px;
-    width: 100%;
-    box-sizing: border-box;
     overflow-x: auto;
   }
   
   table {
-    width: 90%;
-    max-width: 1200px;
-    border-collapse: collapse;
-    background-color: var(--card-background);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--box-shadow);
-    min-width: 650px;
+    width: 800px;
   }
-  
-  thead th {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-    padding: 15px;
-    font-size: 1.1rem;
-    text-align: center;
-    border: 1px solid var(--border-color);
-  }
-  
-  tbody td {
-    height: 150px;
-    vertical-align: top;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    text-align: center;
-    background-color: #f9f9f9;
-    transition: var(--transition);
-  }
-  
-  tbody td strong {
-    display: block;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 5px;
-  }
-  
-  tbody td:hover {
-    background-color: #eaf4ff;
-  }
-  
-  /* Cours */
-  .cours {
-    background-color: var(--accent-color);
-    color: var(--text-light);
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: var(--border-radius);
-    font-size: 0.9rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: var(--transition);
-    word-break: break-word;
-  }
-  
-  .cours:hover {
-    transform: scale(1.03);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  .cours strong {
-    font-size: 1rem;
-    border-bottom: none;
-    margin-bottom: 5px;
-  }
-  
-  /* Responsive */
-  @media (max-width: 992px) {
-    .blocs_statistiques {
-      flex: 0 1 calc(50% - 20px);
-      min-width: 250px;
-    }
-    
-    table {
-      width: 95%;
-    }
-    
-    .navigation-semaine {
-      flex-direction: row;
-      flex-wrap: wrap;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    body {
-      font-size: 14px;
-    }
-    
-    h1 {
-      font-size: 1.8rem;
-    }
-    
-    .blocs_statistiques {
-      flex: 0 1 100%;
-      max-width: 400px;
-    }
-    
-    .calendrier {
-      overflow-x: auto;
-      padding: 0 5px;
-    }
-    
-    table {
-      width: 800px;
-    }
-    
-    form label {
-      display: block;
-      margin-bottom: 10px;
-    }
-    
-    .navigation-semaine {
-      gap: 10px;
-    }
-    
-    .navigation-semaine span {
-      font-size: 1rem;
-      padding: 8px 12px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    body {
-      font-size: 13px;
-    }
-    
-    h1 {
-      font-size: 1.6rem;
-      margin: 15px 0;
-    }
-    
-    .blocs_statistiques {
-      padding: 10px;
-    }
-    
-    .blocs_statistiques summary {
-      height: auto;
-      min-height: 60px;
-      padding: 10px 0;
-      flex-direction: column;
-    }
-    
-    thead th {
-      padding: 10px 5px;
-      font-size: 0.9rem;
-    }
-    
-    tbody td {
-      height: auto;
-      min-height: 100px;
-      padding: 5px;
-    }
-    
-    .cours {
-      padding: 8px 5px;
-    }
-    
-    button, form button {
-      padding: 8px 15px;
-      font-size: 0.9rem;
-    }
-  }
+}
