@@ -1,40 +1,86 @@
+/* Styles optimisés pour le header administrateur */
 .container_header_admin {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgb(212, 212, 212);
+    width: 100%;
+    background-color: #f8f9fa; /* Utilisation de la couleur bootstrap bg-light */
     padding: 10px 15px;
   }
   
   .logo_header_admin {
     width: 50px;
     height: 50px;
-    margin: 0 0 0 30px;
-  } 
-  
-  h2 {
-    margin: 0 50px 0 10px;
+    margin-right: 10px;
   }
   
-  /* Responsive design */
+  /* Ajout de styles pour la navigation */
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .nav-item {
+    margin: 0 5px;
+  }
+  
+  .nav-link {
+    color: #333;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  /* Amélioration du bouton de déconnexion */
+  .btn-danger.nav-link {
+    color: white;
+    background-color: #dc3545;
+    border-color: #dc3545;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  
+  .btn-danger.nav-link:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+  }
+  
+  /* Media queries optimisées */
+  @media screen and (max-width: 992px) {
+    .nav {
+      margin-top: 15px;
+      justify-content: center;
+    }
+    
+    .nav-item {
+      margin: 3px;
+    }
+  }
+  
   @media screen and (max-width: 768px) {
     .container_header_admin {
       flex-direction: column;
-      padding: 15px;
+      text-align: center;
     }
     
     .logo_header_admin {
       margin: 0 0 10px 0;
     }
     
-    h2 {
-      margin: 0 0 15px 0;
+    .nav {
+      flex-direction: column;
+      width: 100%;
     }
-  }
-  
-  @media screen and (max-width: 480px) {
-    .container_header_admin {
-      text-align: center;
+    
+    .nav-item {
+      width: 100%;
+      margin: 3px 0;
+    }
+    
+    .nav-link {
+      display: block;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
     }
   }
