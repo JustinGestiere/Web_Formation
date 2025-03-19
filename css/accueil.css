@@ -21,12 +21,14 @@
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
+    font-size: 16px;
   }
   
   h1 {
     text-align: center;
     margin: 20px 0;
     color: var(--secondary-color);
+    font-size: 2rem;
   }
   
   /* Statistiques */
@@ -50,6 +52,7 @@
     width: 268px;
     transition: var(--transition);
     box-shadow: var(--box-shadow);
+    max-width: 100%;
   }
   
   .blocs_statistiques:hover {
@@ -107,11 +110,14 @@
   form {
     text-align: center;
     margin-bottom: 20px;
+    padding: 0 15px;
   }
   
   form label {
     font-size: 1.2rem;
     margin-right: 10px;
+    display: inline-block;
+    margin-bottom: 10px;
   }
   
   form select {
@@ -120,6 +126,7 @@
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background-color: var(--card-background);
+    max-width: 100%;
   }
   
   button, form button {
@@ -146,6 +153,8 @@
     align-items: center;
     justify-content: center;
     gap: 15px;
+    flex-wrap: wrap;
+    padding: 0 15px;
   }
   
   .navigation-semaine span {
@@ -162,6 +171,10 @@
     display: flex;
     justify-content: center;
     margin: 0 auto 40px;
+    padding: 0 15px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
   }
   
   table {
@@ -171,6 +184,7 @@
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
     box-shadow: var(--box-shadow);
+    min-width: 650px;
   }
   
   thead th {
@@ -213,6 +227,7 @@
     font-size: 0.9rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: var(--transition);
+    word-break: break-word;
   }
   
   .cours:hover {
@@ -229,7 +244,8 @@
   /* Responsive */
   @media (max-width: 992px) {
     .blocs_statistiques {
-      flex: 0 1 calc(50% - 10px);
+      flex: 0 1 calc(50% - 20px);
+      min-width: 250px;
     }
     
     table {
@@ -237,20 +253,87 @@
     }
     
     .navigation-semaine {
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
     }
   }
   
   @media (max-width: 768px) {
+    body {
+      font-size: 14px;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+    }
+    
     .blocs_statistiques {
       flex: 0 1 100%;
+      max-width: 400px;
     }
     
     .calendrier {
       overflow-x: auto;
+      padding: 0 5px;
     }
     
     table {
       width: 800px;
+    }
+    
+    form label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    
+    .navigation-semaine {
+      gap: 10px;
+    }
+    
+    .navigation-semaine span {
+      font-size: 1rem;
+      padding: 8px 12px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    body {
+      font-size: 13px;
+    }
+    
+    h1 {
+      font-size: 1.6rem;
+      margin: 15px 0;
+    }
+    
+    .blocs_statistiques {
+      padding: 10px;
+    }
+    
+    .blocs_statistiques summary {
+      height: auto;
+      min-height: 60px;
+      padding: 10px 0;
+      flex-direction: column;
+    }
+    
+    thead th {
+      padding: 10px 5px;
+      font-size: 0.9rem;
+    }
+    
+    tbody td {
+      height: auto;
+      min-height: 100px;
+      padding: 5px;
+    }
+    
+    .cours {
+      padding: 8px 5px;
+    }
+    
+    button, form button {
+      padding: 8px 15px;
+      font-size: 0.9rem;
     }
   }
