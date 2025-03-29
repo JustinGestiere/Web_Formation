@@ -111,7 +111,7 @@ foreach ($days as $day) {
 
     <!-- Calendrier -->
     <div class="calendrier">
-        <table border="1">
+        <table>
             <thead>
                 <tr>
                     <th>Lundi</th>
@@ -125,13 +125,13 @@ foreach ($days as $day) {
                 <tr>
                     <?php foreach ($days as $day): ?>
                         <td>
-                            <strong><?php echo $day->format('d/m/Y'); ?></strong><br>
+                            <strong><?php echo $day->format('d/m/Y'); ?></strong>
                             <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
                                 <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
                                     <div class="cours">
-                                        <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
+                                        <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong>
                                         <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
-                                    </div><br>
+                                    </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 Aucun cours
