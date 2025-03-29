@@ -40,9 +40,9 @@ try {
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
             <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
             <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
             <h2 class="h3 mb-0">Web Formation</h2>
