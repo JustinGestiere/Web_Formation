@@ -28,6 +28,36 @@ try {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="../css/header_admin.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
+    <style>
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background-color: #fff;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        #sidebar.active {
+            transform: translateX(0);
+        }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        #overlay.active {
+            display: block;
+        }
+        .sidebar-open {
+            margin-left: 250px;
+        }
+    </style>
 </head>
 <body>
 
@@ -35,59 +65,67 @@ try {
     <div class="container_header_admin">
         <div class="d-flex justify-content-between align-items-center py-3">
             <div class="d-flex align-items-center">
+                <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+                    <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin mr-2">
                 <h2 class="h3 mb-0">Web Formation</h2>
             </div>
-            <button class="navbar-toggler" type="button" onclick="toggleMenu()">
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <nav id="navMenu">
-                <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="../index.php">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="matieres.php">Matières</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="classes.php">Classes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="cours.php">Cours</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="utilisateurs.php">Utilisateurs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="statistique.php">Statistiques</a>
-                    </li>
-                    <li class="nav-item">
-                        <form method="post" action="logout.php" class="d-inline">
-                            <button type="submit" class="btn btn-danger nav-link">Déconnexion</button>
-                        </form>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
 </header>
+
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <h3>Menu</h3>
+        <button class="close-sidebar" onclick="toggleSidebar()">×</button>
+    </div>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" href="../index.php">Accueil</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="matieres.php">Matières</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="classes.php">Classes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="cours.php">Cours</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="utilisateurs.php">Utilisateurs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="statistique.php">Statistiques</a>
+        </li>
+        <li class="nav-item">
+            <form method="post" action="logout.php" class="d-inline">
+                <button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
+    document.body.classList.toggle('sidebar-open');
+}
+</script>
 
 <!-- Scripts de Bootstrap -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<script>
-function toggleMenu() {
-    const nav = document.getElementById('navMenu');
-    nav.classList.toggle('show');
-}
-</script>
 
 </body>
 </html>

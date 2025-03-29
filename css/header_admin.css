@@ -3,69 +3,27 @@
     width: 100%;
     background-color: #f8f9fa;
     padding: 10px 15px;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .logo_header_admin {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     margin-right: 10px;
 }
 
-/* Styles pour la navigation */
-nav {
-    flex-grow: 1;
-}
-
-.nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.nav-item {
-    margin: 0 5px;
-}
-
-.nav-link {
-    color: #333;
-    padding: 8px 12px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: block;
-}
-
-.nav-link:hover {
-    color: #007bff;
-    text-decoration: none;
-}
-
-/* Bouton de déconnexion */
-.btn-danger.nav-link {
-    color: white;
-    background-color: #dc3545;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.btn-danger.nav-link:hover {
-    background-color: #c82333;
-}
-
-/* Hamburger menu */
+/* Bouton hamburger */
 .navbar-toggler {
-    display: none;
     background: none;
     border: none;
     padding: 10px;
     cursor: pointer;
-    z-index: 1000;
+    margin-right: 10px;
 }
 
 .navbar-toggler-icon {
@@ -77,65 +35,118 @@ nav {
     transition: 0.3s;
 }
 
-/* Media queries pour l'affichage responsive */
-@media screen and (max-width: 992px) {
-    .container_header_admin {
-        padding: 10px;
-    }
-
-    .navbar-toggler {
-        display: block;
-    }
-
-    nav {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background-color: #f8f9fa;
-        padding: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        display: none;
-    }
-
-    nav.show {
-        display: block;
-    }
-
-    .nav {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .nav-item {
-        width: 100%;
-        margin: 0;
-    }
-
-    .nav-link {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-        text-align: center;
-    }
-
-    .btn-danger.nav-link {
-        margin: 10px auto;
-        max-width: 200px;
-    }
+/* Sidebar */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    width: 280px;
+    background-color: #f8f9fa;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    transition: 0.3s;
+    z-index: 1001;
+    overflow-y: auto;
 }
 
+#sidebar.active {
+    left: 0;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background-color: #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-sidebar {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+/* Navigation */
+.nav {
+    padding: 15px;
+}
+
+.nav-item {
+    margin: 5px 0;
+}
+
+.nav-link {
+    color: #333;
+    padding: 12px 15px;
+    display: block;
+    text-decoration: none;
+    transition: all 0.3s;
+    border-radius: 4px;
+}
+
+.nav-link:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+/* Bouton déconnexion */
+.btn-danger.nav-link {
+    color: white;
+    background-color: #dc3545;
+    border: none;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.btn-danger.nav-link:hover {
+    background-color: #c82333;
+}
+
+/* Overlay */
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1000;
+}
+
+#overlay.active {
+    display: block;
+}
+
+/* Ajustement du contenu principal */
+body {
+    padding-top: 70px; /* Espace pour le header fixe */
+}
+
+body.sidebar-open {
+    overflow: hidden;
+}
+
+/* Media queries */
 @media screen and (max-width: 576px) {
     .h3 {
         font-size: 1.2rem;
     }
 
-    .logo_header_admin {
-        width: 40px;
-        height: 40px;
+    #sidebar {
+        width: 100%;
+        left: -100%;
     }
 
-    .nav-link {
-        padding: 10px;
-        font-size: 0.9rem;
+    .container_header_admin {
+        padding: 5px 10px;
+    }
+
+    .logo_header_admin {
+        width: 35px;
+        height: 35px;
     }
 }
