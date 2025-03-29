@@ -54,25 +54,20 @@ try {
         #overlay.active {
             display: block;
         }
-        .sidebar-open {
-            margin-left: 250px;
-        }
     </style>
 </head>
 <body>
 
-<header class="bg-light">
+<header>
     <div class="container_header_admin">
-        <div class="d-flex justify-content-between align-items-center py-3">
-            <div class="d-flex align-items-center">
-                <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
-                    <span class="navbar-toggler-icon"></span>
-                    <span class="navbar-toggler-icon"></span>
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin mr-2">
-                <h2 class="h3 mb-0">Web Formation</h2>
-            </div>
+        <div class="d-flex align-items-center">
+            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
+            <h2 class="h3 mb-0">Web Formation</h2>
         </div>
     </div>
 </header>
@@ -114,18 +109,19 @@ try {
 
 <div id="overlay" onclick="toggleSidebar()"></div>
 
+<main>
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</main>
+
 <script>
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('overlay').classList.toggle('active');
-    document.body.classList.toggle('sidebar-open');
 }
 </script>
-
-<!-- Scripts de Bootstrap -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 </html>
