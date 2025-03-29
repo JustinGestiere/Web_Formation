@@ -69,10 +69,14 @@ form button:hover {
     display: flex;
     justify-content: center;
     margin: 0 auto;
+    overflow-x: auto; /* Permet le défilement horizontal sur petits écrans */
+    -webkit-overflow-scrolling: touch; /* Défilement fluide sur iOS */
+    padding: 0 10px;
 }
 
 table {
-    width: 80%;
+    width: 100%;
+    max-width: 1200px;
     border-collapse: collapse;
     background-color: white;
     border: 1px solid #ddd;
@@ -120,4 +124,81 @@ tbody td:hover {
 /* Boutons */
 button {
     cursor: pointer;
+}
+
+/* Media queries pour la responsivité */
+@media screen and (max-width: 768px) {
+    .calendrier {
+        margin: 0;
+        padding: 0 5px;
+    }
+
+    table {
+        width: 100%;
+        min-width: 600px; /* Assure une largeur minimale pour la lisibilité */
+    }
+
+    thead th {
+        padding: 8px 4px;
+        font-size: 0.9rem;
+    }
+
+    tbody td {
+        height: auto;
+        min-height: 100px;
+        padding: 5px;
+        font-size: 0.9rem;
+    }
+
+    .cours {
+        padding: 4px;
+        margin: 2px 0;
+    }
+
+    form label, form select {
+        display: block;
+        width: 90%;
+        margin: 5px auto;
+    }
+
+    .navigation-semaine {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 0 10px;
+    }
+
+    .navigation-semaine span {
+        width: 100%;
+        margin: 5px 0;
+        font-size: 0.9rem;
+    }
+
+    .navigation-semaine form button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    thead th {
+        font-size: 0.8rem;
+        padding: 6px 2px;
+    }
+
+    tbody td {
+        font-size: 0.8rem;
+        padding: 3px;
+    }
+
+    .cours {
+        padding: 2px;
+        margin: 1px 0;
+    }
+
+    form select {
+        width: 95%;
+        font-size: 0.9rem;
+    }
 }
