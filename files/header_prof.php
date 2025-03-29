@@ -104,7 +104,7 @@ try {
     </div>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="../index.php">Accueil</a>
+            <a class="nav-link" href="/files/professeur.php">Accueil</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/files/classes.php">Classes</a>
