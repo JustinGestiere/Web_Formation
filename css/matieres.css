@@ -1,67 +1,169 @@
+/* Variables globales (à maintenir cohérentes avec le style principal) */
+:root {
+    --primary-color: #2e31cc;
+    --secondary-color: #0078D7;
+    --accent-color: #5d8db3;
+    --background-color: #f4f4f4;
+    --card-background: #fff;
+    --border-color: #ddd;
+    --text-color: #333;
+    --text-light: #fff;
+    --border-radius: 5px;
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Structure de page */
 .titre_matieres {
     text-align: center;
     margin: 40px 0;
+    padding: 0 15px;
+}
+
+.titre_matieres h1 {
+    color: var(--secondary-color);
+    font-size: 2rem;
 }
 
 .page_matieres {
     display: flex;
-    flex-wrap: wrap; /* Permet de passer à une nouvelle ligne */
-    margin: 80px 20px;
-    gap: 25px 10px; /* Espacement entre les blocs */
-    justify-content: center; /* Centrage des blocs */
-    align-items: flex-start; 
+    flex-wrap: wrap;
+    margin: 30px 20px;
+    gap: 25px;
+    justify-content: center;
+    align-items: flex-start;
 }
 
+/* Blocs matières */
 .blocs_matieres {
-    background-color: #2e31cc;
-    color: white;
-    padding: 15px;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 20px;
     text-align: center;
-    border-radius: 5px;
-    flex: 0 1 calc(100% - 100px); /* Chaque bloc occupe environ 100% de la ligne */
-    box-sizing: border-box; /* Inclure les marges dans la taille */
-    width: 268.41px;
+    border-radius: var(--border-radius);
+    flex: 0 1 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    width: 100%;
+}
+
+.blocs_matieres:hover {
+    transform: translateY(-5px);
 }
 
 .blocs_matieres summary {
     list-style: none;
     font-weight: bold;
-    padding: 15px 0px;
+    padding: 15px 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 95.58px;
+    cursor: pointer;
 }
 
-.input_matieres {
-    display: block;
+.blocs_matieres summary::after {
+    content: '▼';
+    margin-left: 10px;
+    font-size: 0.8em;
 }
 
+.blocs_matieres[open] summary::after {
+    content: '▲';
+}
+
+.blocs_matieres summary h4 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+/* Liste matières */
 .liste_matieres {
-    border: 1px solid #dee2e6 !important;
-    border-radius: 5px; /* Coins arrondis */
-    height: 100px;
-    overflow: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    padding: 10px;
+    margin-top: 15px;
+    -webkit-overflow-scrolling: touch;
 }
 
-ul {
+.blocs_matieres ul {
     list-style: none;
+    text-align: left;
+    padding: 0;
+    margin: 0;
 }
 
+.blocs_matieres li {
+    margin: 10px 0;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+}
+
+/* Formulaires */
+.blocs_matieres form {
+    margin-top: 15px;
+}
+
+.blocs_matieres label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.blocs_matieres input,
+.blocs_matieres select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+.blocs_matieres button {
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.blocs_matieres button:hover {
+    background-color: var(--accent-color);
+}
+
+/* Message */
 .message {
     display: flex;
-    justify-content: center; /* Centre horizontalement */
-    align-items: center;    /* Centre verticalement */
+    justify-content: center;
+    align-items: center;
     margin: 20px auto;
     text-align: center;
 }
 
 .message p {
-    font-size: 16px; /* Taille de police */
-    padding: 10px; /* Espacement interne */
-    border-radius: 5px; /* Coins arrondis */
+    background-color: var(--accent-color);
+    color: var(--text-light);
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
 
+/* Responsive */
+@media (max-width: 480px) {
+    .blocs_matieres {
+        padding: 12px;
+        max-width: 95%;
+    }
+    
+    .titre_matieres h1 {
+        font-size: 1.5rem;
+    }
+}

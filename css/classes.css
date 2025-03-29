@@ -1,93 +1,169 @@
-/* Variables pour classes.css */
+/* Variables globales (à maintenir cohérentes avec le style principal) */
 :root {
-    --primary-blue: #2e31cc;
-    --spacing-sm: 10px;
-    --spacing-md: 15px;
-    --spacing-lg: 40px;
+    --primary-color: #2e31cc;
+    --secondary-color: #0078D7;
+    --accent-color: #5d8db3;
+    --background-color: #f4f4f4;
+    --card-background: #fff;
+    --border-color: #ddd;
+    --text-color: #333;
+    --text-light: #fff;
     --border-radius: 5px;
-  }
-  
-  .titre_classes {
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Structure de page */
+.titre_classes {
     text-align: center;
-    margin: var(--spacing-lg) 0;
-  }
-  
-  .page_classes {
+    margin: 40px 0;
+    padding: 0 15px;
+}
+
+.titre_classes h1 {
+    color: var(--secondary-color);
+    font-size: 2rem;
+}
+
+.page_classes {
     display: flex;
     flex-wrap: wrap;
-    margin: 80px 20px;
-    gap: 25px 10px;
+    margin: 30px 20px;
+    gap: 25px;
     justify-content: center;
-    align-items: flex-start; 
-  }
-  
-  .blocs_classes {
-    background-color: var(--primary-blue);
-    color: white;
-    padding: var(--spacing-md);
+    align-items: flex-start;
+}
+
+/* Blocs classes */
+.blocs_classes {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 20px;
     text-align: center;
     border-radius: var(--border-radius);
-    width: 270px;
+    flex: 0 1 100%;
+    max-width: 500px;
     box-sizing: border-box;
-    transition: transform 0.2s ease;
-  }
-  
-  .blocs_classes:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .blocs_classes summary {
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    width: 100%;
+}
+
+.blocs_classes:hover {
+    transform: translateY(-5px);
+}
+
+.blocs_classes summary {
     list-style: none;
     font-weight: bold;
-    padding: var(--spacing-md) 0;
+    padding: 15px 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 96px;
     cursor: pointer;
-  }
-  
-  .liste_classes {
-    height: 120px;
-    overflow: auto;
-    margin-top: var(--spacing-sm);
-  }
-  
-  ul {
+}
+
+.blocs_classes summary::after {
+    content: '▼';
+    margin-left: 10px;
+    font-size: 0.8em;
+}
+
+.blocs_classes[open] summary::after {
+    content: '▲';
+}
+
+.blocs_classes summary h4 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+/* Liste classes */
+.liste_classes {
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    padding: 10px;
+    margin-top: 15px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.blocs_classes ul {
     list-style: none;
+    text-align: left;
     padding: 0;
     margin: 0;
-  }
-  
-  .message {
+}
+
+.blocs_classes li {
+    margin: 10px 0;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+}
+
+/* Formulaires */
+.blocs_classes form {
+    margin-top: 15px;
+}
+
+.blocs_classes label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.blocs_classes input,
+.blocs_classes select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+.blocs_classes button {
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.blocs_classes button:hover {
+    background-color: var(--accent-color);
+}
+
+/* Message */
+.message {
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 20px auto;
     text-align: center;
-  }
-  
-  .message p {
-    font-size: 16px;
-    padding: var(--spacing-sm);
+}
+
+.message p {
+    background-color: var(--accent-color);
+    color: var(--text-light);
+    padding: 10px 20px;
     border-radius: var(--border-radius);
-  }
-  
-  /* Responsive design */
-  @media screen and (max-width: 768px) {
+    box-shadow: var(--box-shadow);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
     .blocs_classes {
-      width: calc(50% - 10px);
-      min-width: 230px;
-    }
-  }
-  
-  @media screen and (max-width: 480px) {
-    .blocs_classes {
-      width: 100%;
+        padding: 12px;
+        max-width: 95%;
     }
     
-    .page_classes {
-      margin: 40px 10px;
+    .titre_classes h1 {
+        font-size: 1.5rem;
     }
-  }
+}
