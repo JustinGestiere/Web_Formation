@@ -81,50 +81,17 @@
 }
 
 /* Formulaires améliorés */
-.cours-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 20px;
-    padding: 15px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius);
-}
-
-.cours-form {
+.blocs_cours form {
+    margin-top: 15px;
     width: 100%;
-    max-width: 600px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: var(--text-light);
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
+.blocs_cours input,
+.blocs_cours select,
+.blocs_cours textarea {
     width: 100%;
     padding: 12px;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--border-radius);
     background-color: var(--input-bg);
@@ -133,46 +100,47 @@
     transition: var(--transition);
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.blocs_cours input:focus,
+.blocs_cours select:focus,
+.blocs_cours textarea:focus {
     outline: none;
     border-color: var(--input-focus-color);
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
-.form-group textarea {
+.blocs_cours textarea {
     resize: vertical;
     min-height: 120px;
     line-height: 1.5;
 }
 
-/* Style des puces et listes */
-.liste-cours {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 15px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: var(--border-radius);
-    margin-top: 20px;
+.blocs_cours label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
 }
 
-.liste-cours ul {
+/* Style des listes */
+.blocs_cours ul {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 15px 0;
 }
 
-.liste-cours li {
+.blocs_cours li {
     position: relative;
     padding: 12px 15px 12px 30px;
     margin: 8px 0;
     background-color: rgba(255, 255, 255, 0.08);
     border-radius: var(--border-radius);
     transition: var(--transition);
+    color: var(--text-light);
 }
 
-.liste-cours li:before {
+.blocs_cours li:before {
     content: "•";
     position: absolute;
     left: 12px;
@@ -180,12 +148,20 @@
     font-size: 1.2em;
 }
 
-.liste-cours li:hover {
+.blocs_cours li:hover {
     background-color: rgba(255, 255, 255, 0.15);
     transform: translateX(5px);
 }
 
-/* Boutons améliorés */
+/* Conteneur de cours */
+.cours-container {
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius);
+    margin-top: 15px;
+}
+
+/* Boutons */
 .blocs_cours button {
     background-color: var(--secondary-color);
     color: var(--text-light);
@@ -198,6 +174,8 @@
     letter-spacing: 0.5px;
     text-transform: uppercase;
     font-size: 0.9rem;
+    width: auto;
+    margin-top: 10px;
 }
 
 .blocs_cours button:hover {
@@ -211,22 +189,42 @@
 }
 
 /* Scrollbar personnalisée */
-.liste-cours::-webkit-scrollbar {
+.blocs_cours ::-webkit-scrollbar {
     width: 8px;
 }
 
-.liste-cours::-webkit-scrollbar-track {
+.blocs_cours ::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
 }
 
-.liste-cours::-webkit-scrollbar-thumb {
+.blocs_cours ::-webkit-scrollbar-thumb {
     background-color: var(--accent-color);
     border-radius: 4px;
 }
 
-.liste-cours::-webkit-scrollbar-thumb:hover {
+.blocs_cours ::-webkit-scrollbar-thumb:hover {
     background-color: var(--secondary-color);
+}
+
+/* Espacement BR */
+.blocs_cours br {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .blocs_cours input,
+    .blocs_cours select,
+    .blocs_cours textarea {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .blocs_cours button {
+        width: 100%;
+        padding: 10px 20px;
+    }
 }
 
 /* Message */
@@ -244,20 +242,4 @@
     padding: 10px 20px;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-    .blocs_cours {
-        padding: 12px;
-        max-width: 95%;
-    }
-    
-    .titre_cours h1 {
-        font-size: 1.5rem;
-    }
-    
-    .cours-form {
-        padding: 10px;
-    }
 }
