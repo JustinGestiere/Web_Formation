@@ -78,7 +78,6 @@ form button:hover {
 table {
     width: 100%;
     max-width: 1200px;
-    min-width: 600px;
     border-collapse: collapse;
     background-color: white;
     border: 1px solid #ddd;
@@ -137,8 +136,8 @@ button {
     }
 
     table {
-        min-width: 100%;
         font-size: 0.9rem;
+        width: 100%;
     }
 
     thead th {
@@ -159,81 +158,87 @@ button {
         margin: 2px 0;
         font-size: 0.85rem;
     }
-
-    form label, form select {
-        display: block;
-        width: 90%;
-        margin: 5px auto;
-    }
-
-    .navigation-semaine {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 0 5px;
-    }
-
-    .navigation-semaine span {
-        width: 100%;
-        margin: 5px 0;
-        font-size: 0.9rem;
-        text-align: center;
-    }
-
-    .navigation-semaine form {
-        margin: 5px 0;
-    }
-
-    .navigation-semaine form button {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        width: 100%;
-        max-width: 200px;
-    }
 }
 
-/* Styles spécifiques pour les très petits écrans */
+/* Styles pour téléphone */
 @media screen and (max-width: 480px) {
     .calendrier {
         padding: 0;
+        margin: 0;
     }
 
     table {
+        display: block;
+        width: 100%;
         margin: 0;
+    }
+
+    thead {
+        display: none; /* Cache les en-têtes sur mobile */
+    }
+
+    tbody {
+        display: block;
+        width: 100%;
+    }
+
+    tr {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #0078D7;
+    }
+
+    td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        position: relative;
+        padding: 10px 5px;
+        text-align: left;
+        min-height: auto;
         border: none;
+        border-bottom: 1px solid #ddd;
     }
 
-    thead th {
-        font-size: 0.75rem;
-        padding: 4px 2px;
-    }
-
-    tbody td {
-        padding: 2px;
-        font-size: 0.75rem;
-    }
+    /* Ajoute les jours de la semaine avant chaque cellule */
+    td:nth-child(1)::before { content: "Lundi - "; font-weight: bold; }
+    td:nth-child(2)::before { content: "Mardi - "; font-weight: bold; }
+    td:nth-child(3)::before { content: "Mercredi - "; font-weight: bold; }
+    td:nth-child(4)::before { content: "Jeudi - "; font-weight: bold; }
+    td:nth-child(5)::before { content: "Vendredi - "; font-weight: bold; }
 
     .cours {
-        padding: 2px;
-        margin: 1px 0;
-        font-size: 0.75rem;
-    }
-
-    strong {
-        font-size: 0.8rem;
-    }
-
-    form select {
-        width: 95%;
-        font-size: 0.85rem;
+        background-color: #f8f9fa;
         padding: 8px;
+        margin: 5px 0;
+        border-radius: 4px;
+        border-left: 3px solid #0078D7;
     }
 
-    /* Optimisations pour l'affichage des dates */
-    tbody td strong {
+    /* Ajustements pour la navigation */
+    .navigation-semaine {
+        padding: 10px;
+    }
+
+    .navigation-semaine form button {
+        width: 100%;
+        margin: 5px 0;
+        padding: 12px;
+    }
+
+    .navigation-semaine span {
         display: block;
-        margin-bottom: 4px;
-        font-size: 0.75rem;
+        text-align: center;
+        margin: 10px 0;
+        font-size: 0.9rem;
+    }
+
+    /* Ajustements pour le formulaire de sélection */
+    form select {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        font-size: 1rem;
     }
 }
