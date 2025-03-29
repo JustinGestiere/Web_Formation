@@ -3,12 +3,9 @@
     width: 100%;
     background-color: #f8f9fa;
     padding: 10px 15px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1000;
 }
 
 .logo_header_admin {
@@ -24,6 +21,12 @@
     padding: 10px;
     cursor: pointer;
     margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
 }
 
 .navbar-toggler-icon {
@@ -31,7 +34,7 @@
     width: 25px;
     height: 2px;
     background-color: #333;
-    margin: 5px 0;
+    margin: 2px 0;
     transition: 0.3s;
 }
 
@@ -40,7 +43,7 @@
     position: fixed;
     top: 0;
     left: -280px;
-    height: 100vh;
+    height: 100%;
     width: 280px;
     background-color: #f8f9fa;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
@@ -122,12 +125,9 @@
 }
 
 /* Ajustement du contenu principal */
-body {
-    padding-top: 70px; /* Espace pour le header fixe */
-}
-
-body.sidebar-open {
-    overflow: hidden;
+main {
+    width: 100%;
+    padding: 20px;
 }
 
 /* Media queries */
@@ -148,5 +148,9 @@ body.sidebar-open {
     .logo_header_admin {
         width: 35px;
         height: 35px;
+    }
+
+    main {
+        padding: 10px;
     }
 }
