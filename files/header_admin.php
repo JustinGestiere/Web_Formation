@@ -61,7 +61,7 @@ try {
 <header>
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
-            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+            <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
                 <span class="navbar-toggler-icon"></span>
                 <span class="navbar-toggler-icon"></span>
                 <span class="navbar-toggler-icon"></span>
@@ -117,9 +117,10 @@ try {
 </main>
 
 <script>
-function toggleSidebar() {
+function toggleSidebar(button) {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('overlay').classList.toggle('active');
+    button.classList.toggle('active');
 }
 </script>
 
