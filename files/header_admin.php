@@ -91,25 +91,25 @@ try {
     </div>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="/bts_sio/Web_Formation/index.php">Accueil</a>
+            <a class="nav-link" href="../index.php">Accueil</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/bts_sio/Web_Formation/files/matieres.php">Matières</a>
+            <a class="nav-link" href="../files/matieres.php">Matières</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/bts_sio/Web_Formation/files/classes.php">Classes</a>
+            <a class="nav-link" href="/files/classes.php">Classes</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/bts_sio/Web_Formation/files/cours.php">Cours</a>
+            <a class="nav-link" href="/files/cours.php">Cours</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/bts_sio/Web_Formation/files/utilisateurs.php">Utilisateurs</a>
+            <a class="nav-link" href="/files/utilisateurs.php">Utilisateurs</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/bts_sio/Web_Formation/files/emploi_du_temps.php">Emploi du temps</a>
+            <a class="nav-link" href="/files/emploi_du_temps.php">Emploi du temps</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/bts_sio/Web_Formation/files/statistique.php">Statistiques</a>
+            <a class="nav-link" href="/files/statistique.php">Statistiques</a>
         </li>
         <li class="nav-item">
             <form method="post" action="logout.php" class="d-inline">
