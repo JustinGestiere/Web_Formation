@@ -31,59 +31,20 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="../css/header_eleve.css" rel="stylesheet">
+    <link href="../css/header_admin.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
-    <style>
-        .navbar-toggler {
-            position: relative;
-            width: 45px;
-            height: 40px;
-            border: 2px solid #333;
-            background: transparent;
-            border-radius: 4px;
-            cursor: pointer;
-            padding: 8px;
-            margin-right: 15px;
-        }
-
-        .navbar-toggler span {
-            display: block;
-            width: 25px;
-            height: 3px;
-            background-color: #333;
-            margin: 4px 0;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .navbar-toggler:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .navbar-toggler.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-
-        .navbar-toggler.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .navbar-toggler.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(5px, -5px);
-        }
-    </style>
 </head>
 <body>
 
 <header>
-    <div class="container_header_eleve">
+    <div class="container_header_admin">
         <div class="d-flex align-items-center">
             <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
             </button>
-            <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_eleve">
+            <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
             <h2 class="h3 mb-0">Web Formation</h2>
         </div>
     </div>
