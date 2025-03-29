@@ -69,14 +69,16 @@ form button:hover {
     display: flex;
     justify-content: center;
     margin: 0 auto;
-    overflow-x: auto; /* Permet le défilement horizontal sur petits écrans */
-    -webkit-overflow-scrolling: touch; /* Défilement fluide sur iOS */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 0 10px;
+    max-width: 100%;
 }
 
 table {
     width: 100%;
     max-width: 1200px;
+    min-width: 600px;
     border-collapse: collapse;
     background-color: white;
     border: 1px solid #ddd;
@@ -127,32 +129,35 @@ button {
 }
 
 /* Media queries pour la responsivité */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 660px) {
     .calendrier {
         margin: 0;
-        padding: 0 5px;
+        padding: 0;
+        width: 100%;
     }
 
     table {
-        width: 100%;
-        min-width: 600px; /* Assure une largeur minimale pour la lisibilité */
+        min-width: 100%;
+        font-size: 0.9rem;
     }
 
     thead th {
         padding: 8px 4px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
     }
 
     tbody td {
         height: auto;
-        min-height: 100px;
-        padding: 5px;
-        font-size: 0.9rem;
+        min-height: 80px;
+        padding: 5px 2px;
+        font-size: 0.85rem;
     }
 
     .cours {
-        padding: 4px;
+        padding: 4px 2px;
         margin: 2px 0;
+        font-size: 0.85rem;
     }
 
     form label, form select {
@@ -163,42 +168,72 @@ button {
 
     .navigation-semaine {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
         gap: 10px;
-        padding: 0 10px;
+        padding: 0 5px;
     }
 
     .navigation-semaine span {
         width: 100%;
         margin: 5px 0;
         font-size: 0.9rem;
+        text-align: center;
+    }
+
+    .navigation-semaine form {
+        margin: 5px 0;
     }
 
     .navigation-semaine form button {
         padding: 8px 12px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        width: 100%;
+        max-width: 200px;
     }
 }
 
+/* Styles spécifiques pour les très petits écrans */
 @media screen and (max-width: 480px) {
+    .calendrier {
+        padding: 0;
+    }
+
+    table {
+        margin: 0;
+        border: none;
+    }
+
     thead th {
-        font-size: 0.8rem;
-        padding: 6px 2px;
+        font-size: 0.75rem;
+        padding: 4px 2px;
     }
 
     tbody td {
-        font-size: 0.8rem;
-        padding: 3px;
+        padding: 2px;
+        font-size: 0.75rem;
     }
 
     .cours {
         padding: 2px;
         margin: 1px 0;
+        font-size: 0.75rem;
+    }
+
+    strong {
+        font-size: 0.8rem;
     }
 
     form select {
         width: 95%;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+
+    /* Optimisations pour l'affichage des dates */
+    tbody td strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.75rem;
     }
 }
