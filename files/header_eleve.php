@@ -33,6 +33,54 @@ try {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="../css/header_admin.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
+    <style>
+        .navbar-toggler {
+            position: relative;
+            width: 45px;
+            height: 40px;
+            border: 2px solid #333;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 15px;
+        }
+
+        .navbar-toggler span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            margin: 4px 0;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-toggler.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .navbar-toggler.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .navbar-toggler.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 10px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
 
