@@ -67,7 +67,7 @@ function securiser($data) {
                             $message = "Le nom de la classe doit être rempli.";
                         } else {
                             // Vérification de l'existence de la classe dans la base
-                            $sql = "SELECT * FROM class WHERE name = :name";
+                            $sql = "SELECT * FROM classes WHERE name = :name";
                             $stmt = $pdo->prepare($sql);
                             $stmt->bindParam(':name', $name_classe);
                             $stmt->execute();
@@ -77,7 +77,7 @@ function securiser($data) {
                                 $message = "Cette classe existe déjà.";
                             } else {           
                                 // Insertion de la nouvelle classe dans la base de données
-                                $sql = "INSERT INTO class (name) VALUES (:name)";
+                                $sql = "INSERT INTO classes (name) VALUES (:name)";
                                 $stmt = $pdo->prepare($sql);
                                 $stmt->bindParam(':name', $name_classe);
                                 
@@ -108,7 +108,7 @@ function securiser($data) {
                 <div>
                     <?php
                     // Récupération de toutes les classes pour modification
-                    $stmt = $pdo->query("SELECT id, name FROM class ORDER BY name");
+                    $stmt = $pdo->query("SELECT id, name FROM classes ORDER BY name");
 
                     // Affichage d'un formulaire par classe
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
@@ -132,7 +132,7 @@ function securiser($data) {
                         <?php
                         try {
                             // Récupération des classes par ordre alphabétique
-                            $sql = "SELECT name FROM class ORDER BY name";
+                            $sql = "SELECT name FROM classes ORDER BY name";
                             $stmt = $pdo->query($sql);
                             $names = $stmt->fetchAll();
                             $namesCount = count($names);
@@ -168,7 +168,7 @@ function securiser($data) {
                             <option value="">-- Sélectionnez une classe --</option>
                             <?php
                             // Récupération de toutes les classes pour le menu déroulant
-                            $sql = "SELECT id, name FROM class ORDER BY name";
+                            $sql = "SELECT id, name FROM classes ORDER BY name";
                             $stmt = $pdo->query($sql);
                             $classes = $stmt->fetchAll();
 
@@ -193,7 +193,7 @@ function securiser($data) {
                             $classe_id = intval($_POST['classe_id']);
                             
                             // Préparation et exécution de la requête de suppression
-                            $sql = "DELETE FROM class WHERE id = ?";
+                            $sql = "DELETE FROM classes WHERE id = ?";
                             $stmt = $pdo->prepare($sql);
                             
                             if ($stmt->execute([$classe_id])) {

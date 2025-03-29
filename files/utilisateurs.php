@@ -89,7 +89,7 @@ $error = "";
                         <option value="">-- Sélectionner une classe --</option>
                         <?php
                         // Récupération de toutes les classes disponibles depuis la base de données
-                        $stmt = $pdo->query("SELECT id, name FROM class");
+                        $stmt = $pdo->query("SELECT id, name FROM classes");
                         // Boucle pour afficher chaque classe comme option
                         while ($classe = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                             <option value="<?php echo $classe['id']; ?>">
@@ -225,7 +225,7 @@ $error = "";
                             <select id="classe_id" name="classe_id">
                                 <?php
                                 // Récupération du nom de la classe actuelle
-                                $currentClasseStmt = $pdo->prepare("SELECT name FROM class WHERE id = :id");
+                                $currentClasseStmt = $pdo->prepare("SELECT name FROM classes WHERE id = :id");
                                 $currentClasseStmt->execute([':id' => $user['classe_id']]);
                                 $currentClasse = $currentClasseStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -239,7 +239,7 @@ $error = "";
                                 <option value="">-- Sélectionner une autre classe --</option>
                                 <?php
                                 // Liste des autres classes disponibles
-                                $stmt = $pdo->query("SELECT id, name FROM class");
+                                $stmt = $pdo->query("SELECT id, name FROM classes");
                                 while ($classe = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                                     <option value="<?php echo $classe['id']; ?>">
                                         <?php echo htmlspecialchars($classe['name']); ?>

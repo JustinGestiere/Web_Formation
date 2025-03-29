@@ -29,7 +29,7 @@
         $name = $_POST['name'];
 
         // Préparer et exécuter la requête de mise à jour
-        $stmt = $pdo->prepare("UPDATE class SET name = :name WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE classes SET name = :name WHERE id = :id");
         $stmt->execute([
             ':name' => $name,
             ':id' => $id

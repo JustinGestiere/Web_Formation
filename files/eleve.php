@@ -36,7 +36,7 @@ if (isset($_SESSION['user_role'])) {
             <?php
                 try {
                     // Récupérer les classes
-                    $sql = "SELECT name FROM class ORDER BY name";
+                    $sql = "SELECT name FROM classes ORDER BY name";
                     $stmt = $pdo->query($sql);
                     $names = $stmt->fetchAll();
                     $namesCount = count($names);
@@ -153,7 +153,7 @@ for ($i = 0; $i < 5; $i++) {
 }
 
 // Récupération des classes disponibles
-$classes = $pdo->query("SELECT id, name FROM class")->fetchAll(PDO::FETCH_ASSOC);
+$classes = $pdo->query("SELECT id, name FROM classes")->fetchAll(PDO::FETCH_ASSOC);
 
 // Récupération des cours pour la classe sélectionnée (ou tous les cours si aucune classe n'est sélectionnée)
 $cours = [];
