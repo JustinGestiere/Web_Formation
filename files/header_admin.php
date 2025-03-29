@@ -112,7 +112,7 @@ try {
             <a class="nav-link" href="/files/statistique.php">Statistiques</a>
         </li>
         <li class="nav-item">
-            <form method="post" action="logout.php" class="d-inline">
+            <form method="post" action="/files/logout.php" class="d-inline">
                 <button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button>
             </form>
         </li>
