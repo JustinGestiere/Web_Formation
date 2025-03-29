@@ -29,30 +29,42 @@ try {
     <link href="../css/header_admin.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
     <style>
-        #sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100vh;
-            background-color: #fff;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+        .navbar-toggler {
+            position: relative;
+            width: 45px;
+            height: 40px;
+            border: 2px solid #333;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 15px;
         }
-        #sidebar.active {
-            transform: translateX(0);
-        }
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-        }
-        #overlay.active {
+
+        .navbar-toggler span {
             display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            margin: 4px 0;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-toggler.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .navbar-toggler.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .navbar-toggler.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
         }
     </style>
 </head>
@@ -62,9 +74,9 @@ try {
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
             <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
-                <span class="navbar-toggler-icon"></span>
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
             <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
             <h2 class="h3 mb-0">Web Formation</h2>
@@ -75,29 +87,29 @@ try {
 <nav id="sidebar">
     <div class="sidebar-header">
         <h3>Menu</h3>
-        <button class="close-sidebar" onclick="toggleSidebar()">×</button>
+        <button class="close-sidebar" onclick="toggleSidebar(document.querySelector('.navbar-toggler'))">×</button>
     </div>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="../index.php">Accueil</a>
+            <a class="nav-link" href="/bts_sio/Web_Formation/index.php">Accueil</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="matieres.php">Matières</a>
+            <a class="nav-link" href="/bts_sio/Web_Formation/files/matieres.php">Matières</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="classes.php">Classes</a>
+            <a class="nav-link" href="/bts_sio/Web_Formation/files/classes.php">Classes</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="cours.php">Cours</a>
+            <a class="nav-link" href="/bts_sio/Web_Formation/files/cours.php">Cours</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="utilisateurs.php">Utilisateurs</a>
+            <a class="nav-link" href="/bts_sio/Web_Formation/files/utilisateurs.php">Utilisateurs</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
+            <a class="nav-link" href="/bts_sio/Web_Formation/files/emploi_du_temps.php">Emploi du temps</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="statistique.php">Statistiques</a>
+            <a class="nav-link" href="/bts_sio/Web_Formation/files/statistique.php">Statistiques</a>
         </li>
         <li class="nav-item">
             <form method="post" action="logout.php" class="d-inline">
@@ -107,14 +119,7 @@ try {
     </ul>
 </nav>
 
-<div id="overlay" onclick="toggleSidebar()"></div>
-
-<main>
-    <!-- Scripts de Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</main>
+<div id="overlay" onclick="toggleSidebar(document.querySelector('.navbar-toggler'))"></div>
 
 <script>
 function toggleSidebar(button) {
@@ -123,6 +128,11 @@ function toggleSidebar(button) {
     button.classList.toggle('active');
 }
 </script>
+
+<!-- Scripts de Bootstrap -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 </html>
