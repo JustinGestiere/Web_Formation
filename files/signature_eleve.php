@@ -175,13 +175,16 @@ function showSignatureModal(coursId) {
     currentModal = new bootstrap.Modal(document.getElementById('signatureModal'));
     currentModal.show();
     
-    // Initialiser le pad de signature
-    const canvas = document.getElementById('signature-pad');
-    canvas.width = canvas.offsetWidth;
-    signaturePad = new SignaturePad(canvas, {
-        backgroundColor: 'rgb(255, 255, 255)',
-        penColor: 'rgb(0, 0, 0)'
-    });
+    setTimeout(() => {
+        // Initialiser le pad de signature après l'affichage du modal
+        const canvas = document.getElementById('signature-pad');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 200;
+        signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(0, 0, 0)'
+        });
+    }, 500);
 }
 
 function clearSignature() {
@@ -198,6 +201,13 @@ function saveSignature() {
         alert('Veuillez signer avant de valider');
     }
 }
+
+// Réinitialiser le pad quand le modal est fermé
+document.getElementById('signatureModal').addEventListener('hidden.bs.modal', function () {
+    if (signaturePad) {
+        signaturePad.clear();
+    }
+});
 </script>
 
 <?php require_once "footer.php"; ?>

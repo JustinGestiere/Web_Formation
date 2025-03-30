@@ -112,15 +112,12 @@ if ($week_offset === 0) {
 
         <!-- Navigation des jours (visible uniquement sur mobile) -->
         <div class="day-navigation d-md-none mb-3">
-            <div class="btn-group w-100">
+            <div class="d-flex justify-content-between">
                 <?php foreach ($days as $index => $day): ?>
-                    <form method="GET" action="" class="flex-fill">
-                        <input type="hidden" name="week_offset" value="<?php echo $week_offset; ?>">
-                        <input type="hidden" name="active_day" value="<?php echo $index; ?>">
-                        <button type="submit" class="btn btn-outline-primary <?php echo $index === $active_day_index ? 'active' : ''; ?>">
-                            <?php echo $day->format('D j'); ?>
-                        </button>
-                    </form>
+                    <a href="?week_offset=<?php echo $week_offset; ?>&active_day=<?php echo $index; ?>" 
+                       class="btn btn-outline-primary <?php echo $index === $active_day_index ? 'active' : ''; ?>">
+                        <?php echo $day->format('D j'); ?>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
