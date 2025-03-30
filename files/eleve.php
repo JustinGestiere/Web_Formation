@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
-require_once "header.php";
+require_once "header_eleve.php";
 
 // Vérification si l'utilisateur est un élève
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'eleve') {
@@ -141,4 +141,4 @@ function formatDate(date) {
 }
 </script>
 
-<?php require_once "footer.php"; ?>
+<?php require_once "footer_eleve.php"; ?>
