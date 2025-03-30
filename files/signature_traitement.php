@@ -15,6 +15,11 @@ if (!isset($_POST['cours_id']) || !isset($_POST['eleves_present']) || !is_array(
     exit();
 }
 
+// Affichons la structure de la table sign
+$stmt = $pdo->query("DESCRIBE sign");
+$sign_columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+var_dump("Structure de la table sign:", $sign_columns);
+
 $cours_id = $_POST['cours_id'];
 $eleves_presents = $_POST['eleves_present'];
 $date_signature = date('Y-m-d H:i:s');
@@ -24,15 +29,25 @@ try {
     // Début de la transaction
     $pdo->beginTransaction();
 
+    // Récupérer les informations du cours pour avoir la classe_id
+    $stmt = $pdo->prepare("SELECT class_id FROM cours WHERE id = :cours_id");
+    $stmt->execute(['cours_id' => $cours_id]);
+    $cours = $stmt->fetch();
+    
+    if (!$cours) {
+        throw new Exception("Cours non trouvé");
+    }
+
     // Préparation de la requête d'insertion
-    $stmt = $pdo->prepare("INSERT INTO sign (cours_id, eleve_id, professeur_id, date_signature) VALUES (:cours_id, :eleve_id, :professeur_id, :date_signature)");
+    $stmt = $pdo->prepare("INSERT INTO sign (user_id, professeur_id, classe_id, statut, signature, signed, date_signature) 
+                          VALUES (:user_id, :professeur_id, :classe_id, 'En attente', '', 0, :date_signature)");
 
     // Insertion pour chaque élève présent
     foreach ($eleves_presents as $eleve_id) {
         $stmt->execute([
-            'cours_id' => $cours_id,
-            'eleve_id' => $eleve_id,
+            'user_id' => $eleve_id,
             'professeur_id' => $professeur_id,
+            'classe_id' => $cours['class_id'],
             'date_signature' => $date_signature
         ]);
     }
