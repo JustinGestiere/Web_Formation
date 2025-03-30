@@ -17,23 +17,34 @@ require_once "bdd.php"; // Connexion à la base de données
 $professeur_id = $_SESSION['user_id'];
 var_dump("ID du professeur : " . $professeur_id); // Debug
 
-$query = "SELECT DISTINCT c.* FROM classes c
-          INNER JOIN emploi_du_temps edt ON c.id = edt.class_id
-          WHERE edt.professeur_id = :professeur_id";
-$stmt = $pdo->prepare($query);
-$stmt->execute(['professeur_id' => $professeur_id]);
-$classes = $stmt->fetchAll();
-var_dump($classes); // Debug
+// D'abord, affichons les tables disponibles
+$stmt = $pdo->query("SHOW TABLES");
+$tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+var_dump("Tables disponibles :", $tables);
 
-// Sélectionner les élèves pour chaque classe
+// Affichons la structure de la table users
+$stmt = $pdo->query("DESCRIBE users");
+$users_columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+var_dump("Structure de la table users :", $users_columns);
+
+// Affichons la structure de la table classes
+$stmt = $pdo->query("DESCRIBE classes");
+$classes_columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+var_dump("Structure de la table classes :", $classes_columns);
+
+// Pour l'instant, récupérons toutes les classes
+$query = "SELECT * FROM classes";
+$stmt = $pdo->prepare($query);
+$stmt->execute();
+$classes = $stmt->fetchAll();
+var_dump("Classes disponibles :", $classes);
+
+// Sélectionner les élèves d'une classe
 if (isset($_POST['classe_id'])) {
     $classe_id = $_POST['classe_id'];
     var_dump("Classe sélectionnée : " . $classe_id); // Debug
     
-    $stmt = $pdo->prepare("SELECT DISTINCT u.* FROM users u
-                          INNER JOIN emploi_du_temps edt ON u.class_id = edt.class_id
-                          WHERE edt.class_id = :classe_id 
-                          AND u.role = 'eleve'");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE role = 'eleve' AND class_id = :classe_id");
     $stmt->execute(['classe_id' => $classe_id]);
     $eleves = $stmt->fetchAll();
     var_dump($eleves); // Debug
