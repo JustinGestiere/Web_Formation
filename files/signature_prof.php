@@ -17,13 +17,18 @@ require_once "bdd.php"; // Connexion à la base de données
 $professeur_id = $_SESSION['user_id'];
 var_dump("ID du professeur : " . $professeur_id); // Debug
 
-// D'abord, affichons les tables disponibles
-$stmt = $pdo->query("SHOW TABLES");
-$tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-var_dump("Tables disponibles :", $tables);
+// Affichons la structure des tables
+$stmt = $pdo->query("DESCRIBE classes");
+var_dump("Structure de la table classes:", $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+$stmt = $pdo->query("DESCRIBE cours");
+var_dump("Structure de la table cours:", $stmt->fetchAll(PDO::FETCH_COLUMN));
+
+$stmt = $pdo->query("DESCRIBE matieres");
+var_dump("Structure de la table matieres:", $stmt->fetchAll(PDO::FETCH_COLUMN));
 
 // Récupérer les cours du professeur
-$query = "SELECT c.*, cl.nom as classe_nom, m.nom as matiere_nom 
+$query = "SELECT c.*, cl.name as classe_nom, m.name as matiere_nom 
           FROM cours c 
           INNER JOIN classes cl ON c.class_id = cl.id
           INNER JOIN matieres m ON c.matiere_id = m.id
