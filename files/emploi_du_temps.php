@@ -41,19 +41,26 @@ $classes = $pdo->query("SELECT id, name FROM classes")->fetchAll(PDO::FETCH_ASSO
 // Récupération des cours pour la classe sélectionnée (ou tous les cours si aucune classe n'est sélectionnée)
 $cours = [];
 $query = "
-    SELECT titre, date_debut, date_fin, class_id
-    FROM cours
-    WHERE DATE(date_debut) BETWEEN :start_date AND :end_date
+    SELECT c.titre, c.date_debut, c.date_fin, c.class_id
+    FROM cours c
+    WHERE DATE(c.date_debut) BETWEEN :start_date AND :end_date
 ";
 $params = [
     ':start_date' => $start_date->format('Y-m-d'),
     ':end_date' => $week_start->modify('-1 day')->format('Y-m-d') // Vendredi
 ];
 
+// Si l'utilisateur est un professeur, on ne montre que ses cours
+if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'prof' && isset($_SESSION['user_id'])) {
+    $query .= " AND c.professeur_id = :professeur_id";
+    $params[':professeur_id'] = $_SESSION['user_id'];
+}
+
 if ($selected_class_id > 0) {
-    $query .= " AND class_id = :class_id";
+    $query .= " AND c.class_id = :class_id";
     $params[':class_id'] = $selected_class_id;
 }
+
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
