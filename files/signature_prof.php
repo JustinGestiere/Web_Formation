@@ -3,6 +3,12 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Vérification de la connexion et du rôle
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
+    header("Location: login.php");
+    exit();
+}
+
 // Connexion à la base de données
 try {
     require_once "bdd.php";
@@ -10,21 +16,10 @@ try {
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
 
-// Vérification de la connexion et du rôle
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
-    header("Location: login.php");
-    exit();
-}
-
-// Inclusion du header
-include "header_prof.php";
-
 // Traitement du formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $professeur_id = $_SESSION['user_id'];
-    $classe_id = $_POST['classe_id'];
     $emploi_du_temps_id = $_POST['emploi_du_temps_id'];
-    
     $eleves_presents = isset($_POST['presences']) ? $_POST['presences'] : [];
 
     foreach ($eleves_presents as $eleve_id) {
@@ -44,6 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     echo "<div class='alert alert-success'>Demandes de signatures envoyées avec succès !</div>";
 }
+
+// Inclusion du header
+include "header_prof.php";
 ?>
 
 <!DOCTYPE html>
@@ -84,39 +82,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         <!-- Formulaire de sélection -->
         <form method="POST" action="">
-            <!-- Sélection de la classe -->
+            <!-- Sélection du cours -->
             <div class="form-group">
-                <label for="classe_id">Sélectionnez une classe :</label>
-                <select name="classe_id" id="classe_id" class="form-control" required>
-                    <option value="">-- Choisir une classe --</option>
+                <label for="emploi_du_temps_id">Sélectionnez un cours :</label>
+                <select name="emploi_du_temps_id" id="emploi_du_temps_id" class="form-control" required>
+                    <option value="">-- Choisir un cours --</option>
                     <?php
-                    // Récupérer les classes du professeur
-                    $sql_classes = "SELECT DISTINCT c.id, c.name 
-                                  FROM classes c 
-                                  INNER JOIN emploi_du_temps edt ON c.id = edt.class_id 
-                                  WHERE edt.professeur_id = ?
-                                  ORDER BY c.name";
-                    $stmt_classes = $pdo->prepare($sql_classes);
-                    $stmt_classes->execute([$_SESSION['user_id']]);
-                    while ($classe = $stmt_classes->fetch()) {
-                        echo "<option value='" . $classe['id'] . "'>" . htmlspecialchars($classe['name']) . "</option>";
+                    // Récupérer les cours du jour pour ce professeur
+                    $sql_cours = "SELECT edt.id, edt.title, c.name as class_name,
+                                        DATE_FORMAT(edt.start_datetime, '%H:%i') as start_time
+                                FROM emploi_du_temps edt
+                                INNER JOIN classes c ON edt.class_id = c.id
+                                WHERE edt.professeur_id = ?
+                                AND DATE(edt.start_datetime) = CURRENT_DATE
+                                ORDER BY edt.start_datetime";
+                    $stmt_cours = $pdo->prepare($sql_cours);
+                    $stmt_cours->execute([$_SESSION['user_id']]);
+                    
+                    while ($cours = $stmt_cours->fetch()) {
+                        echo "<option value='" . $cours['id'] . "'>" 
+                            . htmlspecialchars($cours['title']) 
+                            . " - " . htmlspecialchars($cours['class_name'])
+                            . " à " . $cours['start_time']
+                            . "</option>";
                     }
                     ?>
                 </select>
             </div>
 
-            <!-- Sélection du cours dans l'emploi du temps -->
-            <div class="form-group">
-                <label for="emploi_du_temps_id">Sélectionnez un cours :</label>
-                <select name="emploi_du_temps_id" id="emploi_du_temps_id" class="form-control" required>
-                    <option value="">-- Choisir un cours --</option>
-                </select>
-            </div>
-
-            <!-- Liste des élèves (sera remplie par AJAX) -->
-            <div class="eleves-list" id="eleves-list">
-                <!-- Les élèves seront affichés ici -->
-            </div>
+            <!-- Liste des élèves -->
+            <div id="eleves-list"></div>
 
             <button type="submit" class="btn btn-primary">Demander les signatures</button>
         </form>
@@ -125,13 +120,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="signature-status">
             <h3>Statut des Signatures</h3>
             <?php
-            $sql_status = "SELECT s.*, u.nom, u.prenoms, edt.title as cours_titre
+            $sql_status = "SELECT s.*, u.nom, u.prenoms, edt.title as cours_titre,
+                                  c.name as class_name, DATE_FORMAT(edt.start_datetime, '%H:%i') as start_time
                           FROM sign s
                           JOIN users u ON s.user_id = u.id
                           JOIN emploi_du_temps edt ON s.emploi_du_temps_id = edt.id
+                          JOIN classes c ON edt.class_id = c.id
                           WHERE s.professeur_id = ?
                           AND DATE(edt.start_datetime) = CURRENT_DATE
-                          ORDER BY s.statut DESC, u.nom, u.prenoms";
+                          ORDER BY s.statut DESC, edt.start_datetime, u.nom, u.prenoms";
             $stmt_status = $pdo->prepare($sql_status);
             $stmt_status->execute([$_SESSION['user_id']]);
             
@@ -142,6 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     echo "<li class='list-group-item'>";
                     echo htmlspecialchars($signature['nom']) . " " . htmlspecialchars($signature['prenoms']);
                     echo " - " . htmlspecialchars($signature['cours_titre']);
+                    echo " (" . htmlspecialchars($signature['class_name']) . " à " . $signature['start_time'] . ")";
                     echo " <span class='" . $status_class . "'>[" . htmlspecialchars($signature['statut']) . "]</span>";
                     echo "</li>";
                 }
@@ -154,34 +152,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-    document.getElementById('classe_id').addEventListener('change', function() {
-        const classeId = this.value;
-        const edtSelect = document.getElementById('emploi_du_temps_id');
-        const elevesDiv = document.getElementById('eleves-list');
-        
-        // Vider les sélections précédentes
-        edtSelect.innerHTML = '<option value="">-- Choisir un cours --</option>';
-        elevesDiv.innerHTML = '';
-        
-        if (classeId) {
-            // Charger les cours de la classe
-            fetch(`get_cours.php?classe_id=${classeId}`)
-                .then(response => response.json())
-                .then(cours => {
-                    cours.forEach(c => {
-                        edtSelect.innerHTML += `<option value="${c.id}">${c.title} - ${c.start_time}</option>`;
-                    });
-                });
-        }
-    });
-
     document.getElementById('emploi_du_temps_id').addEventListener('change', function() {
-        const classeId = document.getElementById('classe_id').value;
+        const edtId = this.value;
         const elevesDiv = document.getElementById('eleves-list');
         
-        if (classeId) {
-            // Charger les élèves de la classe
-            fetch(`get_eleves.php?classe_id=${classeId}`)
+        if (edtId) {
+            // Charger les élèves de la classe correspondant au cours
+            fetch(`get_eleves.php?edt_id=${edtId}`)
                 .then(response => response.json())
                 .then(eleves => {
                     elevesDiv.innerHTML = '<div class="form-group">';
@@ -197,6 +174,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     });
                     elevesDiv.innerHTML += '</div>';
                 });
+        } else {
+            elevesDiv.innerHTML = '';
         }
     });
     </script>

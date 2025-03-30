@@ -10,14 +10,26 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
     exit();
 }
 
-if (!isset($_GET['classe_id'])) {
-    echo json_encode(['error' => 'ID de classe manquant']);
+if (!isset($_GET['edt_id'])) {
+    echo json_encode(['error' => 'ID du cours manquant']);
     exit();
 }
 
 try {
     require_once "bdd.php";
     
+    // Récupérer d'abord la classe du cours
+    $sql_class = "SELECT class_id FROM emploi_du_temps WHERE id = ? AND professeur_id = ?";
+    $stmt_class = $pdo->prepare($sql_class);
+    $stmt_class->execute([$_GET['edt_id'], $_SESSION['user_id']]);
+    $class = $stmt_class->fetch();
+    
+    if (!$class) {
+        echo json_encode(['error' => 'Cours non trouvé']);
+        exit();
+    }
+    
+    // Récupérer les élèves de cette classe
     $sql = "SELECT u.id, u.nom, u.prenoms
             FROM users u
             INNER JOIN eleves_classes ec ON u.id = ec.eleve_id
@@ -25,7 +37,7 @@ try {
             ORDER BY u.nom, u.prenoms";
     
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$_GET['classe_id']]);
+    $stmt->execute([$class['class_id']]);
     
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     
