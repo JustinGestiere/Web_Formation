@@ -38,12 +38,13 @@ $query = "SELECT
                     SELECT 1 FROM sign 
                     WHERE classe_id = c.class_id 
                     AND user_id = :eleve_id 
-                    AND DATE(date_signature) = DATE(c.date_debut)
+                    AND DATE(CONVERT_TZ(date_signature, '+00:00', '+02:00')) = DATE(c.date_debut)
                 ) THEN 'signed'
                 WHEN EXISTS (
                     SELECT 1 FROM sign 
                     WHERE classe_id = c.class_id 
-                    AND DATE(date_signature) = DATE(c.date_debut)
+                    AND DATE(CONVERT_TZ(date_signature, '+00:00', '+02:00')) = DATE(c.date_debut)
+                    AND user_id != :eleve_id
                 ) THEN 'to_sign'
                 ELSE 'not_available'
             END as signature_status

@@ -24,7 +24,7 @@ try {
                           FROM cours c 
                           LEFT JOIN sign s ON s.classe_id = c.class_id 
                           AND s.user_id = :eleve_id 
-                          AND DATE(s.date_signature) = DATE(c.date_debut)
+                          AND DATE(CONVERT_TZ(s.date_signature, '+00:00', '+02:00')) = DATE(c.date_debut)
                           WHERE c.id = :cours_id");
     $stmt->execute([
         'cours_id' => $cours_id,
@@ -43,20 +43,22 @@ try {
     // Vérifier si le professeur a déjà initié la signature
     $stmt = $pdo->prepare("SELECT id FROM sign 
                           WHERE classe_id = :classe_id 
-                          AND DATE(date_signature) = DATE(:date_cours)
+                          AND DATE(CONVERT_TZ(date_signature, '+00:00', '+02:00')) = DATE(:date_cours)
+                          AND user_id != :eleve_id
                           LIMIT 1");
     $stmt->execute([
         'classe_id' => $cours['class_id'],
-        'date_cours' => $cours['date_debut']
+        'date_cours' => $cours['date_debut'],
+        'eleve_id' => $eleve_id
     ]);
     
     if (!$stmt->fetch()) {
         throw new Exception("La signature n'est pas encore disponible pour ce cours");
     }
 
-    // Enregistrer la signature
+    // Enregistrer la signature avec le bon fuseau horaire
     $stmt = $pdo->prepare("INSERT INTO sign (user_id, professeur_id, classe_id, signature, signed, date_signature) 
-                          VALUES (:user_id, :professeur_id, :classe_id, :signature, 1, NOW())");
+                          VALUES (:user_id, :professeur_id, :classe_id, :signature, 1, CONVERT_TZ(NOW(), '+02:00', '+00:00'))");
     
     $stmt->execute([
         'user_id' => $eleve_id,
