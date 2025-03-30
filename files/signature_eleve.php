@@ -37,14 +37,14 @@ $query = "SELECT
                 WHEN EXISTS (
                     SELECT 1 FROM sign 
                     WHERE classe_id = c.class_id 
-                    AND user_id = :eleve_id 
+                    AND user_id = :eleve_id_sign
                     AND DATE(CONVERT_TZ(date_signature, '+00:00', '+02:00')) = DATE(c.date_debut)
                 ) THEN 'signed'
                 WHEN EXISTS (
                     SELECT 1 FROM sign 
                     WHERE classe_id = c.class_id 
                     AND DATE(CONVERT_TZ(date_signature, '+00:00', '+02:00')) = DATE(c.date_debut)
-                    AND user_id != :eleve_id
+                    AND user_id != :eleve_id_check
                 ) THEN 'to_sign'
                 ELSE 'not_available'
             END as signature_status
@@ -57,7 +57,8 @@ $query = "SELECT
 $stmt = $pdo->prepare($query);
 $stmt->execute([
     'classe_id' => $eleve['classe_id'],
-    'eleve_id' => $eleve_id
+    'eleve_id_sign' => $eleve_id,
+    'eleve_id_check' => $eleve_id
 ]);
 $cours = $stmt->fetchAll();
 ?>
