@@ -42,7 +42,7 @@ if (isset($_SESSION['user_role'])) {
                         // Récupérer les classes du professeur connecté
                         $sql = "SELECT DISTINCT c.name 
                                FROM classes c
-                               INNER JOIN cours co ON c.id = co.class_id
+                               INNER JOIN cours co ON c.id = co.classe_id
                                WHERE co.professeur_id = :prof_id
                                ORDER BY c.name";
                         $stmt = $pdo->prepare($sql);
@@ -81,9 +81,10 @@ if (isset($_SESSION['user_role'])) {
                         // Récupérer les élèves des classes du professeur
                         $sql = "SELECT DISTINCT u.* 
                                FROM users u
-                               INNER JOIN cours_eleves ce ON u.id = ce.eleve_id
-                               INNER JOIN cours c ON ce.cours_id = c.id
-                               WHERE c.professeur_id = :prof_id 
+                               INNER JOIN classes_eleves ce ON u.id = ce.eleve_id
+                               INNER JOIN classes c ON ce.classe_id = c.id
+                               INNER JOIN cours co ON c.id = co.classe_id
+                               WHERE co.professeur_id = :prof_id 
                                AND u.roles = 'eleve'
                                ORDER BY u.emails";
                         $stmt = $pdo->prepare($sql);
@@ -170,22 +171,32 @@ if (isset($_SESSION['user_role'])) {
     }
 
     // Récupération des classes disponibles
-    $classes = $pdo->query("SELECT id, name FROM classes")->fetchAll(PDO::FETCH_ASSOC);
+    $stmt_classes = $pdo->prepare("
+        SELECT DISTINCT c.id, c.name 
+        FROM classes c
+        INNER JOIN cours co ON c.id = co.classe_id
+        WHERE co.professeur_id = :prof_id
+        ORDER BY c.name
+    ");
+    $stmt_classes->execute([':prof_id' => $_SESSION['user_id']]);
+    $classes = $stmt_classes->fetchAll(PDO::FETCH_ASSOC);
 
     // Récupération des cours pour la classe sélectionnée (ou tous les cours si aucune classe n'est sélectionnée)
     $cours = [];
     $query = "
-        SELECT titre, date_debut, date_fin, class_id
-        FROM cours
-        WHERE DATE(date_debut) BETWEEN :start_date AND :end_date
+        SELECT c.titre, c.date_debut, c.date_fin, c.classe_id
+        FROM cours c
+        WHERE c.professeur_id = :prof_id
+        AND DATE(c.date_debut) BETWEEN :start_date AND :end_date
     ";
     $params = [
+        ':prof_id' => $_SESSION['user_id'],
         ':start_date' => $start_date->format('Y-m-d'),
         ':end_date' => $week_start->modify('-1 day')->format('Y-m-d') // Vendredi
     ];
 
     if ($selected_class_id > 0) {
-        $query .= " AND class_id = :class_id";
+        $query .= " AND c.classe_id = :class_id";
         $params[':class_id'] = $selected_class_id;
     }
     $stmt = $pdo->prepare($query);
@@ -201,7 +212,6 @@ if (isset($_SESSION['user_role'])) {
     }
     ?>
 
-
     <h1>Calendrier des cours</h1>
 
     <!-- Formulaire de sélection de classe -->
@@ -209,7 +219,7 @@ if (isset($_SESSION['user_role'])) {
         <input type="hidden" name="week_offset" value="<?php echo $week_offset; ?>">
         <label for="class_id">Sélectionnez une classe :</label>
         <select id="class_id" name="class_id" onchange="this.form.submit()">
-            <option value="">-- Toutes les classes --</option>
+            <option value="">-- Toutes mes classes --</option>
             <?php foreach ($classes as $class): ?>
                 <option value="<?php echo $class['id']; ?>" <?php echo ($class['id'] == $selected_class_id) ? 'selected' : ''; ?>>
                     <?php echo htmlspecialchars($class['name']); ?>
@@ -226,7 +236,7 @@ if (isset($_SESSION['user_role'])) {
             <button type="submit">← Semaine précédente</button>
         </form>
         <span>
-            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->modify('-1 day')->format('d/m/Y'); ?>
+            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->format('d/m/Y'); ?>
         </span>
         <form method="GET" action="" style="display: inline;">
             <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
@@ -235,9 +245,9 @@ if (isset($_SESSION['user_role'])) {
         </form>
     </div>
 
-    <!-- Calendrier -->
-    <div class="calendrier">
-        <table border="1">
+    <!-- Emploi du temps -->
+    <div class="emploi-du-temps">
+        <table>
             <thead>
                 <tr>
                     <th>Lundi</th>
@@ -251,16 +261,16 @@ if (isset($_SESSION['user_role'])) {
                 <tr>
                     <?php foreach ($days as $day): ?>
                         <td>
-                            <strong><?php echo $day->format('d/m/Y'); ?></strong><br>
+                            <div class="date"><?php echo $day->format('d/m/Y'); ?></div>
                             <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
                                 <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
                                     <div class="cours">
                                         <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
                                         <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
-                                    </div><br>
+                                    </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                Aucun cours
+                                <div class="no-cours">Aucun cours</div>
                             <?php endif; ?>
                         </td>
                     <?php endforeach; ?>
