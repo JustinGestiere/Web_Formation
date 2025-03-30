@@ -107,12 +107,6 @@ try {
             <a class="nav-link" href="/files/professeur.php">Accueil</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/files/classes.php">Classes</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/files/eleve.php">Élèves</a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link" href="/files/emploi_du_temps.php">Emploi du temps</a>
         </li>
         <li class="nav-item">
