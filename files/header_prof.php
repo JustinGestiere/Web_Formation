@@ -3,7 +3,7 @@
  * En-tête professeur - Gestion des accès et de la navigation
  */
 
-// Démarrage de la session
+// Démarrage de la session si nécessaire
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -15,13 +15,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
 }
 
 // Connexion à la base de données
-try {
-    $pdo = new PDO('mysql:host=localhost;dbname=web_formation', 'root', 'AulrrpTCD7Tk2nJ55H4v');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    error_log("Erreur BDD (prof): " . $e->getMessage());
-    exit("Erreur de connexion à la base de données.");
-}
+require_once "bdd.php";
 ?>
 
 <!DOCTYPE html>
@@ -169,21 +163,13 @@ try {
 <nav id="sidebar">
     <div class="sidebar-header">
         <h3>Menu</h3>
-        <button class="close-sidebar" onclick="toggleSidebar()">×</button>
     </div>
     <ul class="list-unstyled">
-        <li><a href="professeur.php" class="nav-link">Accueil</a></li>
-        <li><a href="emploi_du_temps.php" class="nav-link">Emploi du temps</a></li>
-        <li><a href="signature_prof.php" class="nav-link">Signature</a></li>
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <li><form method="post" action="logout.php" class="d-inline"><button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button></form></li>
-        <?php else: ?>
-            <li><a href="login.php" class="nav-link">Se connecter</a></li>
-        <?php endif; ?>
+        <li><a href="professeur.php">Accueil</a></li>
+        <li><a href="signature_prof.php">Signatures</a></li>
+        <li><a href="logout.php">Déconnexion</a></li>
     </ul>
 </nav>
-
-<div id="overlay" onclick="toggleSidebar()"></div>
 
 <div class="content-wrapper">
 
@@ -210,8 +196,3 @@ document.addEventListener('click', function(event) {
     }
 });
 </script>
-
-</div>
-
-</body>
-</html>
