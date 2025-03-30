@@ -36,7 +36,7 @@ if (isset($_SESSION['user_role'])) {
             <?php
                 try {
                     // Récupérer les classes
-                    $sql = "SELECT name FROM class ORDER BY name";
+                    $sql = "SELECT name FROM classes ORDER BY name";
                     $stmt = $pdo->query($sql);
                     $names = $stmt->fetchAll();
                     $namesCount = count($names);
@@ -134,110 +134,87 @@ if (isset($_SESSION['user_role'])) {
     </details>
 </div>
 
+<!--  Emploi du temps -->
 <?php
-// Récupérer l'ID du professeur connecté
-$prof_id = $_SESSION['user_id'];
+// Variables principales
+$week_offset = isset($_GET['week_offset']) ? (int)$_GET['week_offset'] : 0;
+$selected_class_id = isset($_GET['class_id']) ? (int)$_GET['class_id'] : 0;
 
-// Récupérer les classes associées au professeur
-$stmt_classes = $pdo->prepare("
-    SELECT DISTINCT c.* 
-    FROM classes c
-    INNER JOIN cours co ON c.id = co.classe_id
-    WHERE co.professeur_id = ?
-");
-$stmt_classes->execute([$prof_id]);
-$classes = $stmt_classes->fetchAll(PDO::FETCH_ASSOC);
+// Définir le premier lundi de 2025 comme point de départ
+$start_date = new DateTime('2025-01-06');
+$start_date->modify("{$week_offset} week");
 
-// Récupérer les élèves des classes associées au professeur
-$stmt_eleves = $pdo->prepare("
-    SELECT DISTINCT u.* 
-    FROM utilisateurs u
-    INNER JOIN eleves_classes ec ON u.id = ec.eleve_id
-    INNER JOIN classes c ON ec.classe_id = c.id
-    INNER JOIN cours co ON c.id = co.classe_id
-    WHERE co.professeur_id = ? AND u.role = 'eleve'
-    ORDER BY u.nom, u.prenom
-");
-$stmt_eleves->execute([$prof_id]);
-$eleves = $stmt_eleves->fetchAll(PDO::FETCH_ASSOC);
+// Calcul des jours de la semaine (du lundi au vendredi)
+$days = [];
+$week_start = clone $start_date;
+for ($i = 0; $i < 5; $i++) {
+    $days[] = clone $week_start;
+    $week_start->modify('+1 day');
+}
 
-// Récupérer les cours du professeur pour cette semaine
-$debut_semaine = new DateTime('monday this week');
-$fin_semaine = new DateTime('friday this week');
-$days = new DatePeriod($debut_semaine, new DateInterval('P1D'), $fin_semaine->modify('+1 day'));
+// Récupération des classes disponibles
+$classes = $pdo->query("SELECT id, name FROM classes")->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt_cours = $pdo->prepare("
-    SELECT c.*, cl.nom as classe_nom, m.nom as matiere_nom
-    FROM cours c
-    INNER JOIN classes cl ON c.classe_id = cl.id
-    INNER JOIN matieres m ON c.matiere_id = m.id
-    WHERE c.professeur_id = ?
-    AND c.date_debut BETWEEN ? AND ?
-    ORDER BY c.date_debut
-");
-$stmt_cours->execute([
-    $prof_id,
-    $debut_semaine->format('Y-m-d'),
-    $fin_semaine->format('Y-m-d')
-]);
-$cours = $stmt_cours->fetchAll(PDO::FETCH_ASSOC);
+// Récupération des cours pour la classe sélectionnée (ou tous les cours si aucune classe n'est sélectionnée)
+$cours = [];
+$query = "
+    SELECT titre, date_debut, date_fin, class_id
+    FROM cours
+    WHERE DATE(date_debut) BETWEEN :start_date AND :end_date
+";
+$params = [
+    ':start_date' => $start_date->format('Y-m-d'),
+    ':end_date' => $week_start->modify('-1 day')->format('Y-m-d') // Vendredi
+];
 
-// Organiser les cours par jour
+if ($selected_class_id > 0) {
+    $query .= " AND class_id = :class_id";
+    $params[':class_id'] = $selected_class_id;
+}
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Organisation des cours par jour
 $cours_par_jour = [];
-foreach ($cours as $cours_item) {
-    $date = (new DateTime($cours_item['date_debut']))->format('Y-m-d');
-    if (!isset($cours_par_jour[$date])) {
-        $cours_par_jour[$date] = [];
-    }
-    $cours_par_jour[$date][] = $cours_item;
+foreach ($days as $day) {
+    $cours_par_jour[$day->format('Y-m-d')] = array_filter($cours, function ($cours_item) use ($day) {
+        return date('Y-m-d', strtotime($cours_item['date_debut'])) === $day->format('Y-m-d');
+    });
 }
 ?>
+
 
 <body>
     <h1>Calendrier des cours</h1>
 
     <!-- Formulaire de sélection de classe -->
     <form method="GET" action="">
-        <input type="hidden" name="week_offset" value="<?php echo isset($week_offset) ? $week_offset : 0; ?>">
-        <label for="classe_id">Sélectionnez une classe :</label>
-        <select id="classe_id" name="classe_id">
-            <option value="">-- Toutes mes classes --</option>
-            <?php
-            // Récupération des classes du professeur
-            $stmt_classes = $pdo->prepare("
-                SELECT DISTINCT c.id, c.name 
-                FROM classes c
-                INNER JOIN cours co ON c.id = co.classe_id
-                WHERE co.professeur_id = :prof_id
-                ORDER BY c.name
-            ");
-            $stmt_classes->execute([':prof_id' => $_SESSION['user_id']]);
-            $classes_prof = $stmt_classes->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($classes_prof as $classe): 
-                $selected = (isset($_GET['classe_id']) && $_GET['classe_id'] == $classe['id']) ? 'selected' : '';
-            ?>
-                <option value="<?php echo $classe['id']; ?>" <?php echo $selected; ?>>
-                    <?php echo htmlspecialchars($classe['name']); ?>
+        <input type="hidden" name="week_offset" value="<?php echo $week_offset; ?>">
+        <label for="class_id">Sélectionnez une classe :</label>
+        <select id="class_id" name="class_id" onchange="this.form.submit()">
+            <option value="">-- Toutes les classes --</option>
+            <?php foreach ($classes as $class): ?>
+                <option value="<?php echo $class['id']; ?>" <?php echo ($class['id'] == $selected_class_id) ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($class['name']); ?>
                 </option>
             <?php endforeach; ?>
         </select>
-        <button type="submit">Filtrer</button>
     </form>
 
     <!-- Navigation entre les semaines -->
     <div class="navigation-semaine">
         <form method="GET" action="" style="display: inline;">
-            <input type="hidden" name="classe_id" value="<?php echo isset($_GET['classe_id']) ? $_GET['classe_id'] : ''; ?>">
-            <input type="hidden" name="week_offset" value="<?php echo isset($week_offset) ? $week_offset - 1 : -1; ?>">
+            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
+            <input type="hidden" name="week_offset" value="<?php echo $week_offset - 1; ?>">
             <button type="submit">← Semaine précédente</button>
         </form>
         <span>
-            Semaine du <?php echo $debut_semaine->format('d/m/Y'); ?> au <?php echo $fin_semaine->format('d/m/Y'); ?>
+            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->modify('-1 day')->format('d/m/Y'); ?>
         </span>
         <form method="GET" action="" style="display: inline;">
-            <input type="hidden" name="classe_id" value="<?php echo isset($_GET['classe_id']) ? $_GET['classe_id'] : ''; ?>">
-            <input type="hidden" name="week_offset" value="<?php echo isset($week_offset) ? $week_offset + 1 : 1; ?>">
+            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
+            <input type="hidden" name="week_offset" value="<?php echo $week_offset + 1; ?>">
             <button type="submit">Semaine suivante →</button>
         </form>
     </div>
@@ -281,76 +258,3 @@ foreach ($cours as $cours_item) {
 <?php
   include "files/footer.php";
 ?>
-
-<!-- Section Classes -->
-<div class="section">
-    <h2>Mes Classes</h2>
-    <div class="liste-classes">
-        <?php if (!empty($classes)): ?>
-            <?php foreach ($classes as $classe): ?>
-                <div class="classe-card">
-                    <h3><?php echo htmlspecialchars($classe['nom']); ?></h3>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>Aucune classe assignée</p>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- Section Élèves -->
-<div class="section">
-    <h2>Mes Élèves</h2>
-    <div class="liste-eleves">
-        <?php if (!empty($eleves)): ?>
-            <?php foreach ($eleves as $eleve): ?>
-                <div class="eleve-card">
-                    <h3><?php echo htmlspecialchars($eleve['nom'] . ' ' . $eleve['prenom']); ?></h3>
-                    <p>Email: <?php echo htmlspecialchars($eleve['email']); ?></p>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>Aucun élève assigné</p>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- Section Emploi du temps -->
-<div class="section">
-    <h2>Mon Emploi du temps de la semaine</h2>
-    <div class="emploi-du-temps">
-        <table>
-            <thead>
-                <tr>
-                    <th>Lundi</th>
-                    <th>Mardi</th>
-                    <th>Mercredi</th>
-                    <th>Jeudi</th>
-                    <th>Vendredi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <?php foreach ($days as $day): ?>
-                        <td>
-                            <strong><?php echo $day->format('d/m/Y'); ?></strong><br>
-                            <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
-                                <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
-                                    <div class="cours">
-                                        <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
-                                        <?php echo htmlspecialchars($cours_item['classe_nom']); ?> - 
-                                        <?php echo htmlspecialchars($cours_item['matiere_nom']); ?><br>
-                                        <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - 
-                                        <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                Aucun cours
-                            <?php endif; ?>
-                        </td>
-                    <?php endforeach; ?>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>

@@ -17,11 +17,11 @@ if (isset($_SESSION['user_id'])) {
             header("Location: ../index.php");
             exit();
         case 'prof':
-            header("Location: ../index.php");
+            header("Location: ../files/professeur.php");
             exit();
         case 'eleve':
         case 'visiteur':
-            header("Location: ../index.php");
+            header("Location: ../files/eleve.php");
             exit();
         default:
             header("Location: login.php");  // En cas de rôle invalide
