@@ -78,7 +78,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Inclusion du header
-include "header_prof.php";
+try {
+    include "header_prof.php";
+} catch (Exception $e) {
+    die("Erreur lors du chargement du header : " . $e->getMessage());
+}
 ?>
 
 <div class="container mt-4">
@@ -158,8 +162,6 @@ include "header_prof.php";
     </div>
 </div>
 
-</div> <!-- Fermeture de content-wrapper -->
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Gestion des élèves
@@ -200,4 +202,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include "footer.php"; ?>
+<?php
+try {
+    include "footer.php";
+} catch (Exception $e) {
+    die("Erreur lors du chargement du footer : " . $e->getMessage());
+}
+?>
