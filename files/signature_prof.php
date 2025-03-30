@@ -16,6 +16,9 @@ try {
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
 
+// Inclusion du header
+include "header_prof.php";
+
 // Traitement du formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $professeur_id = $_SESSION['user_id'];
@@ -39,44 +42,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     echo "<div class='alert alert-success'>Demandes de signatures envoyées avec succès !</div>";
 }
-
-// Inclusion du header
-include "header_prof.php";
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Signatures - Professeur</title>
-    <link href="../css/styles.css" rel="stylesheet">
-    <style>
-        .signature-form {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .eleves-list {
-            margin: 20px 0;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .signature-status {
-            margin-top: 30px;
-        }
-        .status-pending {
-            color: orange;
-        }
-        .status-signed {
-            color: green;
-        }
-    </style>
-</head>
-<body>
+<div class="container mt-4">
     <div class="signature-form">
         <h2>Demander des Signatures</h2>
         
@@ -117,7 +85,7 @@ include "header_prof.php";
         </form>
 
         <!-- Affichage des signatures en attente -->
-        <div class="signature-status">
+        <div class="signature-status mt-4">
             <h3>Statut des Signatures</h3>
             <?php
             $sql_status = "SELECT s.*, u.nom, u.prenoms, edt.title as cours_titre,
@@ -133,9 +101,9 @@ include "header_prof.php";
             $stmt_status->execute([$_SESSION['user_id']]);
             
             if ($stmt_status->rowCount() > 0) {
-                echo "<ul class='list-group'>";
+                echo "<ul class='list-group mt-3'>";
                 while ($signature = $stmt_status->fetch()) {
-                    $status_class = $signature['statut'] == 'En attente' ? 'status-pending' : 'status-signed';
+                    $status_class = $signature['statut'] == 'En attente' ? 'text-warning' : 'text-success';
                     echo "<li class='list-group-item'>";
                     echo htmlspecialchars($signature['nom']) . " " . htmlspecialchars($signature['prenoms']);
                     echo " - " . htmlspecialchars($signature['cours_titre']);
@@ -145,39 +113,59 @@ include "header_prof.php";
                 }
                 echo "</ul>";
             } else {
-                echo "<p>Aucune signature en attente pour aujourd'hui.</p>";
+                echo "<p class='mt-3'>Aucune signature en attente pour aujourd'hui.</p>";
             }
             ?>
         </div>
     </div>
+</div>
 
-    <script>
-    document.getElementById('emploi_du_temps_id').addEventListener('change', function() {
-        const edtId = this.value;
-        const elevesDiv = document.getElementById('eleves-list');
-        
-        if (edtId) {
-            // Charger les élèves de la classe correspondant au cours
-            fetch(`get_eleves.php?edt_id=${edtId}`)
-                .then(response => response.json())
-                .then(eleves => {
-                    elevesDiv.innerHTML = '<div class="form-group">';
-                    eleves.forEach(eleve => {
-                        elevesDiv.innerHTML += `
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" name="presences[]" 
-                                       value="${eleve.id}" id="eleve_${eleve.id}">
-                                <label class="form-check-label" for="eleve_${eleve.id}">
-                                    ${eleve.nom} ${eleve.prenoms}
-                                </label>
-                            </div>`;
-                    });
-                    elevesDiv.innerHTML += '</div>';
+<!-- Scripts pour le menu -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+function toggleSidebar(button) {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+    button.classList.toggle('active');
+}
+
+// Gestion des élèves
+document.getElementById('emploi_du_temps_id').addEventListener('change', function() {
+    const edtId = this.value;
+    const elevesDiv = document.getElementById('eleves-list');
+    
+    if (edtId) {
+        // Charger les élèves de la classe correspondant au cours
+        fetch(`get_eleves.php?edt_id=${edtId}`)
+            .then(response => response.json())
+            .then(eleves => {
+                if (eleves.error) {
+                    elevesDiv.innerHTML = `<div class="alert alert-danger">${eleves.error}</div>`;
+                    return;
+                }
+                elevesDiv.innerHTML = '<div class="form-group mt-4"><h4>Liste des élèves</h4>';
+                eleves.forEach(eleve => {
+                    elevesDiv.innerHTML += `
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="presences[]" 
+                                   value="${eleve.id}" id="eleve_${eleve.id}">
+                            <label class="form-check-label" for="eleve_${eleve.id}">
+                                ${eleve.nom} ${eleve.prenoms}
+                            </label>
+                        </div>`;
                 });
-        } else {
-            elevesDiv.innerHTML = '';
-        }
-    });
-    </script>
+                elevesDiv.innerHTML += '</div>';
+            })
+            .catch(error => {
+                elevesDiv.innerHTML = '<div class="alert alert-danger">Erreur lors du chargement des élèves</div>';
+                console.error('Error:', error);
+            });
+    } else {
+        elevesDiv.innerHTML = '';
+    }
+});
+</script>
 </body>
 </html>
