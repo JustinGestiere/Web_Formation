@@ -97,6 +97,149 @@ foreach ($days as $day) {
     <title>Emploi du temps - Professeur</title>
 </head>
 <body>
+    <div class="statistiques">
+        <!-- Bloc Classes -->
+        <details class="blocs_statistiques">
+            <summary>
+                <?php
+                    try {
+                        // Récupérer les classes
+                        $sql = "SELECT name FROM classes ORDER BY name";
+                        $stmt = $pdo->query($sql);
+                        $names = $stmt->fetchAll();
+                        $namesCount = count($names);
+                    } catch (PDOException $e) {
+                        error_log("Erreur lors de la récupération des classes : " . $e->getMessage());
+                        $names = [];
+                        $namesCount = 0;
+                    }
+                ?>
+                <p>
+                    <h4>Classes ( <?php echo $namesCount; ?> )</h4>
+                </p>
+            </summary>
+            <div class="liste_statistiques">
+                <ul>
+                    <?php
+                    if ($namesCount > 0) {
+                        foreach ($names as $name) {
+                            echo "<li>" . htmlspecialchars($name["name"]) . "</li>";
+                        }
+                    } else {
+                        echo "<p>Aucune classe trouvée.</p>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </details>
+
+        <!-- Bloc Élèves -->
+        <details class="blocs_statistiques">
+            <summary>
+                <?php
+                    try {
+                        // Récupérer les élèves
+                        $sql = "SELECT * FROM users WHERE roles = 'eleve' ORDER BY emails";
+                        $stmt = $pdo->query($sql);
+                        $eleves = $stmt->fetchAll();
+                        $elevesCount = count($eleves);
+                    } catch (PDOException $e) {
+                        error_log("Erreur lors de la récupération des élèves : " . $e->getMessage());
+                        $eleves = [];
+                        $elevesCount = 0;
+                    }
+                ?>
+                <p>
+                    <h4>Élèves ( <?php echo $elevesCount; ?> )</h4>
+                </p>
+            </summary>
+            <div class="liste_statistiques">
+                <ul>
+                    <?php
+                    if ($elevesCount > 0) {
+                        foreach ($eleves as $eleve) {
+                            echo "<li>" . htmlspecialchars($eleve["nom"]) . " " . htmlspecialchars($eleve["prenoms"]) . " (" . htmlspecialchars($eleve["emails"]) . ")</li>";
+                        }
+                    } else {
+                        echo "<p>Aucun élève trouvé.</p>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </details>
+
+        <!-- Bloc Professeurs -->
+        <details class="blocs_statistiques">
+            <summary>
+                <?php
+                    try {
+                        // Récupérer les professeurs
+                        $sql = "SELECT * FROM users WHERE roles = 'prof' ORDER BY emails";
+                        $stmt = $pdo->query($sql);
+                        $profs = $stmt->fetchAll();
+                        $profsCount = count($profs);
+                    } catch (PDOException $e) {
+                        error_log("Erreur lors de la récupération des professeurs : " . $e->getMessage());
+                        $profs = [];
+                        $profsCount = 0;
+                    }
+                ?>
+                <p>
+                    <h4>Professeurs ( <?php echo $profsCount; ?> )</h4>
+                </p>
+            </summary>
+            <div class="liste_statistiques">
+                <ul>
+                    <?php
+                    if ($profsCount > 0) {
+                        foreach ($profs as $prof) {
+                            echo "<li>" . htmlspecialchars($prof["nom"]) . " " . htmlspecialchars($prof["prenoms"]) . " (" . htmlspecialchars($prof["emails"]) . ")</li>";
+                        }
+                    } else {
+                        echo "<p>Aucun professeur trouvé.</p>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </details>
+
+        <!-- Bloc Mes Cours -->
+        <details class="blocs_statistiques">
+            <summary>
+                <?php
+                    try {
+                        // Récupérer tous les cours du professeur
+                        $sql = "SELECT titre FROM cours WHERE professeur_id = ? ORDER BY titre";
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute([$_SESSION['user_id']]);
+                        $mes_cours = $stmt->fetchAll();
+                        $mes_coursCount = count($mes_cours);
+                    } catch (PDOException $e) {
+                        error_log("Erreur lors de la récupération des cours : " . $e->getMessage());
+                        $mes_cours = [];
+                        $mes_coursCount = 0;
+                    }
+                ?>
+                <p>
+                    <h4>Mes Cours ( <?php echo $mes_coursCount; ?> )</h4>
+                </p>
+            </summary>
+            <div class="liste_statistiques">
+                <ul>
+                    <?php
+                    if ($mes_coursCount > 0) {
+                        foreach ($mes_cours as $cours) {
+                            echo "<li>" . htmlspecialchars($cours["titre"]) . "</li>";
+                        }
+                    } else {
+                        echo "<p>Aucun cours trouvé.</p>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </details>
+    </div>
+
     <h1>Mon Emploi du temps</h1>
 
     <!-- Formulaire de sélection de classe -->
