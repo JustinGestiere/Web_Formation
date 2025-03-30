@@ -110,7 +110,7 @@ try {
             <a class="nav-link" href="/files/emploi_du_temps.php">Emploi du temps</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/files/signature.php">Signature</a>
+            <a class="nav-link" href="/files/signature_prof.php">Signature</a>
         </li>
         <?php if (isset($_SESSION['user_id'])): ?>
             <li class="nav-item">
