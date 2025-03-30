@@ -5,7 +5,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Vérification des droits d'accès
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
     header("Location: login.php");
     exit();
 }
@@ -26,9 +26,9 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="../css/header_admin.css" rel="stylesheet">
-    <title>Web Formation - Gestion de Planning</title>
+    <title>Web Formation - Espace Professeur</title>
     <style>
+        /* Styles du bouton toggle */
         .navbar-toggler {
             position: relative;
             width: 45px;
@@ -66,6 +66,93 @@ try {
         .navbar-toggler.active span:nth-child(3) {
             transform: rotate(-45deg) translate(5px, -5px);
         }
+
+        /* Styles du header et sidebar */
+        .container_header_admin {
+            background: #fff;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1001;
+        }
+
+        .logo_header_admin {
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        #sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #343a40;
+            transition: 0.3s;
+            z-index: 1002;
+            padding-top: 60px;
+        }
+
+        #sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #343a40;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 {
+            color: #fff;
+            margin: 0;
+            font-size: 1.4em;
+        }
+
+        .close-sidebar {
+            color: #fff;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        #sidebar .nav-link {
+            color: #fff;
+            padding: 10px 20px;
+            transition: 0.3s;
+        }
+
+        #sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+
+        #overlay.active {
+            display: block;
+        }
+
+        /* Ajustement du contenu principal */
+        body {
+            padding-top: 70px;
+        }
     </style>
 </head>
 <body>
@@ -91,16 +178,16 @@ try {
     </div>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="../files/professeur.php">Accueil</a>
+            <a class="nav-link" href="professeur.php">Accueil</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/files/emploi_du_temps.php">Emploi du temps</a>
+            <a class="nav-link" href="emploi_du_temps.php">Emploi du temps</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/files/signature_prof.php">Signature</a>
+            <a class="nav-link" href="signature_prof.php">Signature</a>
         </li>
         <li class="nav-item">
-            <form method="post" action="/files/logout.php" class="d-inline">
+            <form method="post" action="logout.php" class="d-inline">
                 <button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button>
             </form>
         </li>
