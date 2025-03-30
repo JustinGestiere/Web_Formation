@@ -198,31 +198,46 @@ foreach ($cours as $cours_item) {
 
     <!-- Formulaire de sélection de classe -->
     <form method="GET" action="">
-        <input type="hidden" name="week_offset" value="<?php echo $week_offset; ?>">
-        <label for="class_id">Sélectionnez une classe :</label>
-        <select id="class_id" name="class_id" onchange="this.form.submit()">
-            <option value="">-- Toutes les classes --</option>
-            <?php foreach ($classes as $class): ?>
-                <option value="<?php echo $class['id']; ?>" <?php echo ($class['id'] == $selected_class_id) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($class['name']); ?>
+        <input type="hidden" name="week_offset" value="<?php echo isset($week_offset) ? $week_offset : 0; ?>">
+        <label for="classe_id">Sélectionnez une classe :</label>
+        <select id="classe_id" name="classe_id">
+            <option value="">-- Toutes mes classes --</option>
+            <?php
+            // Récupération des classes du professeur
+            $stmt_classes = $pdo->prepare("
+                SELECT DISTINCT c.id, c.name 
+                FROM classes c
+                INNER JOIN cours co ON c.id = co.classe_id
+                WHERE co.professeur_id = :prof_id
+                ORDER BY c.name
+            ");
+            $stmt_classes->execute([':prof_id' => $_SESSION['user_id']]);
+            $classes_prof = $stmt_classes->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($classes_prof as $classe): 
+                $selected = (isset($_GET['classe_id']) && $_GET['classe_id'] == $classe['id']) ? 'selected' : '';
+            ?>
+                <option value="<?php echo $classe['id']; ?>" <?php echo $selected; ?>>
+                    <?php echo htmlspecialchars($classe['name']); ?>
                 </option>
             <?php endforeach; ?>
         </select>
+        <button type="submit">Filtrer</button>
     </form>
 
     <!-- Navigation entre les semaines -->
     <div class="navigation-semaine">
         <form method="GET" action="" style="display: inline;">
-            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
-            <input type="hidden" name="week_offset" value="<?php echo $week_offset - 1; ?>">
+            <input type="hidden" name="classe_id" value="<?php echo isset($_GET['classe_id']) ? $_GET['classe_id'] : ''; ?>">
+            <input type="hidden" name="week_offset" value="<?php echo isset($week_offset) ? $week_offset - 1 : -1; ?>">
             <button type="submit">← Semaine précédente</button>
         </form>
         <span>
-            Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->modify('-1 day')->format('d/m/Y'); ?>
+            Semaine du <?php echo $debut_semaine->format('d/m/Y'); ?> au <?php echo $fin_semaine->format('d/m/Y'); ?>
         </span>
         <form method="GET" action="" style="display: inline;">
-            <input type="hidden" name="class_id" value="<?php echo $selected_class_id; ?>">
-            <input type="hidden" name="week_offset" value="<?php echo $week_offset + 1; ?>">
+            <input type="hidden" name="classe_id" value="<?php echo isset($_GET['classe_id']) ? $_GET['classe_id'] : ''; ?>">
+            <input type="hidden" name="week_offset" value="<?php echo isset($week_offset) ? $week_offset + 1 : 1; ?>">
             <button type="submit">Semaine suivante →</button>
         </form>
     </div>
