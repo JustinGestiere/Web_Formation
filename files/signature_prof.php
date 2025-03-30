@@ -16,7 +16,42 @@ try {
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
 
-// Traitement du formulaire
+// Traitement des requêtes AJAX
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    
+    if ($_GET['action'] === 'get_eleves' && isset($_GET['edt_id'])) {
+        try {
+            // Récupérer d'abord la classe du cours
+            $sql_class = "SELECT class_id FROM emploi_du_temps WHERE id = ? AND professeur_id = ?";
+            $stmt_class = $pdo->prepare($sql_class);
+            $stmt_class->execute([$_GET['edt_id'], $_SESSION['user_id']]);
+            $class = $stmt_class->fetch();
+            
+            if (!$class) {
+                echo json_encode(['error' => 'Cours non trouvé']);
+                exit();
+            }
+            
+            // Récupérer les élèves de cette classe
+            $sql = "SELECT u.id, u.nom, u.prenoms
+                    FROM users u
+                    INNER JOIN eleves_classes ec ON u.id = ec.eleve_id
+                    WHERE ec.classe_id = ? AND u.roles = 'eleve'
+                    ORDER BY u.nom, u.prenoms";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$class['class_id']]);
+            
+            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        } catch (Exception $e) {
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+        exit();
+    }
+}
+
+// Traitement du formulaire POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $professeur_id = $_SESSION['user_id'];
     $emploi_du_temps_id = $_POST['emploi_du_temps_id'];
@@ -133,7 +168,7 @@ document.getElementById('emploi_du_temps_id').addEventListener('change', functio
     
     if (edtId) {
         // Charger les élèves de la classe correspondant au cours
-        fetch(`get_eleves.php?edt_id=${edtId}`)
+        fetch(`signature_prof.php?action=get_eleves&edt_id=${edtId}`)
             .then(response => response.json())
             .then(eleves => {
                 if (eleves.error) {
@@ -163,6 +198,4 @@ document.getElementById('emploi_du_temps_id').addEventListener('change', functio
 });
 </script>
 
-<?php
-include "footer.php";
-?>
+<?php include "footer.php"; ?>
