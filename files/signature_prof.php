@@ -18,6 +18,9 @@ $professeur_id = $_SESSION['user_id'];
 var_dump("ID du professeur : " . $professeur_id); // Debug
 
 // Affichons la structure des tables
+$stmt = $pdo->query("DESCRIBE users");
+var_dump("Structure de la table users:", $stmt->fetchAll(PDO::FETCH_COLUMN));
+
 $stmt = $pdo->query("DESCRIBE classes");
 var_dump("Structure de la table classes:", $stmt->fetchAll(PDO::FETCH_COLUMN));
 
@@ -45,7 +48,7 @@ if (isset($_POST['cours_id'])) {
     
     $stmt = $pdo->prepare("SELECT u.* FROM users u
                           INNER JOIN cours c ON u.class_id = c.class_id
-                          WHERE c.id = :cours_id AND u.role = 'eleve'");
+                          WHERE c.id = :cours_id AND u.user_role = 'eleve'");
     $stmt->execute(['cours_id' => $cours_id]);
     $eleves = $stmt->fetchAll();
     var_dump($eleves); // Debug
