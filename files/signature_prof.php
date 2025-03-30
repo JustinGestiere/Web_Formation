@@ -33,6 +33,16 @@ $stmt = $pdo->prepare($query);
 $stmt->execute(['professeur_id' => $professeur_id]);
 $cours = $stmt->fetchAll();
 
+// Récupérer tous les élèves par classe
+$eleves_par_classe = [];
+foreach ($cours as $c) {
+    if (!isset($eleves_par_classe[$c['class_id']])) {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE classe_id = :classe_id AND roles = 'eleve'");
+        $stmt->execute(['classe_id' => $c['class_id']]);
+        $eleves_par_classe[$c['class_id']] = $stmt->fetchAll();
+    }
+}
+
 // Préparer les données pour le calendrier
 $events = array();
 foreach ($cours as $c) {
@@ -45,7 +55,8 @@ foreach ($cours as $c) {
         'borderColor' => $c['is_signed'] ? '#28a745' : '#007bff',
         'textColor' => '#ffffff',
         'extendedProps' => array(
-            'is_signed' => $c['is_signed']
+            'is_signed' => $c['is_signed'],
+            'class_id' => $c['class_id']
         )
     );
 }
@@ -67,23 +78,28 @@ foreach ($cours as $c) {
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
-        <h1>Signatures des élèves</h1>
-        
-        <!-- Calendrier -->
-        <div id="calendar" class="mb-4"></div>
-
-        <!-- Modal pour les élèves -->
-        <div class="modal fade" id="elevesModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Sélectionner les élèves présents</h5>
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="modalContent">
-                        <!-- Le contenu sera chargé dynamiquement -->
+        <div class="row">
+            <div class="col-md-8">
+                <h1>Signatures des élèves</h1>
+                <!-- Calendrier -->
+                <div id="calendar" class="mb-4"></div>
+            </div>
+            <div class="col-md-4">
+                <div id="liste-eleves" class="mt-4" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Liste des élèves</h5>
+                            <small id="cours-info"></small>
+                        </div>
+                        <div class="card-body">
+                            <form id="signature-form" action="signature_traitement.php" method="POST">
+                                <input type="hidden" name="cours_id" id="cours_id_input">
+                                <div id="eleves-container">
+                                    <!-- La liste des élèves sera injectée ici -->
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Envoyer pour signature</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -103,6 +119,9 @@ foreach ($cours as $c) {
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@4.4.0/main.min.js'></script>
 
 <script>
+// Stocker les élèves par classe
+const elevesParClasse = <?= json_encode($eleves_par_classe) ?>;
+
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -122,13 +141,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Charger les élèves pour ce cours
-            fetch('get_eleves.php?cours_id=' + event.id)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('modalContent').innerHTML = html;
-                    $('#elevesModal').modal('show');
-                });
+            // Afficher les élèves de la classe
+            const classId = event.extendedProps.class_id;
+            const eleves = elevesParClasse[classId];
+            
+            // Mettre à jour l'interface
+            document.getElementById('cours_id_input').value = event.id;
+            document.getElementById('cours-info').textContent = event.title;
+            
+            let html = '';
+            eleves.forEach(eleve => {
+                html += `
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="eleves_present[]" 
+                               value="${eleve.id}" id="eleve_${eleve.id}">
+                        <label class="form-check-label" for="eleve_${eleve.id}">
+                            ${eleve.nom} ${eleve.prenoms}
+                        </label>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('eleves-container').innerHTML = html;
+            document.getElementById('liste-eleves').style.display = 'block';
         }
     });
     calendar.render();
