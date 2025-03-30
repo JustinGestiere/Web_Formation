@@ -41,6 +41,10 @@ try {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
     <style>
+        body {
+            overflow-x: hidden;
+        }
+        
         #sidebar {
             position: fixed;
             width: 250px;
@@ -56,6 +60,29 @@ try {
         
         #sidebar.active {
             left: 0;
+        }
+        
+        #sidebar .list-unstyled {
+            margin-top: 20px;
+        }
+        
+        #sidebar .list-unstyled li {
+            margin-bottom: 10px;
+        }
+        
+        #sidebar .list-unstyled li a {
+            color: #333;
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        #sidebar .list-unstyled li a:hover {
+            background-color: #e9ecef;
+            color: #007bff;
         }
         
         .navbar-toggler {
@@ -101,11 +128,25 @@ try {
             padding: 15px;
             background: #fff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 999;
         }
 
         .logo_header_admin {
             height: 40px;
             margin-right: 15px;
+        }
+
+        .content-wrapper {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            padding: 20px;
+        }
+
+        @media (min-width: 768px) {
+            body.sidebar-active .content-wrapper {
+                margin-left: 250px;
+            }
         }
     </style>
 </head>
@@ -114,7 +155,7 @@ try {
 <header>
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
-            <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
+            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -128,41 +169,49 @@ try {
 <nav id="sidebar">
     <div class="sidebar-header">
         <h3>Menu</h3>
-        <button class="close-sidebar" onclick="toggleSidebar(document.querySelector('.navbar-toggler'))">×</button>
+        <button class="close-sidebar" onclick="toggleSidebar()">×</button>
     </div>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="/files/professeur.php">Accueil</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/files/emploi_du_temps.php">Emploi du temps</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/files/signature_prof.php">Signature</a>
-        </li>
+    <ul class="list-unstyled">
+        <li><a href="professeur.php" class="nav-link">Accueil</a></li>
+        <li><a href="emploi_du_temps.php" class="nav-link">Emploi du temps</a></li>
+        <li><a href="signature_prof.php" class="nav-link">Signature</a></li>
         <?php if (isset($_SESSION['user_id'])): ?>
-            <li class="nav-item">
-                <form method="post" action="/files/logout.php" class="d-inline">
-                    <button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button>
-                </form>
-            </li>
+            <li><form method="post" action="logout.php" class="d-inline"><button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button></form></li>
         <?php else: ?>
-            <li class="nav-item">
-                <a class="nav-link" href="/files/login.php">Se connecter</a>
-            </li>
+            <li><a href="login.php" class="nav-link">Se connecter</a></li>
         <?php endif; ?>
     </ul>
 </nav>
 
-<div id="overlay" onclick="toggleSidebar(document.querySelector('.navbar-toggler'))"></div>
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="content-wrapper">
 
 <script>
-function toggleSidebar(button) {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
+function toggleSidebar() {
+    const body = document.body;
+    const sidebar = document.getElementById('sidebar');
+    const button = document.querySelector('.navbar-toggler');
+    
+    body.classList.toggle('sidebar-active');
+    sidebar.classList.toggle('active');
     button.classList.toggle('active');
 }
+
+// Fermer le menu si on clique en dehors
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const button = document.querySelector('.navbar-toggler');
+    
+    if (!event.target.closest('#sidebar') && 
+        !event.target.closest('.navbar-toggler') && 
+        sidebar.classList.contains('active')) {
+        toggleSidebar();
+    }
+});
 </script>
+
+</div>
 
 </body>
 </html>

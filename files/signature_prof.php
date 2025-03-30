@@ -90,9 +90,7 @@ include "header_prof.php";
             <?php unset($_SESSION['success_message']); ?>
         <?php endif; ?>
         
-        <!-- Formulaire de sélection -->
         <form method="POST" action="">
-            <!-- Sélection du cours -->
             <div class="form-group">
                 <label for="emploi_du_temps_id">Sélectionnez un cours :</label>
                 <select name="emploi_du_temps_id" id="emploi_du_temps_id" class="form-control" required>
@@ -120,13 +118,11 @@ include "header_prof.php";
                 </select>
             </div>
 
-            <!-- Liste des élèves -->
             <div id="eleves-list"></div>
 
             <button type="submit" class="btn btn-primary">Demander les signatures</button>
         </form>
 
-        <!-- Affichage des signatures en attente -->
         <div class="signature-status mt-4">
             <h3>Statut des Signatures</h3>
             <?php
@@ -162,7 +158,8 @@ include "header_prof.php";
     </div>
 </div>
 
-<!-- Scripts -->
+</div> <!-- Fermeture de content-wrapper -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Gestion des élèves
