@@ -12,18 +12,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
 require_once "header_prof.php";
 ?>
 
-<main>
-    <div class="content-wrapper">
-        <div class="container mt-4">
-            <h1>Page des signatures</h1>
-            <p>Contenu à venir...</p>
-        </div>
-    </div>
-</main>
-
-</div> <!-- Fermeture de content-wrapper -->
+<div class="container mt-4">
+    <h1>Page des signatures</h1>
+    <p>Contenu à venir...</p>
+</div>
 
 <?php require_once "footer.php"; ?>
-
-</body>
-</html>

@@ -21,7 +21,7 @@ require_once "bdd.php";
     <!-- CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link href="../css/header_admin.css" rel="stylesheet">
+    <link href="css/header_admin.css" rel="stylesheet">
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -182,7 +182,7 @@ require_once "bdd.php";
                 <span></span>
                 <span></span>
             </button>
-            <img src="../images/logo.jpg" alt="Logo" class="logo_header_admin">
+            <img src="images/logo.jpg" alt="Logo" class="logo_header_admin">
             <h2 class="mb-0">Web Formation - Professeur</h2>
         </div>
     </div>
