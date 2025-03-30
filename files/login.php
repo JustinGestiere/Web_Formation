@@ -52,8 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             setcookie('email', $email, time() + 3600 * 24 * 30, "/", "", true, true); // Cookie qui dure 30 jours
         }
 
-        // Redirection vers la page d'accueil
-        header("Location: ../index.php");
+        // Redirection en fonction du rôle
+        switch ($_SESSION['user_role']) {
+            case 'admin':
+                header("Location: ../index.php");
+                break;
+            case 'prof':
+                header("Location: ../files/professeur.php");
+                break;
+            case 'eleve':
+            case 'visiteur':
+                header("Location: ../files/eleve.php");
+                break;
+            default:
+                header("Location: login.php");
+        }
         exit();
     } else {
         $error_message = "Erreur d'authentification. Vérifiez votre email et votre mot de passe.";
