@@ -33,17 +33,6 @@ $stmt = $pdo->prepare($query);
 $stmt->execute(['professeur_id' => $professeur_id]);
 $cours = $stmt->fetchAll();
 
-// Sélectionner les élèves d'un cours
-if (isset($_POST['cours_id'])) {
-    $cours_id = $_POST['cours_id'];
-    
-    $stmt = $pdo->prepare("SELECT u.* FROM users u
-                          INNER JOIN cours c ON u.classe_id = c.class_id
-                          WHERE c.id = :cours_id AND u.roles = 'eleve'");
-    $stmt->execute(['cours_id' => $cours_id]);
-    $eleves = $stmt->fetchAll();
-}
-
 // Préparer les données pour le calendrier
 $events = array();
 foreach ($cours as $c) {
@@ -99,42 +88,6 @@ foreach ($cours as $c) {
                 </div>
             </div>
         </div>
-
-        <form method="POST">
-            <div class="form-group">
-                <label for="cours_id">Sélectionner un cours:</label>
-                <select name="cours_id" id="cours_id" class="form-control" onchange="this.form.submit()">
-                    <option value="">Choisir un cours</option>
-                    <?php if (!empty($cours)) : ?>
-                        <?php foreach ($cours as $c) : ?>
-                            <option value="<?= $c['id'] ?>" <?= (isset($_POST['cours_id']) && $_POST['cours_id'] == $c['id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($c['titre'] . ' - ' . $c['matiere_nom'] . ' - ' . $c['classe_nom'] . ' (' . date('d/m/Y H:i', strtotime($c['date_debut'])) . ')') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-        </form>
-
-        <?php if (isset($eleves) && !empty($eleves)) : ?>
-            <form method="POST" action="signature_traitement.php" class="mt-4">
-                <input type="hidden" name="cours_id" value="<?= htmlspecialchars($cours_id) ?>">
-                <h2>Élèves présents</h2>
-                <div class="form-group">
-                    <?php foreach ($eleves as $eleve) : ?>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="eleves_present[]" value="<?= $eleve['id'] ?>" id="eleve_<?= $eleve['id'] ?>">
-                            <label class="form-check-label" for="eleve_<?= $eleve['id'] ?>"><?= htmlspecialchars($eleve['nom'] . ' ' . $eleve['prenoms']) ?></label>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <button type="submit" class="btn btn-primary">Envoyer pour signature</button>
-            </form>
-        <?php elseif (isset($_POST['cours_id'])) : ?>
-            <div class="alert alert-info mt-4">
-                Aucun élève trouvé dans ce cours.
-            </div>
-        <?php endif; ?>
     </div>
 </div>
 
