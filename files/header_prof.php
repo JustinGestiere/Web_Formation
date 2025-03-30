@@ -29,6 +29,44 @@ require_once "bdd.php";
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <style>
+        .navbar-toggler {
+            position: relative;
+            width: 45px;
+            height: 40px;
+            border: 2px solid #333;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 15px;
+        }
+
+        .navbar-toggler span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            margin: 4px 0;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-toggler.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .navbar-toggler.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .navbar-toggler.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
         .sidebar {
             height: 100%;
             width: 250px;
@@ -139,39 +177,47 @@ require_once "bdd.php";
 <body>
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
-            <button class="openbtn" onclick="toggleSidebar()">☰</button>
+            <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <img src="../images/logo.jpg" alt="Logo" class="logo_header_admin">
-            <h2 class="mb-0">Web Formation</h2>
+            <h2 class="mb-0">Web Formation - Professeur</h2>
         </div>
     </div>
 
     <div id="mySidebar" class="sidebar">
-        <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar(document.querySelector('.navbar-toggler'))">×</a>
         <a href="professeur.php"><i class="fas fa-home"></i> Accueil</a>
         <a href="signature_prof.php"><i class="fas fa-signature"></i> Signatures</a>
         <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
     </div>
 
-    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+    <div id="overlay" class="overlay" onclick="toggleSidebar(document.querySelector('.navbar-toggler'))"></div>
 
     <div class="main-content">
 
 <script>
-function toggleSidebar() {
-    document.getElementById("mySidebar").classList.toggle("active");
+function toggleSidebar(button) {
+    const sidebar = document.getElementById("mySidebar");
+    const main = document.querySelector(".main-content");
+    sidebar.classList.toggle("active");
+    button.classList.toggle("active");
+    main.classList.toggle("active");
     document.getElementById("overlay").classList.toggle("active");
-    document.querySelector(".main-content").classList.toggle("active");
 }
 
 // Fermer le menu si on clique en dehors
 document.addEventListener('click', function(event) {
     const sidebar = document.getElementById("mySidebar");
-    const button = document.querySelector(".openbtn");
+    const button = document.querySelector(".navbar-toggler");
     
     if (sidebar.classList.contains("active") && 
-        !event.target.closest('.sidebar') && 
-        !event.target.closest('.openbtn')) {
-        toggleSidebar();
+        !sidebar.contains(event.target) && 
+        !button.contains(event.target) && 
+        !document.querySelector(".container_header_admin").contains(event.target)) {
+        toggleSidebar(button);
     }
 });
 </script>
