@@ -27,20 +27,29 @@ if (!$eleve) {
     die("Élève non trouvé");
 }
 
-// Récupérer les cours à signer
-$query = "SELECT c.*, m.name as matiere_nom, p.nom as prof_nom, p.prenoms as prof_prenoms,
-          CASE WHEN s2.id IS NOT NULL THEN 'signed'
-               WHEN s1.id IS NOT NULL THEN 'to_sign'
-               ELSE 'not_available'
-          END as signature_status
+// Récupérer les cours avec leur statut de signature
+$query = "SELECT 
+            c.*,
+            m.name as matiere_nom,
+            p.nom as prof_nom,
+            p.prenoms as prof_prenoms,
+            CASE 
+                WHEN EXISTS (
+                    SELECT 1 FROM sign 
+                    WHERE classe_id = c.class_id 
+                    AND user_id = :eleve_id 
+                    AND DATE(date_signature) = DATE(c.date_debut)
+                ) THEN 'signed'
+                WHEN EXISTS (
+                    SELECT 1 FROM sign 
+                    WHERE classe_id = c.class_id 
+                    AND DATE(date_signature) = DATE(c.date_debut)
+                ) THEN 'to_sign'
+                ELSE 'not_available'
+            END as signature_status
           FROM cours c
           INNER JOIN matieres m ON c.matiere_id = m.id
           INNER JOIN users p ON c.professeur_id = p.id
-          LEFT JOIN sign s1 ON c.class_id = s1.classe_id 
-            AND DATE(s1.date_signature) = DATE(c.date_debut)
-          LEFT JOIN sign s2 ON c.class_id = s2.classe_id 
-            AND DATE(s2.date_signature) = DATE(c.date_debut)
-            AND s2.user_id = :eleve_id
           WHERE c.class_id = :classe_id
           ORDER BY c.date_debut DESC";
 
