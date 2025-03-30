@@ -17,9 +17,9 @@ require_once "bdd.php"; // Connexion à la base de données
 $professeur_id = $_SESSION['user_id'];
 var_dump("ID du professeur : " . $professeur_id); // Debug
 
-$query = "SELECT c.* FROM classes c
-          INNER JOIN professeur_classes pc ON c.id = pc.classe_id
-          WHERE pc.professeur_id = :professeur_id";
+$query = "SELECT DISTINCT c.* FROM classes c
+          INNER JOIN emploi_du_temps edt ON c.id = edt.class_id
+          WHERE edt.professeur_id = :professeur_id";
 $stmt = $pdo->prepare($query);
 $stmt->execute(['professeur_id' => $professeur_id]);
 $classes = $stmt->fetchAll();
@@ -30,9 +30,10 @@ if (isset($_POST['classe_id'])) {
     $classe_id = $_POST['classe_id'];
     var_dump("Classe sélectionnée : " . $classe_id); // Debug
     
-    $stmt = $pdo->prepare("SELECT u.* FROM users u
-                          INNER JOIN class_users cu ON u.id = cu.user_id
-                          WHERE cu.classe_id = :classe_id AND u.role = 'eleve'");
+    $stmt = $pdo->prepare("SELECT DISTINCT u.* FROM users u
+                          INNER JOIN emploi_du_temps edt ON u.class_id = edt.class_id
+                          WHERE edt.class_id = :classe_id 
+                          AND u.role = 'eleve'");
     $stmt->execute(['classe_id' => $classe_id]);
     $eleves = $stmt->fetchAll();
     var_dump($eleves); // Debug
