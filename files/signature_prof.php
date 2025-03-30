@@ -72,21 +72,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
-    echo "<div class='alert alert-success'>Demandes de signatures envoyées avec succès !</div>";
+    $_SESSION['success_message'] = "Demandes de signatures envoyées avec succès !";
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // Inclusion du header
 include "header_prof.php";
 ?>
 
-<!-- Scripts nécessaires pour le menu -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 <div class="container mt-4">
     <div class="signature-form">
         <h2>Demander des Signatures</h2>
+        
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class='alert alert-success'><?php echo $_SESSION['success_message']; ?></div>
+            <?php unset($_SESSION['success_message']); ?>
+        <?php endif; ?>
         
         <!-- Formulaire de sélection -->
         <form method="POST" action="">
@@ -160,41 +162,44 @@ include "header_prof.php";
     </div>
 </div>
 
+<!-- Scripts -->
 <script>
-// Gestion des élèves
-document.getElementById('emploi_du_temps_id').addEventListener('change', function() {
-    const edtId = this.value;
-    const elevesDiv = document.getElementById('eleves-list');
-    
-    if (edtId) {
-        // Charger les élèves de la classe correspondant au cours
-        fetch(`signature_prof.php?action=get_eleves&edt_id=${edtId}`)
-            .then(response => response.json())
-            .then(eleves => {
-                if (eleves.error) {
-                    elevesDiv.innerHTML = `<div class="alert alert-danger">${eleves.error}</div>`;
-                    return;
-                }
-                elevesDiv.innerHTML = '<div class="form-group mt-4"><h4>Liste des élèves</h4>';
-                eleves.forEach(eleve => {
-                    elevesDiv.innerHTML += `
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="presences[]" 
-                                   value="${eleve.id}" id="eleve_${eleve.id}">
-                            <label class="form-check-label" for="eleve_${eleve.id}">
-                                ${eleve.nom} ${eleve.prenoms}
-                            </label>
-                        </div>`;
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des élèves
+    document.getElementById('emploi_du_temps_id').addEventListener('change', function() {
+        const edtId = this.value;
+        const elevesDiv = document.getElementById('eleves-list');
+        
+        if (edtId) {
+            // Charger les élèves de la classe correspondant au cours
+            fetch(`signature_prof.php?action=get_eleves&edt_id=${edtId}`)
+                .then(response => response.json())
+                .then(eleves => {
+                    if (eleves.error) {
+                        elevesDiv.innerHTML = `<div class="alert alert-danger">${eleves.error}</div>`;
+                        return;
+                    }
+                    elevesDiv.innerHTML = '<div class="form-group mt-4"><h4>Liste des élèves</h4>';
+                    eleves.forEach(eleve => {
+                        elevesDiv.innerHTML += `
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="presences[]" 
+                                       value="${eleve.id}" id="eleve_${eleve.id}">
+                                <label class="form-check-label" for="eleve_${eleve.id}">
+                                    ${eleve.nom} ${eleve.prenoms}
+                                </label>
+                            </div>`;
+                    });
+                    elevesDiv.innerHTML += '</div>';
+                })
+                .catch(error => {
+                    elevesDiv.innerHTML = '<div class="alert alert-danger">Erreur lors du chargement des élèves</div>';
+                    console.error('Error:', error);
                 });
-                elevesDiv.innerHTML += '</div>';
-            })
-            .catch(error => {
-                elevesDiv.innerHTML = '<div class="alert alert-danger">Erreur lors du chargement des élèves</div>';
-                console.error('Error:', error);
-            });
-    } else {
-        elevesDiv.innerHTML = '';
-    }
+        } else {
+            elevesDiv.innerHTML = '';
+        }
+    });
 });
 </script>
 

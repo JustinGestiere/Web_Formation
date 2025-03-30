@@ -29,10 +29,35 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Formation - Gestion de Planning</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="../css/header_admin.css" rel="stylesheet">
-    <title>Web Formation - Gestion de Planning</title>
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
     <style>
+        #sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100%;
+            left: -250px;
+            background: #f8f9fa;
+            transition: all 0.3s;
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 20px;
+            box-shadow: 3px 0 5px rgba(0,0,0,0.1);
+        }
+        
+        #sidebar.active {
+            left: 0;
+        }
+        
         .navbar-toggler {
             position: relative;
             width: 45px;
@@ -43,6 +68,7 @@ try {
             cursor: pointer;
             padding: 8px;
             margin-right: 15px;
+            z-index: 1001;
         }
 
         .navbar-toggler span {
@@ -56,7 +82,7 @@ try {
         }
 
         .navbar-toggler:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: rgba(0,0,0,0.05);
         }
 
         .navbar-toggler.active span:nth-child(1) {
@@ -71,13 +97,15 @@ try {
             transform: rotate(-45deg) translate(5px, -5px);
         }
 
-        .close-sidebar {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0 10px;
-            color: #333;
+        .container_header_admin {
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo_header_admin {
+            height: 40px;
+            margin-right: 15px;
         }
     </style>
 </head>
@@ -135,11 +163,6 @@ function toggleSidebar(button) {
     button.classList.toggle('active');
 }
 </script>
-
-<!-- Scripts de Bootstrap -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 </html>
