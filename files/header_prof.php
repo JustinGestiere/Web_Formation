@@ -69,12 +69,10 @@ try {
 
         /* Styles du header et sidebar */
         .container_header_admin {
-            background: #fff;
+            background: #f8f9fa;
             padding: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: fixed;
             width: 100%;
-            top: 0;
             z-index: 1001;
         }
 
@@ -89,10 +87,11 @@ try {
             position: fixed;
             top: 0;
             left: -250px;
-            background-color: #343a40;
+            background-color: #f8f9fa;
             transition: 0.3s;
             z-index: 1002;
             padding-top: 60px;
+            border-right: 1px solid #dee2e6;
         }
 
         #sidebar.active {
@@ -101,18 +100,18 @@ try {
 
         .sidebar-header {
             padding: 20px;
-            background: #343a40;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
         }
 
         .sidebar-header h3 {
-            color: #fff;
+            color: #333;
             margin: 0;
             font-size: 1.4em;
         }
 
         .close-sidebar {
-            color: #fff;
+            color: #333;
             position: absolute;
             right: 10px;
             top: 10px;
@@ -123,13 +122,13 @@ try {
         }
 
         #sidebar .nav-link {
-            color: #fff;
+            color: #333;
             padding: 10px 20px;
             transition: 0.3s;
         }
 
         #sidebar .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
+            background-color: #e9ecef;
         }
 
         #overlay {
@@ -151,7 +150,12 @@ try {
 
         /* Ajustement du contenu principal */
         body {
-            padding-top: 70px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content {
+            margin-top: 20px;
         }
     </style>
 </head>
