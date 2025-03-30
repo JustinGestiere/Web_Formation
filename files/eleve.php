@@ -110,31 +110,33 @@ if ($week_offset === 0) {
             </form>
         </div>
 
-        <!-- Navigation des jours (visible uniquement sur mobile) -->
-        <div class="day-navigation d-md-none mb-3">
-            <div class="d-flex justify-content-between">
+        <!-- Navigation des jours (mobile) -->
+        <div class="d-block d-md-none mb-3">
+            <div class="nav nav-pills nav-fill">
                 <?php foreach ($days as $index => $day): ?>
-                    <a href="?week_offset=<?php echo $week_offset; ?>&active_day=<?php echo $index; ?>" 
-                       class="btn btn-outline-primary <?php echo $index === $active_day_index ? 'active' : ''; ?>">
-                        <?php echo $day->format('D j'); ?>
-                    </a>
+                    <div class="nav-item">
+                        <a href="?week_offset=<?php echo $week_offset; ?>&active_day=<?php echo $index; ?>" 
+                           class="nav-link <?php echo $index === $active_day_index ? 'active' : ''; ?>">
+                            <?php echo $day->format('D j'); ?>
+                        </a>
+                    </div>
                 <?php endforeach; ?>
             </div>
         </div>
 
-        <!-- Vue mobile (une journée à la fois) -->
-        <div class="d-md-none">
+        <!-- Vue mobile -->
+        <div class="d-block d-md-none">
+            <?php 
+            $current_day = $days[$active_day_index]->format('Y-m-d');
+            ?>
             <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <?php echo $days[$active_day_index]->format('l j F Y'); ?>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><?php echo $days[$active_day_index]->format('l j F Y'); ?></h5>
                 </div>
                 <div class="card-body">
-                    <?php 
-                    $current_day = $days[$active_day_index]->format('Y-m-d');
-                    if (!empty($cours_par_jour[$current_day])): 
-                    ?>
+                    <?php if (!empty($cours_par_jour[$current_day])): ?>
                         <?php foreach ($cours_par_jour[$current_day] as $cours_item): ?>
-                            <div class="cours p-3 mb-3 bg-light rounded">
+                            <div class="cours p-3 mb-3 bg-light rounded shadow-sm">
                                 <h5 class="mb-2"><?php echo htmlspecialchars($cours_item['titre']); ?></h5>
                                 <div class="cours-details">
                                     <p class="mb-1"><i class="fas fa-book"></i> <?php echo htmlspecialchars($cours_item['matiere_nom']); ?></p>
@@ -156,43 +158,45 @@ if ($week_offset === 0) {
             </div>
         </div>
 
-        <!-- Vue desktop (semaine complète) -->
-        <div class="calendrier d-none d-md-block">
-            <table class="table table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <?php foreach ($days as $day): ?>
-                            <th><?php echo $day->format('l j/m'); ?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <?php foreach ($days as $day): ?>
-                            <td class="align-top">
-                                <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
-                                    <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
-                                        <div class="cours p-2 mb-2 bg-light rounded">
-                                            <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
-                                            <small>
-                                                <?php echo htmlspecialchars($cours_item['matiere_nom']); ?><br>
-                                                <?php echo htmlspecialchars($cours_item['prof_nom'] . ' ' . $cours_item['prof_prenoms']); ?><br>
-                                                <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - 
-                                                <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
-                                                <?php if (!empty($cours_item['salle'])): ?>
-                                                    <br>Salle: <?php echo htmlspecialchars($cours_item['salle']); ?>
-                                                <?php endif; ?>
-                                            </small>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="text-muted">Aucun cours</div>
-                                <?php endif; ?>
-                            </td>
-                        <?php endforeach; ?>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Vue desktop -->
+        <div class="d-none d-md-block">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <?php foreach ($days as $day): ?>
+                                <th class="text-center"><?php echo $day->format('l j/m'); ?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <?php foreach ($days as $day): ?>
+                                <td class="align-top">
+                                    <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
+                                        <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
+                                            <div class="cours p-2 mb-2 bg-light rounded shadow-sm">
+                                                <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
+                                                <small>
+                                                    <?php echo htmlspecialchars($cours_item['matiere_nom']); ?><br>
+                                                    <?php echo htmlspecialchars($cours_item['prof_nom'] . ' ' . $cours_item['prof_prenoms']); ?><br>
+                                                    <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - 
+                                                    <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
+                                                    <?php if (!empty($cours_item['salle'])): ?>
+                                                        <br>Salle: <?php echo htmlspecialchars($cours_item['salle']); ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="text-muted text-center">Aucun cours</div>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endforeach; ?>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -200,17 +204,6 @@ if ($week_offset === 0) {
 <style>
 .navigation-semaine {
     margin: 20px 0;
-}
-
-.calendrier {
-    margin-top: 20px;
-}
-
-.date-header {
-    font-weight: bold;
-    background-color: #f8f9fa;
-    padding: 5px;
-    border-radius: 4px;
 }
 
 .cours {
@@ -224,24 +217,16 @@ if ($week_offset === 0) {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Styles pour mobile */
+/* Styles mobile */
 @media (max-width: 767.98px) {
-    .day-navigation .btn-group {
-        display: flex;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .day-navigation .btn {
-        flex: 0 0 auto;
-        padding: 0.5rem;
+    .nav-pills .nav-link {
+        padding: 0.5rem 0.25rem;
         font-size: 0.9rem;
     }
 
-    .cours {
-        margin-bottom: 1rem;
-        border-left-width: 6px;
+    .nav-pills .nav-link.active {
+        background-color: #007bff;
+        color: white;
     }
 
     .cours-details p {
@@ -258,7 +243,7 @@ if ($week_offset === 0) {
     }
 }
 
-/* Amélioration de l'espacement sur desktop */
+/* Styles desktop */
 @media (min-width: 768px) {
     .table td {
         height: 150px;

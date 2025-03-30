@@ -27,7 +27,7 @@ if (!$eleve) {
     die("Élève non trouvé");
 }
 
-// Récupérer les cours avec leur statut de signature
+// Récupérer les cours et leur statut de signature
 $query = "SELECT 
             c.*,
             m.name as matiere_nom,
@@ -35,16 +35,22 @@ $query = "SELECT
             p.prenoms as prof_prenoms,
             CASE 
                 WHEN EXISTS (
-                    SELECT 1 FROM sign 
-                    WHERE classe_id = c.class_id 
-                    AND user_id = :eleve_id_sign
-                    AND DATE(CONVERT_TZ(date_signature, '+00:00', '+02:00')) = DATE(c.date_debut)
+                    SELECT 1 FROM sign s1
+                    WHERE s1.classe_id = c.class_id 
+                    AND s1.user_id = :eleve_id_sign
+                    AND DATE(s1.date_signature) = DATE(c.date_debut)
                 ) THEN 'signed'
                 WHEN EXISTS (
-                    SELECT 1 FROM sign 
-                    WHERE classe_id = c.class_id 
-                    AND DATE(CONVERT_TZ(date_signature, '+00:00', '+02:00')) = DATE(c.date_debut)
-                    AND user_id != :eleve_id_check
+                    SELECT 1 FROM sign s2
+                    WHERE s2.classe_id = c.class_id 
+                    AND s2.professeur_id = c.professeur_id
+                    AND DATE(s2.date_signature) = DATE(c.date_debut)
+                    AND NOT EXISTS (
+                        SELECT 1 FROM sign s3
+                        WHERE s3.classe_id = c.class_id
+                        AND s3.user_id = :eleve_id_check
+                        AND DATE(s3.date_signature) = DATE(c.date_debut)
+                    )
                 ) THEN 'to_sign'
                 ELSE 'not_available'
             END as signature_status
@@ -52,6 +58,7 @@ $query = "SELECT
           INNER JOIN matieres m ON c.matiere_id = m.id
           INNER JOIN users p ON c.professeur_id = p.id
           WHERE c.class_id = :classe_id
+          AND c.date_debut <= NOW()
           ORDER BY c.date_debut DESC";
 
 $stmt = $pdo->prepare($query);
@@ -73,7 +80,7 @@ $cours = $stmt->fetchAll();
                     Classe : <?= htmlspecialchars($eleve['classe_nom']) ?>
                 </p>
             </div>
-            <div class="col-md-6 text-md-right">
+            <div class="col-md-6 text-md-end">
                 <a href="eleve.php" class="btn btn-primary">
                     <i class="fas fa-calendar"></i> Voir l'emploi du temps
                 </a>
@@ -96,7 +103,7 @@ $cours = $stmt->fetchAll();
 
         <div class="table-responsive">
             <table class="table table-striped">
-                <thead>
+                <thead class="table-dark">
                     <tr>
                         <th>Date</th>
                         <th>Cours</th>
@@ -124,7 +131,7 @@ $cours = $stmt->fetchAll();
                             </td>
                             <td>
                                 <?php if ($c['signature_status'] === 'to_sign'): ?>
-                                    <button class="btn btn-primary btn-sm" onclick="showSignatureModal(<?= $c['id'] ?>)">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="showSignatureModal(<?= $c['id'] ?>)">
                                         <i class="fas fa-signature"></i> Signer
                                     </button>
                                 <?php endif; ?>
