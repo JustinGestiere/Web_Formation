@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 
 // Connexion à la base de données
 try {
-    require_once "db_connect.php";
+    require_once "bdd.php";
 } catch (Exception $e) {
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
