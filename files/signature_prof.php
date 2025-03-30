@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
 
 require_once "bdd.php"; // Connexion à la base de données
 
-// Récupérer les classes du professeur
+// Récupérer les cours du professeur
 $professeur_id = $_SESSION['user_id'];
 var_dump("ID du professeur : " . $professeur_id); // Debug
 
@@ -22,30 +22,26 @@ $stmt = $pdo->query("SHOW TABLES");
 $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
 var_dump("Tables disponibles :", $tables);
 
-// Affichons la structure de la table users
-$stmt = $pdo->query("DESCRIBE users");
-$users_columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-var_dump("Structure de la table users :", $users_columns);
-
-// Affichons la structure de la table classes
-$stmt = $pdo->query("DESCRIBE classes");
-$classes_columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-var_dump("Structure de la table classes :", $classes_columns);
-
-// Pour l'instant, récupérons toutes les classes
-$query = "SELECT * FROM classes";
+// Récupérer les cours du professeur
+$query = "SELECT c.*, cl.nom as classe_nom, m.nom as matiere_nom 
+          FROM cours c 
+          INNER JOIN classes cl ON c.class_id = cl.id
+          INNER JOIN matieres m ON c.matiere_id = m.id
+          WHERE c.professeur_id = :professeur_id";
 $stmt = $pdo->prepare($query);
-$stmt->execute();
-$classes = $stmt->fetchAll();
-var_dump("Classes disponibles :", $classes);
+$stmt->execute(['professeur_id' => $professeur_id]);
+$cours = $stmt->fetchAll();
+var_dump("Cours disponibles :", $cours);
 
-// Sélectionner les élèves d'une classe
-if (isset($_POST['classe_id'])) {
-    $classe_id = $_POST['classe_id'];
-    var_dump("Classe sélectionnée : " . $classe_id); // Debug
+// Sélectionner les élèves d'un cours
+if (isset($_POST['cours_id'])) {
+    $cours_id = $_POST['cours_id'];
+    var_dump("Cours sélectionné : " . $cours_id); // Debug
     
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE role = 'eleve' AND class_id = :classe_id");
-    $stmt->execute(['classe_id' => $classe_id]);
+    $stmt = $pdo->prepare("SELECT u.* FROM users u
+                          INNER JOIN cours c ON u.class_id = c.class_id
+                          WHERE c.id = :cours_id AND u.role = 'eleve'");
+    $stmt->execute(['cours_id' => $cours_id]);
     $eleves = $stmt->fetchAll();
     var_dump($eleves); // Debug
 }
@@ -56,13 +52,13 @@ if (isset($_POST['classe_id'])) {
         <h1>Signatures des élèves</h1>
         <form method="POST">
             <div class="form-group">
-                <label for="classe_id">Sélectionner une classe:</label>
-                <select name="classe_id" id="classe_id" class="form-control" onchange="this.form.submit()">
-                    <option value="">Choisir une classe</option>
-                    <?php if (!empty($classes)) : ?>
-                        <?php foreach ($classes as $classe) : ?>
-                            <option value="<?= $classe['id'] ?>" <?= (isset($_POST['classe_id']) && $_POST['classe_id'] == $classe['id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($classe['nom']) ?>
+                <label for="cours_id">Sélectionner un cours:</label>
+                <select name="cours_id" id="cours_id" class="form-control" onchange="this.form.submit()">
+                    <option value="">Choisir un cours</option>
+                    <?php if (!empty($cours)) : ?>
+                        <?php foreach ($cours as $c) : ?>
+                            <option value="<?= $c['id'] ?>" <?= (isset($_POST['cours_id']) && $_POST['cours_id'] == $c['id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($c['matiere_nom'] . ' - ' . $c['classe_nom']) ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -72,6 +68,7 @@ if (isset($_POST['classe_id'])) {
 
         <?php if (isset($eleves) && !empty($eleves)) : ?>
             <form method="POST" action="signature_traitement.php" class="mt-4">
+                <input type="hidden" name="cours_id" value="<?= htmlspecialchars($cours_id) ?>">
                 <h2>Élèves présents</h2>
                 <div class="form-group">
                     <?php foreach ($eleves as $eleve) : ?>
@@ -83,9 +80,9 @@ if (isset($_POST['classe_id'])) {
                 </div>
                 <button type="submit" class="btn btn-primary">Envoyer pour signature</button>
             </form>
-        <?php elseif (isset($_POST['classe_id'])) : ?>
+        <?php elseif (isset($_POST['cours_id'])) : ?>
             <div class="alert alert-info mt-4">
-                Aucun élève trouvé dans cette classe.
+                Aucun élève trouvé dans ce cours.
             </div>
         <?php endif; ?>
     </div>
