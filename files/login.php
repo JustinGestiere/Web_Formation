@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Redirection vers la page d'accueil
-        header("Location: ../index.php");
+        header("Location: ../files/professeur.php");
         exit();
     } else {
         $error_message = "Erreur d'authentification. Vérifiez votre email et votre mot de passe.";
