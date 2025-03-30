@@ -61,7 +61,7 @@ try {
     $sql_update = "UPDATE sign 
                    SET file_name = ?, 
                        statut = 'Signé', 
-                       date_signature = CURRENT_TIMESTAMP 
+                       updated_at = NOW()
                    WHERE id = ?";
     $stmt_update = $pdo->prepare($sql_update);
     

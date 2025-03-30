@@ -18,10 +18,11 @@ if (!isset($_GET['classe_id'])) {
 try {
     require_once "bdd.php";
     
-    $sql = "SELECT id, titre 
-            FROM cours 
+    $sql = "SELECT id, title, DATE_FORMAT(start_datetime, '%H:%i') as start_time 
+            FROM emploi_du_temps 
             WHERE class_id = ? AND professeur_id = ?
-            ORDER BY titre";
+            AND DATE(start_datetime) = CURRENT_DATE
+            ORDER BY start_datetime";
     
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$_GET['classe_id'], $_SESSION['user_id']]);

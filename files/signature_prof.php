@@ -23,23 +23,22 @@ include "header_prof.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $professeur_id = $_SESSION['user_id'];
     $classe_id = $_POST['classe_id'];
-    $cours_id = $_POST['cours_id'];
-    $date_presence = date("Y-m-d");
+    $emploi_du_temps_id = $_POST['emploi_du_temps_id'];
     
     $eleves_presents = isset($_POST['presences']) ? $_POST['presences'] : [];
 
     foreach ($eleves_presents as $eleve_id) {
         // Vérifier si une demande existe déjà
-        $sql_check = "SELECT id FROM sign WHERE user_id = ? AND cours_id = ? AND date_signature = ?";
+        $sql_check = "SELECT id FROM sign WHERE user_id = ? AND emploi_du_temps_id = ?";
         $stmt_check = $pdo->prepare($sql_check);
-        $stmt_check->execute([$eleve_id, $cours_id, $date_presence]);
+        $stmt_check->execute([$eleve_id, $emploi_du_temps_id]);
         
         if (!$stmt_check->fetch()) {
             // Ajouter la demande de signature si elle n'existe pas
-            $sql_insert = "INSERT INTO sign (user_id, cours_id, date_signature, file_name, statut, professeur_id) 
-                          VALUES (?, ?, ?, NULL, 'En attente', ?)";
+            $sql_insert = "INSERT INTO sign (user_id, emploi_du_temps_id, file_name, statut, professeur_id) 
+                          VALUES (?, ?, NULL, 'En attente', ?)";
             $stmt_insert = $pdo->prepare($sql_insert);
-            $stmt_insert->execute([$eleve_id, $cours_id, $date_presence, $professeur_id]);
+            $stmt_insert->execute([$eleve_id, $emploi_du_temps_id, $professeur_id]);
         }
     }
     
@@ -94,8 +93,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Récupérer les classes du professeur
                     $sql_classes = "SELECT DISTINCT c.id, c.name 
                                   FROM classes c 
-                                  INNER JOIN cours co ON c.id = co.class_id 
-                                  WHERE co.professeur_id = ?
+                                  INNER JOIN emploi_du_temps edt ON c.id = edt.class_id 
+                                  WHERE edt.professeur_id = ?
                                   ORDER BY c.name";
                     $stmt_classes = $pdo->prepare($sql_classes);
                     $stmt_classes->execute([$_SESSION['user_id']]);
@@ -106,10 +105,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </select>
             </div>
 
-            <!-- Sélection du cours -->
+            <!-- Sélection du cours dans l'emploi du temps -->
             <div class="form-group">
-                <label for="cours_id">Sélectionnez un cours :</label>
-                <select name="cours_id" id="cours_id" class="form-control" required>
+                <label for="emploi_du_temps_id">Sélectionnez un cours :</label>
+                <select name="emploi_du_temps_id" id="emploi_du_temps_id" class="form-control" required>
                     <option value="">-- Choisir un cours --</option>
                 </select>
             </div>
@@ -126,12 +125,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="signature-status">
             <h3>Statut des Signatures</h3>
             <?php
-            $sql_status = "SELECT s.*, u.nom, u.prenoms, c.titre as cours_titre
+            $sql_status = "SELECT s.*, u.nom, u.prenoms, edt.title as cours_titre
                           FROM sign s
                           JOIN users u ON s.user_id = u.id
-                          JOIN cours c ON s.cours_id = c.id
+                          JOIN emploi_du_temps edt ON s.emploi_du_temps_id = edt.id
                           WHERE s.professeur_id = ?
-                          AND s.date_signature = CURRENT_DATE
+                          AND DATE(edt.start_datetime) = CURRENT_DATE
                           ORDER BY s.statut DESC, u.nom, u.prenoms";
             $stmt_status = $pdo->prepare($sql_status);
             $stmt_status->execute([$_SESSION['user_id']]);
@@ -157,11 +156,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script>
     document.getElementById('classe_id').addEventListener('change', function() {
         const classeId = this.value;
-        const coursSelect = document.getElementById('cours_id');
+        const edtSelect = document.getElementById('emploi_du_temps_id');
         const elevesDiv = document.getElementById('eleves-list');
         
         // Vider les sélections précédentes
-        coursSelect.innerHTML = '<option value="">-- Choisir un cours --</option>';
+        edtSelect.innerHTML = '<option value="">-- Choisir un cours --</option>';
         elevesDiv.innerHTML = '';
         
         if (classeId) {
@@ -170,13 +169,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 .then(response => response.json())
                 .then(cours => {
                     cours.forEach(c => {
-                        coursSelect.innerHTML += `<option value="${c.id}">${c.titre}</option>`;
+                        edtSelect.innerHTML += `<option value="${c.id}">${c.title} - ${c.start_time}</option>`;
                     });
                 });
         }
     });
 
-    document.getElementById('cours_id').addEventListener('change', function() {
+    document.getElementById('emploi_du_temps_id').addEventListener('change', function() {
         const classeId = document.getElementById('classe_id').value;
         const elevesDiv = document.getElementById('eleves-list');
         
