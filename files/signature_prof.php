@@ -16,9 +16,6 @@ try {
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
 
-// Inclusion du header
-include "header_prof.php";
-
 // Traitement du formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $professeur_id = $_SESSION['user_id'];
@@ -42,7 +39,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     echo "<div class='alert alert-success'>Demandes de signatures envoyées avec succès !</div>";
 }
+
+// Inclusion du header
+include "header_prof.php";
 ?>
+
+<!-- Scripts nécessaires pour le menu -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <div class="container mt-4">
     <div class="signature-form">
@@ -120,17 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
-<!-- Scripts pour le menu -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-function toggleSidebar(button) {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('active');
-    button.classList.toggle('active');
-}
-
 // Gestion des élèves
 document.getElementById('emploi_du_temps_id').addEventListener('change', function() {
     const edtId = this.value;
@@ -167,5 +162,7 @@ document.getElementById('emploi_du_temps_id').addEventListener('change', functio
     }
 });
 </script>
-</body>
-</html>
+
+<?php
+include "footer.php";
+?>
