@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -10,7 +13,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
 }
 
 require_once "header_prof.php";
-require_once "bdd.php"; // Connexion à la BDD
+require_once "bdd.php";
+
+if (!$pdo) {
+    die("Erreur de connexion à la base de données.");
+}
+
 
 $prof_id = $_SESSION['user_id'];
 $message = "";
@@ -50,6 +58,11 @@ $sql_classes = "SELECT c.id, c.nom FROM classes c
 $stmt_classes = $pdo->prepare($sql_classes);
 $stmt_classes->execute([$prof_id]);
 $classes = $stmt_classes->fetchAll(PDO::FETCH_ASSOC);
+
+if (empty($classes)) {
+    die("Aucune classe trouvée pour ce professeur.");
+}
+
 
 ?>
 
