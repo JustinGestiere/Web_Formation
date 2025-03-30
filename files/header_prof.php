@@ -1,14 +1,7 @@
 <?php
-/**
- * En-tête professeur - Gestion des accès et de la navigation
- */
+session_start();
 
-// Démarrage de la session si nécessaire
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Vérification des droits d'accès
+// Vérification de la connexion
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
     header("Location: login.php");
     exit();
@@ -23,107 +16,84 @@ require_once "bdd.php";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Formation - Gestion de Planning</title>
-    
+    <title>Web Formation - Professeur</title>
+
     <!-- CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="../css/header_admin.css" rel="stylesheet">
-    
+
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
     <style>
-        body {
-            overflow-x: hidden;
-        }
-        
-        #sidebar {
-            position: fixed;
-            width: 250px;
+        .sidebar {
             height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
             left: -250px;
-            background: #f8f9fa;
+            background-color: #343a40;
+            padding-top: 60px;
             transition: all 0.3s;
-            overflow-y: auto;
             z-index: 1000;
-            padding: 20px;
-            box-shadow: 3px 0 5px rgba(0,0,0,0.1);
         }
-        
-        #sidebar.active {
+
+        .sidebar.active {
             left: 0;
         }
-        
-        #sidebar .list-unstyled {
-            margin-top: 20px;
-        }
-        
-        #sidebar .list-unstyled li {
-            margin-bottom: 10px;
-        }
-        
-        #sidebar .list-unstyled li a {
-            color: #333;
+
+        .sidebar a {
+            padding: 10px 15px;
             text-decoration: none;
+            font-size: 1.1em;
+            color: #fff;
             display: block;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: #7386D5;
+            background: #fff;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 10px;
+            font-size: 36px;
+            margin-left: 50px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .openbtn {
+            font-size: 20px;
             cursor: pointer;
-        }
-        
-        #sidebar .list-unstyled li a:hover {
-            background-color: #e9ecef;
-            color: #007bff;
-        }
-        
-        .navbar-toggler {
-            position: relative;
-            width: 45px;
-            height: 40px;
-            border: 2px solid #333;
-            background: transparent;
-            border-radius: 4px;
-            cursor: pointer;
-            padding: 8px;
-            margin-right: 15px;
-            z-index: 1001;
+            padding: 10px 15px;
+            border: none;
+            background: none;
         }
 
-        .navbar-toggler span {
-            display: block;
-            width: 25px;
-            height: 3px;
-            background-color: #333;
-            margin: 4px 0;
-            border-radius: 2px;
-            transition: all 0.3s ease;
+        .openbtn:hover {
+            background-color: #444;
         }
 
-        .navbar-toggler:hover {
-            background-color: rgba(0,0,0,0.05);
-        }
-
-        .navbar-toggler.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-
-        .navbar-toggler.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .navbar-toggler.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(5px, -5px);
+        #main {
+            transition: margin-left .3s;
+            padding: 16px;
         }
 
         .container_header_admin {
-            padding: 15px;
             background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 999;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1001;
         }
 
         .logo_header_admin {
@@ -131,67 +101,76 @@ require_once "bdd.php";
             margin-right: 15px;
         }
 
-        .content-wrapper {
-            margin-left: 0;
-            transition: margin-left 0.3s;
-            padding: 20px;
+        @media screen and (max-height: 450px) {
+            .sidebar {padding-top: 15px;}
+            .sidebar a {font-size: 18px;}
         }
 
-        @media (min-width: 768px) {
-            body.sidebar-active .content-wrapper {
-                margin-left: 250px;
-            }
+        .main-content {
+            margin-top: 70px;
+            margin-left: 0;
+            transition: margin-left .3s;
+        }
+
+        .main-content.active {
+            margin-left: 250px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            cursor: pointer;
+        }
+
+        .overlay.active {
+            display: block;
         }
     </style>
 </head>
-<body>
 
-<header>
+<body>
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
-            <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
-            <h2 class="h3 mb-0">Web Formation</h2>
+            <button class="openbtn" onclick="toggleSidebar()">☰</button>
+            <img src="../images/logo.jpg" alt="Logo" class="logo_header_admin">
+            <h2 class="mb-0">Web Formation</h2>
         </div>
     </div>
-</header>
 
-<nav id="sidebar">
-    <div class="sidebar-header">
-        <h3>Menu</h3>
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+        <a href="professeur.php"><i class="fas fa-home"></i> Accueil</a>
+        <a href="signature_prof.php"><i class="fas fa-signature"></i> Signatures</a>
+        <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
     </div>
-    <ul class="list-unstyled">
-        <li><a href="professeur.php">Accueil</a></li>
-        <li><a href="signature_prof.php">Signatures</a></li>
-        <li><a href="logout.php">Déconnexion</a></li>
-    </ul>
-</nav>
 
-<div class="content-wrapper">
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content">
 
 <script>
 function toggleSidebar() {
-    const body = document.body;
-    const sidebar = document.getElementById('sidebar');
-    const button = document.querySelector('.navbar-toggler');
-    
-    body.classList.toggle('sidebar-active');
-    sidebar.classList.toggle('active');
-    button.classList.toggle('active');
+    document.getElementById("mySidebar").classList.toggle("active");
+    document.getElementById("overlay").classList.toggle("active");
+    document.querySelector(".main-content").classList.toggle("active");
 }
 
 // Fermer le menu si on clique en dehors
 document.addEventListener('click', function(event) {
-    const sidebar = document.getElementById('sidebar');
-    const button = document.querySelector('.navbar-toggler');
+    const sidebar = document.getElementById("mySidebar");
+    const button = document.querySelector(".openbtn");
     
-    if (!event.target.closest('#sidebar') && 
-        !event.target.closest('.navbar-toggler') && 
-        sidebar.classList.contains('active')) {
+    if (sidebar.classList.contains("active") && 
+        !event.target.closest('.sidebar') && 
+        !event.target.closest('.openbtn')) {
         toggleSidebar();
     }
 });

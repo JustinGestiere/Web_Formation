@@ -16,7 +16,7 @@ require_once "header_prof.php";
     <p>Contenu à venir...</p>
 </div>
 
-</div> <!-- Fermeture de content-wrapper -->
+</div> <!-- Fermeture de main-content -->
 
 <?php require_once "footer.php"; ?>
 
