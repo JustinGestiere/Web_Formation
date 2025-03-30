@@ -1,134 +1,60 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+session_start();
+require_once "header_prof.php"; // Inclusion du header pour le professeur
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Vérification des droits d'accès
+// Vérification si l'utilisateur est un professeur
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
     header("Location: login.php");
     exit();
 }
 
-require_once "header_prof.php";
-require_once "bdd.php";
-
-if (!$pdo) {
-    die("Erreur de connexion à la base de données.");
-}
-
-
-$prof_id = $_SESSION['user_id'];
-$message = "";
-
-// Traitement du formulaire
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['classe_id']) && isset($_POST['presences'])) {
-    $classe_id = $_POST['classe_id'];
-    $date_presence = date("Y-m-d");
-    $eleves_presents = $_POST['presences'];
-
-    // Vérifier si un cours est prévu aujourd'hui
-    $sql_edt = "SELECT id FROM emploi_du_temps WHERE class_id = ? AND DATE(start_datetime) = ?";
-    $stmt_edt = $pdo->prepare($sql_edt);
-    $stmt_edt->execute([$classe_id, $date_presence]);
-    $emploi = $stmt_edt->fetch(PDO::FETCH_ASSOC);
-
-    if ($emploi) {
-        $emploi_du_temps_id = $emploi['id'];
-
-        foreach ($eleves_presents as $eleve_id) {
-            $sql_insert = "INSERT INTO sign (user_id, emploi_du_temps_id, file_name, statut, professeur_id) 
-                           VALUES (?, ?, NULL, 'En attente', ?)";
-            $stmt_insert = $pdo->prepare($sql_insert);
-            $stmt_insert->execute([$eleve_id, $emploi_du_temps_id, $prof_id]);
-        }
-
-        $message = "Présence enregistrée ! Les élèves doivent maintenant signer.";
-    } else {
-        $message = "Aucun cours trouvé pour aujourd'hui.";
-    }
-}
+require_once "bdd.php"; // Connexion à la base de données
 
 // Récupérer les classes du professeur
-$sql_classes = "SELECT c.id, c.nom FROM classes c 
-                JOIN professeur_classes pc ON c.id = pc.classe_id 
-                WHERE pc.professeur_id = ?";
-$stmt_classes = $pdo->prepare($sql_classes);
-$stmt_classes->execute([$prof_id]);
-$classes = $stmt_classes->fetchAll(PDO::FETCH_ASSOC);
+$professeur_id = $_SESSION['user_id'];
+$query = "SELECT c.id, c.nom FROM classes c
+          JOIN professeur_classes pc ON c.id = pc.classe_id
+          WHERE pc.professeur_id = :professeur_id";
+$stmt = $pdo->prepare($query);
+$stmt->execute(['professeur_id' => $professeur_id]);
+$classes = $stmt->fetchAll();
 
-if (empty($classes)) {
-    die("Aucune classe trouvée pour ce professeur.");
+// Sélectionner les élèves pour chaque classe
+if (isset($_POST['classe_id'])) {
+    $classe_id = $_POST['classe_id'];
+    $stmt = $pdo->prepare("SELECT u.id, u.nom FROM users u
+                           JOIN class_users cu ON u.id = cu.user_id
+                           WHERE cu.classe_id = :classe_id AND u.role = 'eleve'");
+    $stmt->execute(['classe_id' => $classe_id]);
+    $eleves = $stmt->fetchAll();
 }
-
-
 ?>
 
 <div class="main-content">
     <div class="container mt-4">
-        <h1>Page des signatures</h1>
-
-        <?php if ($message) { echo "<p style='color: green;'>$message</p>"; } ?>
-
-        <form action="" method="POST">
-            <label for="classe">Sélectionnez une classe :</label>
-            <select name="classe_id" id="classe" required>
+        <h1>Signatures des élèves</h1>
+        <form method="POST">
+            <label for="classe_id">Sélectionner une classe:</label>
+            <select name="classe_id" id="classe_id" onchange="this.form.submit()">
                 <option value="">Choisir une classe</option>
-                <?php foreach ($classes as $classe) { ?>
-                    <option value="<?= $classe['id'] ?>"><?= htmlspecialchars($classe['nom']) ?></option>
-                <?php } ?>
+                <?php foreach ($classes as $classe) : ?>
+                    <option value="<?= $classe['id'] ?>" <?= (isset($classe_id) && $classe_id == $classe['id']) ? 'selected' : '' ?>>
+                        <?= $classe['nom'] ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
-
-            <div id="eleves-list">
-                <!-- Les élèves seront affichés ici via JavaScript -->
-            </div>
-
-            <button type="submit" class="btn btn-primary mt-3">Valider la présence</button>
         </form>
+
+        <?php if (isset($eleves)) : ?>
+            <form method="POST" action="signature_traitement.php">
+                <h2>Élèves présents</h2>
+                <?php foreach ($eleves as $eleve) : ?>
+                    <input type="checkbox" name="eleves_present[]" value="<?= $eleve['id'] ?>"> <?= $eleve['nom'] ?><br>
+                <?php endforeach; ?>
+                <button type="submit" class="btn btn-primary">Envoyer pour signature</button>
+            </form>
+        <?php endif; ?>
     </div>
 </div>
-
-<script>
-document.getElementById('classe').addEventListener('change', function() {
-    let classeId = this.value;
-    
-    if (classeId) {
-        fetch('signature_prof.php?classe_id=' + classeId)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('eleves-list').innerHTML = data;
-            });
-    } else {
-        document.getElementById('eleves-list').innerHTML = '';
-    }
-});
-</script>
-
-<?php
-// Gestion de l'AJAX pour charger les élèves
-if (isset($_GET['classe_id'])) {
-    $classe_id = $_GET['classe_id'];
-
-    $sql_eleves = "SELECT id, nom, prenoms FROM users WHERE classe_id = ? AND roles = 'eleve'";
-    $stmt_eleves = $pdo->prepare($sql_eleves);
-    $stmt_eleves->execute([$classe_id]);
-    $eleves = $stmt_eleves->fetchAll(PDO::FETCH_ASSOC);
-
-    if (count($eleves) > 0) {
-        echo "<h3>Liste des élèves</h3>";
-        foreach ($eleves as $eleve) {
-            echo '<div>
-                    <input type="checkbox" name="presences[]" value="'.$eleve['id'].'">
-                    '.htmlspecialchars($eleve['nom']).' '.htmlspecialchars($eleve['prenoms']).'
-                  </div>';
-        }
-    } else {
-        echo "<p>Aucun élève trouvé.</p>";
-    }
-    exit(); // Fin du script pour ne pas charger tout le reste
-}
-?>
 
 <?php require_once "footer.php"; ?>
