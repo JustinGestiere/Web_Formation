@@ -17,19 +17,6 @@ require_once "bdd.php"; // Connexion à la base de données
 $professeur_id = $_SESSION['user_id'];
 var_dump("ID du professeur : " . $professeur_id); // Debug
 
-// Affichons la structure des tables
-$stmt = $pdo->query("DESCRIBE users");
-var_dump("Structure de la table users:", $stmt->fetchAll(PDO::FETCH_COLUMN));
-
-$stmt = $pdo->query("DESCRIBE classes");
-var_dump("Structure de la table classes:", $stmt->fetchAll(PDO::FETCH_COLUMN));
-
-$stmt = $pdo->query("DESCRIBE cours");
-var_dump("Structure de la table cours:", $stmt->fetchAll(PDO::FETCH_COLUMN));
-
-$stmt = $pdo->query("DESCRIBE matieres");
-var_dump("Structure de la table matieres:", $stmt->fetchAll(PDO::FETCH_COLUMN));
-
 // Récupérer les cours du professeur
 $query = "SELECT c.*, cl.name as classe_nom, m.name as matiere_nom 
           FROM cours c 
@@ -47,8 +34,8 @@ if (isset($_POST['cours_id'])) {
     var_dump("Cours sélectionné : " . $cours_id); // Debug
     
     $stmt = $pdo->prepare("SELECT u.* FROM users u
-                          INNER JOIN cours c ON u.class_id = c.class_id
-                          WHERE c.id = :cours_id AND u.user_role = 'eleve'");
+                          INNER JOIN cours c ON u.classe_id = c.class_id
+                          WHERE c.id = :cours_id AND u.roles = 'eleve'");
     $stmt->execute(['cours_id' => $cours_id]);
     $eleves = $stmt->fetchAll();
     var_dump($eleves); // Debug
@@ -57,6 +44,20 @@ if (isset($_POST['cours_id'])) {
 
 <div class="main-content">
     <div class="container mt-4">
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <?= htmlspecialchars($_SESSION['success']) ?>
+            </div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger">
+                <?= htmlspecialchars($_SESSION['error']) ?>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
         <h1>Signatures des élèves</h1>
         <form method="POST">
             <div class="form-group">
@@ -66,7 +67,7 @@ if (isset($_POST['cours_id'])) {
                     <?php if (!empty($cours)) : ?>
                         <?php foreach ($cours as $c) : ?>
                             <option value="<?= $c['id'] ?>" <?= (isset($_POST['cours_id']) && $_POST['cours_id'] == $c['id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($c['matiere_nom'] . ' - ' . $c['classe_nom']) ?>
+                                <?= htmlspecialchars($c['titre'] . ' - ' . $c['matiere_nom'] . ' - ' . $c['classe_nom'] . ' (' . date('d/m/Y H:i', strtotime($c['date_debut'])) . ')') ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -82,7 +83,7 @@ if (isset($_POST['cours_id'])) {
                     <?php foreach ($eleves as $eleve) : ?>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" name="eleves_present[]" value="<?= $eleve['id'] ?>" id="eleve_<?= $eleve['id'] ?>">
-                            <label class="form-check-label" for="eleve_<?= $eleve['id'] ?>"><?= htmlspecialchars($eleve['nom']) ?></label>
+                            <label class="form-check-label" for="eleve_<?= $eleve['id'] ?>"><?= htmlspecialchars($eleve['nom'] . ' ' . $eleve['prenoms']) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>
