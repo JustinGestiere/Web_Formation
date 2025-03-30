@@ -13,10 +13,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'eleve') {
 
 require_once "bdd.php";
 
+// Variables principales
+$week_offset = isset($_GET['week_offset']) ? (int)$_GET['week_offset'] : 0;
 $eleve_id = $_SESSION['user_id'];
 
 // Récupérer les informations de l'élève
-$stmt = $pdo->prepare("SELECT u.*, c.name as classe_nom 
+$stmt = $pdo->prepare("SELECT u.*, c.name as classe_nom, c.id as classe_id 
                        FROM users u 
                        LEFT JOIN classes c ON u.classe_id = c.id 
                        WHERE u.id = :eleve_id");
@@ -27,37 +29,42 @@ if (!$eleve) {
     die("Élève non trouvé");
 }
 
-// Récupérer les cours de la classe
-$query = "SELECT c.*, cl.name as classe_nom, m.name as matiere_nom, 
-          p.nom as prof_nom, p.prenoms as prof_prenoms
-          FROM cours c 
-          INNER JOIN classes cl ON c.class_id = cl.id
-          INNER JOIN matieres m ON c.matiere_id = m.id
-          INNER JOIN users p ON c.professeur_id = p.id
-          WHERE c.class_id = :classe_id
-          ORDER BY c.date_debut ASC";
+// Définir le premier lundi de 2025 comme point de départ
+$start_date = new DateTime('2025-01-06');
+$start_date->modify("{$week_offset} week");
+
+// Calcul des jours de la semaine (du lundi au vendredi)
+$days = [];
+$week_start = clone $start_date;
+for ($i = 0; $i < 5; $i++) {
+    $days[] = clone $week_start;
+    $week_start->modify('+1 day');
+}
+
+// Récupération des cours pour la classe de l'élève
+$query = "
+    SELECT c.*, m.name as matiere_nom, p.nom as prof_nom, p.prenoms as prof_prenoms
+    FROM cours c
+    INNER JOIN matieres m ON c.matiere_id = m.id
+    INNER JOIN users p ON c.professeur_id = p.id
+    WHERE c.class_id = :class_id 
+    AND DATE(date_debut) BETWEEN :start_date AND :end_date
+    ORDER BY date_debut ASC";
 
 $stmt = $pdo->prepare($query);
-$stmt->execute(['classe_id' => $eleve['classe_id']]);
-$cours = $stmt->fetchAll();
+$stmt->execute([
+    'class_id' => $eleve['classe_id'],
+    'start_date' => $start_date->format('Y-m-d'),
+    'end_date' => $week_start->modify('-1 day')->format('Y-m-d')
+]);
+$cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Préparer les données pour le calendrier
-$events = array();
-foreach ($cours as $c) {
-    $events[] = array(
-        'id' => $c['id'],
-        'title' => $c['titre'] . ' - ' . $c['matiere_nom'],
-        'start' => $c['date_debut'],
-        'end' => $c['date_fin'],
-        'backgroundColor' => '#007bff',
-        'borderColor' => '#007bff',
-        'textColor' => '#ffffff',
-        'extendedProps' => array(
-            'professeur' => $c['prof_nom'] . ' ' . $c['prof_prenoms'],
-            'matiere' => $c['matiere_nom'],
-            'salle' => $c['salle']
-        )
-    );
+// Organisation des cours par jour
+$cours_par_jour = [];
+foreach ($days as $day) {
+    $cours_par_jour[$day->format('Y-m-d')] = array_filter($cours, function ($cours_item) use ($day) {
+        return date('Y-m-d', strtotime($cours_item['date_debut'])) === $day->format('Y-m-d');
+    });
 }
 ?>
 
@@ -78,67 +85,84 @@ foreach ($cours as $c) {
             </div>
         </div>
 
+        <!-- Navigation entre les semaines -->
+        <div class="navigation-semaine mb-4 text-center">
+            <form method="GET" action="" class="d-inline">
+                <input type="hidden" name="week_offset" value="<?php echo $week_offset - 1; ?>">
+                <button type="submit" class="btn btn-secondary">← Semaine précédente</button>
+            </form>
+            <span class="mx-3">
+                Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->format('d/m/Y'); ?>
+            </span>
+            <form method="GET" action="" class="d-inline">
+                <input type="hidden" name="week_offset" value="<?php echo $week_offset + 1; ?>">
+                <button type="submit" class="btn btn-secondary">Semaine suivante →</button>
+            </form>
+        </div>
+
         <!-- Calendrier -->
-        <div id="calendar"></div>
+        <div class="calendrier">
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Lundi</th>
+                        <th>Mardi</th>
+                        <th>Mercredi</th>
+                        <th>Jeudi</th>
+                        <th>Vendredi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <?php foreach ($days as $day): ?>
+                            <td class="align-top">
+                                <div class="date-header mb-2">
+                                    <?php echo $day->format('d/m/Y'); ?>
+                                </div>
+                                <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
+                                    <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
+                                        <div class="cours p-2 mb-2 bg-light rounded">
+                                            <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
+                                            <small>
+                                                <?php echo htmlspecialchars($cours_item['matiere_nom']); ?><br>
+                                                <?php echo htmlspecialchars($cours_item['prof_nom'] . ' ' . $cours_item['prof_prenoms']); ?><br>
+                                                <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - 
+                                                <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?><br>
+                                                <?php if (!empty($cours_item['salle'])): ?>
+                                                    Salle: <?php echo htmlspecialchars($cours_item['salle']); ?>
+                                                <?php endif; ?>
+                                            </small>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="text-muted">Aucun cours</div>
+                                <?php endif; ?>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<!-- FullCalendar CSS -->
-<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/main.min.css' rel='stylesheet' />
-<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@4.4.0/main.min.css' rel='stylesheet' />
-<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@4.4.0/main.min.css' rel='stylesheet' />
-
-<!-- FullCalendar JS -->
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@4.4.0/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@4.4.0/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@4.4.0/main.min.js'></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        plugins: ['dayGrid', 'timeGrid', 'interaction'],
-        defaultView: 'timeGridWeek',
-        locale: 'fr',
-        header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: <?= json_encode($events) ?>,
-        eventClick: function(info) {
-            var event = info.event;
-            var details = `
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">${event.title}</h5>
-                        <p class="card-text">
-                            <strong>Professeur:</strong> ${event.extendedProps.professeur}<br>
-                            <strong>Matière:</strong> ${event.extendedProps.matiere}<br>
-                            <strong>Salle:</strong> ${event.extendedProps.salle || 'Non spécifiée'}<br>
-                            <strong>Horaires:</strong> ${formatDate(event.start)} - ${formatDate(event.end)}
-                        </p>
-                    </div>
-                </div>
-            `;
-            
-            // Utiliser Bootstrap modal ou alert pour afficher les détails
-            alert(event.title + '\n\n' + 
-                  'Professeur: ' + event.extendedProps.professeur + '\n' +
-                  'Matière: ' + event.extendedProps.matiere + '\n' +
-                  'Salle: ' + (event.extendedProps.salle || 'Non spécifiée'));
-        }
-    });
-    calendar.render();
-});
-
-function formatDate(date) {
-    return date.toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+<style>
+.navigation-semaine {
+    margin: 20px 0;
+    text-align: center;
 }
-</script>
+.calendrier {
+    margin-top: 20px;
+}
+.date-header {
+    font-weight: bold;
+    background-color: #f8f9fa;
+    padding: 5px;
+    border-radius: 4px;
+}
+.cours {
+    border-left: 4px solid #007bff;
+}
+</style>
 
 <?php require_once "footer_eleve.php"; ?>

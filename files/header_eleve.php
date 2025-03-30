@@ -105,16 +105,11 @@ try {
     </div>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="../index.php">Accueil</a>
+            <a class="nav-link" href="eleve.php">Accueil</a>
         </li>
+
         <li class="nav-item">
-            <a class="nav-link" href="/files/matieres.php">Matières</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/files/emploi_du_temps.php">Emploi du temps</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/files/signature.php">Signature</a>
+            <a class="nav-link" href="/files/signature_eleve.php">Signature</a>
         </li>
         <?php if (isset($_SESSION['user_id'])): ?>
             <li class="nav-item">
