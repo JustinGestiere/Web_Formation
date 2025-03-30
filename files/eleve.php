@@ -165,4 +165,4 @@ foreach ($days as $day) {
 }
 </style>
 
-<?php require_once "footer_eleve.php"; ?>
+<?php require_once "footer.php"; ?>
