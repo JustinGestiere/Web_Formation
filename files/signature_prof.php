@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 require_once "header_prof.php"; // Inclusion du header pour le professeur
 
@@ -17,7 +20,7 @@ $query = "SELECT c.*, cl.name as classe_nom, m.name as matiere_nom,
           CASE WHEN EXISTS (
               SELECT 1 FROM sign s 
               WHERE s.cours_id = c.id 
-              AND s.professeur_id = :professeur_id
+              AND s.professeur_id = :professeur_id_sign
           ) THEN true ELSE false END as is_signed
           FROM cours c 
           INNER JOIN classes cl ON c.class_id = cl.id
@@ -26,7 +29,10 @@ $query = "SELECT c.*, cl.name as classe_nom, m.name as matiere_nom,
           ORDER BY c.date_debut DESC";
 
 $stmt = $pdo->prepare($query);
-$stmt->execute(['professeur_id' => $professeur_id]);
+$stmt->execute([
+    'professeur_id' => $professeur_id,
+    'professeur_id_sign' => $professeur_id
+]);
 $cours = $stmt->fetchAll();
 
 // Récupérer tous les élèves par classe
@@ -58,55 +64,65 @@ foreach ($cours as $c) {
 }
 ?>
 
-<div class="main-content">
-    <div class="container mt-4">
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
-                <?= htmlspecialchars($_SESSION['success']) ?>
-            </div>
-            <?php unset($_SESSION['success']); ?>
-        <?php endif; ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signatures des élèves</title>
+    
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/main.min.css' rel='stylesheet' />
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@4.4.0/main.min.css' rel='stylesheet' />
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@4.4.0/main.min.css' rel='stylesheet' />
+</head>
+<body>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger">
-                <?= htmlspecialchars($_SESSION['error']) ?>
-            </div>
-            <?php unset($_SESSION['error']); ?>
-        <?php endif; ?>
+<div class="container mt-4">
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <?= htmlspecialchars($_SESSION['success']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
-        <div class="row">
-            <div class="col-md-8">
-                <h1>Signatures des élèves</h1>
-                <!-- Calendrier -->
-                <div id="calendar" class="mb-4"></div>
-            </div>
-            <div class="col-md-4">
-                <div id="liste-eleves" class="mt-4" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Liste des élèves</h5>
-                            <small id="cours-info"></small>
-                        </div>
-                        <div class="card-body">
-                            <form id="signature-form" action="signature_traitement.php" method="POST">
-                                <input type="hidden" name="cours_id" id="cours_id_input">
-                                <div id="eleves-container">
-                                    <!-- La liste des élèves sera injectée ici -->
-                                </div>
-                                <button type="submit" class="btn btn-primary mt-3">Envoyer pour signature</button>
-                            </form>
-                        </div>
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <?= htmlspecialchars($_SESSION['error']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Signatures des élèves</h1>
+            <div id="calendar" class="mb-4"></div>
+        </div>
+        <div class="col-md-4">
+            <div id="liste-eleves" class="mt-4" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Liste des élèves</h5>
+                        <small id="cours-info"></small>
+                    </div>
+                    <div class="card-body">
+                        <form id="signature-form" action="signature_traitement.php" method="POST">
+                            <input type="hidden" name="cours_id" id="cours_id_input">
+                            <div id="eleves-container">
+                                <!-- La liste des élèves sera injectée ici -->
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">
+                                <i class="fas fa-signature"></i> Envoyer pour signature
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- FullCalendar CSS -->
-<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/main.min.css' rel='stylesheet' />
-<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@4.4.0/main.min.css' rel='stylesheet' />
-<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@4.4.0/main.min.css' rel='stylesheet' />
 
 <!-- FullCalendar JS -->
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/main.min.js'></script>
@@ -115,55 +131,58 @@ foreach ($cours as $c) {
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@4.4.0/main.min.js'></script>
 
 <script>
-// Stocker les élèves par classe
-const elevesParClasse = <?= json_encode($eleves_par_classe) ?>;
-
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
         plugins: ['dayGrid', 'timeGrid', 'interaction'],
         defaultView: 'timeGridWeek',
-        locale: 'fr',
         header: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
+        locale: 'fr',
+        timeZone: 'Europe/Paris',
         events: <?= json_encode($events) ?>,
         eventClick: function(info) {
             var event = info.event;
-            if (event.extendedProps.is_signed) {
-                alert('Ce cours a déjà été signé');
-                return;
-            }
+            var coursId = event.id;
+            var classId = event.extendedProps.class_id;
             
-            // Afficher les élèves de la classe
-            const classId = event.extendedProps.class_id;
-            const eleves = elevesParClasse[classId];
+            // Mettre à jour l'ID du cours dans le formulaire
+            document.getElementById('cours_id_input').value = coursId;
             
-            // Mettre à jour l'interface
-            document.getElementById('cours_id_input').value = event.id;
+            // Afficher les informations du cours
             document.getElementById('cours-info').textContent = event.title;
             
-            let html = '';
-            eleves.forEach(eleve => {
-                html += `
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" name="eleves_present[]" 
-                               value="${eleve.id}" id="eleve_${eleve.id}">
-                        <label class="form-check-label" for="eleve_${eleve.id}">
-                            ${eleve.nom} ${eleve.prenoms}
-                        </label>
-                    </div>
+            // Afficher la liste des élèves pour cette classe
+            var elevesContainer = document.getElementById('eleves-container');
+            elevesContainer.innerHTML = '';
+            
+            var eleves = <?= json_encode($eleves_par_classe) ?>[classId] || [];
+            eleves.forEach(function(eleve) {
+                var div = document.createElement('div');
+                div.className = 'form-check';
+                div.innerHTML = `
+                    <input class="form-check-input" type="checkbox" name="eleves_present[]" 
+                           value="${eleve.id}" id="eleve-${eleve.id}">
+                    <label class="form-check-label" for="eleve-${eleve.id}">
+                        ${eleve.prenoms} ${eleve.nom}
+                    </label>
                 `;
+                elevesContainer.appendChild(div);
             });
             
-            document.getElementById('eleves-container').innerHTML = html;
+            // Afficher le conteneur de la liste des élèves
             document.getElementById('liste-eleves').style.display = 'block';
         }
     });
+    
     calendar.render();
 });
 </script>
+
+</body>
+</html>
 
 <?php require_once "footer.php"; ?>
