@@ -1,11 +1,7 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 require_once "header_eleve.php";
 
-// Vérification si l'utilisateur est un élève
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'eleve') {
     header("Location: login.php");
     exit();
@@ -36,20 +32,17 @@ $query = "SELECT
             CASE 
                 WHEN EXISTS (
                     SELECT 1 FROM sign s1
-                    WHERE s1.classe_id = c.class_id 
+                    WHERE s1.cours_id = c.id 
                     AND s1.user_id = :eleve_id_sign
-                    AND DATE(s1.date_signature) = DATE(c.date_debut)
                 ) THEN 'signed'
                 WHEN EXISTS (
                     SELECT 1 FROM sign s2
-                    WHERE s2.classe_id = c.class_id 
+                    WHERE s2.cours_id = c.id 
                     AND s2.professeur_id = c.professeur_id
-                    AND DATE(s2.date_signature) = DATE(c.date_debut)
                     AND NOT EXISTS (
                         SELECT 1 FROM sign s3
-                        WHERE s3.classe_id = c.class_id
+                        WHERE s3.cours_id = c.id
                         AND s3.user_id = :eleve_id_check
-                        AND DATE(s3.date_signature) = DATE(c.date_debut)
                     )
                 ) THEN 'to_sign'
                 ELSE 'not_available'
@@ -70,101 +63,105 @@ $stmt->execute([
 $cours = $stmt->fetchAll();
 ?>
 
-<div class="main-content">
-    <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <h1>Mes signatures</h1>
-                <p class="lead">
-                    <?= htmlspecialchars($eleve['prenoms'] . ' ' . $eleve['nom']) ?> - 
-                    Classe : <?= htmlspecialchars($eleve['classe_nom']) ?>
-                </p>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <a href="eleve.php" class="btn btn-primary">
-                    <i class="fas fa-calendar"></i> Voir l'emploi du temps
-                </a>
-            </div>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1>Mes signatures</h1>
+            <p class="lead">
+                <?= htmlspecialchars($eleve['prenoms'] . ' ' . $eleve['nom']) ?> - 
+                Classe : <?= htmlspecialchars($eleve['classe_nom']) ?>
+            </p>
         </div>
+        <div class="col-md-6 text-md-end">
+            <a href="eleve.php" class="btn btn-primary">
+                <i class="fas fa-calendar"></i> Voir l'emploi du temps
+            </a>
+        </div>
+    </div>
 
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
-                <?= htmlspecialchars($_SESSION['success']) ?>
-            </div>
-            <?php unset($_SESSION['success']); ?>
-        <?php endif; ?>
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <?= htmlspecialchars($_SESSION['success']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger">
-                <?= htmlspecialchars($_SESSION['error']) ?>
-            </div>
-            <?php unset($_SESSION['error']); ?>
-        <?php endif; ?>
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <?= htmlspecialchars($_SESSION['error']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead class="table-dark">
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Cours</th>
+                    <th>Matière</th>
+                    <th>Professeur</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($cours as $c): ?>
                     <tr>
-                        <th>Date</th>
-                        <th>Cours</th>
-                        <th>Matière</th>
-                        <th>Professeur</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
+                        <td><?= date('d/m/Y', strtotime($c['date_debut'])) ?></td>
+                        <td><?= htmlspecialchars($c['titre']) ?></td>
+                        <td><?= htmlspecialchars($c['matiere_nom']) ?></td>
+                        <td><?= htmlspecialchars($c['prof_nom'] . ' ' . $c['prof_prenoms']) ?></td>
+                        <td>
+                            <?php if ($c['signature_status'] === 'signed'): ?>
+                                <span class="badge bg-success">Signé</span>
+                            <?php elseif ($c['signature_status'] === 'to_sign'): ?>
+                                <span class="badge bg-warning">À signer</span>
+                            <?php else: ?>
+                                <span class="badge bg-secondary">Non disponible</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($c['signature_status'] === 'to_sign'): ?>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="showSignatureModal(<?= $c['id'] ?>)">
+                                    <i class="fas fa-signature"></i> Signer
+                                </button>
+                            <?php endif; ?>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($cours as $c): ?>
-                        <tr>
-                            <td><?= date('d/m/Y', strtotime($c['date_debut'])) ?></td>
-                            <td><?= htmlspecialchars($c['titre']) ?></td>
-                            <td><?= htmlspecialchars($c['matiere_nom']) ?></td>
-                            <td><?= htmlspecialchars($c['prof_nom'] . ' ' . $c['prof_prenoms']) ?></td>
-                            <td>
-                                <?php if ($c['signature_status'] === 'signed'): ?>
-                                    <span class="badge bg-success">Signé</span>
-                                <?php elseif ($c['signature_status'] === 'to_sign'): ?>
-                                    <span class="badge bg-warning">À signer</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Non disponible</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($c['signature_status'] === 'to_sign'): ?>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="showSignatureModal(<?= $c['id'] ?>)">
-                                        <i class="fas fa-signature"></i> Signer
-                                    </button>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <!-- Modal de signature -->
-<div class="modal fade" id="signatureModal" tabindex="-1">
+<div class="modal fade" id="signatureModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Signer le cours</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="signatureForm" action="enregistrer_signature.php" method="POST">
                     <input type="hidden" name="cours_id" id="cours_id">
-                    <div class="form-group">
-                        <label>Votre signature :</label>
-                        <canvas id="signature-pad" class="border w-100" height="200"></canvas>
+                    <div class="mb-3">
+                        <label class="form-label">Votre signature :</label>
+                        <canvas id="signature-pad" class="border rounded w-100" height="200"></canvas>
                         <input type="hidden" name="signature_data" id="signature_data">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="clearSignature()">Effacer</button>
-                <button type="button" class="btn btn-primary" onclick="saveSignature()">Valider</button>
+                <button type="button" class="btn btn-secondary" onclick="clearSignature()">
+                    <i class="fas fa-eraser"></i> Effacer
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveSignature()">
+                    <i class="fas fa-check"></i> Valider
+                </button>
             </div>
         </div>
     </div>
@@ -183,7 +180,6 @@ function showSignatureModal(coursId) {
     currentModal.show();
     
     setTimeout(() => {
-        // Initialiser le pad de signature après l'affichage du modal
         const canvas = document.getElementById('signature-pad');
         canvas.width = canvas.offsetWidth;
         canvas.height = 200;

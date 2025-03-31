@@ -95,31 +95,27 @@ if ($week_offset === 0) {
 
         <!-- Navigation entre les semaines -->
         <div class="navigation-semaine mb-4 text-center">
-            <form method="GET" action="" class="d-inline">
-                <input type="hidden" name="week_offset" value="<?php echo $week_offset - 1; ?>">
-                <input type="hidden" name="active_day" value="<?php echo $active_day_index; ?>">
-                <button type="submit" class="btn btn-secondary">← Semaine précédente</button>
-            </form>
-            <span class="mx-3 d-none d-md-inline">
-                Semaine du <?php echo $start_date->format('d/m/Y'); ?> au <?php echo $week_start->format('d/m/Y'); ?>
-            </span>
-            <form method="GET" action="" class="d-inline">
-                <input type="hidden" name="week_offset" value="<?php echo $week_offset + 1; ?>">
-                <input type="hidden" name="active_day" value="<?php echo $active_day_index; ?>">
-                <button type="submit" class="btn btn-secondary">Semaine suivante →</button>
-            </form>
+            <div class="btn-group">
+                <a href="?week_offset=<?= $week_offset - 1 ?>&active_day=<?= $active_day_index ?>" class="btn btn-outline-primary">
+                    <i class="fas fa-chevron-left"></i> Semaine précédente
+                </a>
+                <span class="btn btn-outline-primary disabled">
+                    Semaine du <?= $start_date->format('d/m/Y') ?>
+                </span>
+                <a href="?week_offset=<?= $week_offset + 1 ?>&active_day=<?= $active_day_index ?>" class="btn btn-outline-primary">
+                    Semaine suivante <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
         </div>
 
         <!-- Navigation des jours (mobile) -->
         <div class="d-block d-md-none mb-3">
             <div class="nav nav-pills nav-fill">
                 <?php foreach ($days as $index => $day): ?>
-                    <div class="nav-item">
-                        <a href="?week_offset=<?php echo $week_offset; ?>&active_day=<?php echo $index; ?>" 
-                           class="nav-link <?php echo $index === $active_day_index ? 'active' : ''; ?>">
-                            <?php echo $day->format('D j'); ?>
-                        </a>
-                    </div>
+                    <a href="?week_offset=<?= $week_offset ?>&active_day=<?= $index ?>" 
+                       class="nav-item nav-link <?= $index === $active_day_index ? 'active' : '' ?>">
+                        <?= $day->format('D j') ?>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -131,19 +127,19 @@ if ($week_offset === 0) {
             ?>
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><?php echo $days[$active_day_index]->format('l j F Y'); ?></h5>
+                    <h5 class="mb-0"><?= $days[$active_day_index]->format('l j F Y') ?></h5>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($cours_par_jour[$current_day])): ?>
                         <?php foreach ($cours_par_jour[$current_day] as $cours_item): ?>
                             <div class="cours p-3 mb-3 bg-light rounded shadow-sm">
-                                <h5 class="mb-2"><?php echo htmlspecialchars($cours_item['titre']); ?></h5>
+                                <h5 class="mb-2"><?= htmlspecialchars($cours_item['titre']) ?></h5>
                                 <div class="cours-details">
-                                    <p class="mb-1"><i class="fas fa-book"></i> <?php echo htmlspecialchars($cours_item['matiere_nom']); ?></p>
-                                    <p class="mb-1"><i class="fas fa-user"></i> <?php echo htmlspecialchars($cours_item['prof_nom'] . ' ' . $cours_item['prof_prenoms']); ?></p>
-                                    <p class="mb-1"><i class="far fa-clock"></i> <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?></p>
+                                    <p class="mb-1"><i class="fas fa-book"></i> <?= htmlspecialchars($cours_item['matiere_nom']) ?></p>
+                                    <p class="mb-1"><i class="fas fa-user"></i> <?= htmlspecialchars($cours_item['prof_nom'] . ' ' . $cours_item['prof_prenoms']) ?></p>
+                                    <p class="mb-1"><i class="far fa-clock"></i> <?= date('H:i', strtotime($cours_item['date_debut'])) ?> - <?= date('H:i', strtotime($cours_item['date_fin'])) ?></p>
                                     <?php if (!empty($cours_item['salle'])): ?>
-                                        <p class="mb-0"><i class="fas fa-door-open"></i> Salle: <?php echo htmlspecialchars($cours_item['salle']); ?></p>
+                                        <p class="mb-0"><i class="fas fa-door-open"></i> Salle: <?= htmlspecialchars($cours_item['salle']) ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -165,7 +161,7 @@ if ($week_offset === 0) {
                     <thead class="table-dark">
                         <tr>
                             <?php foreach ($days as $day): ?>
-                                <th class="text-center"><?php echo $day->format('l j/m'); ?></th>
+                                <th class="text-center"><?= $day->format('l j/m') ?></th>
                             <?php endforeach; ?>
                         </tr>
                     </thead>
@@ -176,14 +172,14 @@ if ($week_offset === 0) {
                                     <?php if (!empty($cours_par_jour[$day->format('Y-m-d')])): ?>
                                         <?php foreach ($cours_par_jour[$day->format('Y-m-d')] as $cours_item): ?>
                                             <div class="cours p-2 mb-2 bg-light rounded shadow-sm">
-                                                <strong><?php echo htmlspecialchars($cours_item['titre']); ?></strong><br>
+                                                <strong><?= htmlspecialchars($cours_item['titre']) ?></strong><br>
                                                 <small>
-                                                    <?php echo htmlspecialchars($cours_item['matiere_nom']); ?><br>
-                                                    <?php echo htmlspecialchars($cours_item['prof_nom'] . ' ' . $cours_item['prof_prenoms']); ?><br>
-                                                    <?php echo date('H:i', strtotime($cours_item['date_debut'])); ?> - 
-                                                    <?php echo date('H:i', strtotime($cours_item['date_fin'])); ?>
+                                                    <?= htmlspecialchars($cours_item['matiere_nom']) ?><br>
+                                                    <?= htmlspecialchars($cours_item['prof_nom'] . ' ' . $cours_item['prof_prenoms']) ?><br>
+                                                    <?= date('H:i', strtotime($cours_item['date_debut'])) ?> - 
+                                                    <?= date('H:i', strtotime($cours_item['date_fin'])) ?>
                                                     <?php if (!empty($cours_item['salle'])): ?>
-                                                        <br>Salle: <?php echo htmlspecialchars($cours_item['salle']); ?>
+                                                        <br>Salle: <?= htmlspecialchars($cours_item['salle']) ?>
                                                     <?php endif; ?>
                                                 </small>
                                             </div>

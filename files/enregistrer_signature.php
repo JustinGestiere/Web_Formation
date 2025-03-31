@@ -1,62 +1,46 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 require_once "bdd.php";
 
-// Vérification de l'authentification
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'eleve') {
     $_SESSION['error'] = "Accès non autorisé";
     header("Location: login.php");
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    $_SESSION['error'] = "Méthode non autorisée";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['signature_data']) || empty($_POST['cours_id'])) {
+    $_SESSION['error'] = "Données de signature manquantes";
     header("Location: signature_eleve.php");
     exit();
 }
 
-// Récupération des données
-$cours_id = isset($_POST['cours_id']) ? intval($_POST['cours_id']) : 0;
-$signature_data = isset($_POST['signature_data']) ? $_POST['signature_data'] : '';
 $eleve_id = $_SESSION['user_id'];
-
-if (!$cours_id || !$signature_data) {
-    $_SESSION['error'] = "Données manquantes";
-    header("Location: signature_eleve.php");
-    exit();
-}
+$cours_id = $_POST['cours_id'];
+$signature_data = $_POST['signature_data'];
 
 try {
-    // Début de la transaction
     $pdo->beginTransaction();
 
-    // Récupérer les informations du cours
-    $stmt = $pdo->prepare("SELECT c.*, u.classe_id 
-                          FROM cours c 
-                          INNER JOIN users u ON u.id = :eleve_id 
+    // Vérifier si le cours existe et récupérer les informations nécessaires
+    $stmt = $pdo->prepare("SELECT c.*, p.id as prof_id, cl.id as classe_id 
+                          FROM cours c
+                          INNER JOIN users p ON c.professeur_id = p.id
+                          INNER JOIN classes cl ON c.class_id = cl.id
                           WHERE c.id = :cours_id");
-    $stmt->execute([
-        'eleve_id' => $eleve_id,
-        'cours_id' => $cours_id
-    ]);
+    $stmt->execute(['cours_id' => $cours_id]);
     $cours = $stmt->fetch();
 
     if (!$cours) {
         throw new Exception("Cours non trouvé");
     }
 
-    // Vérifier si une signature existe déjà pour ce cours et cet élève
+    // Vérifier si l'élève n'a pas déjà signé
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM sign 
                           WHERE cours_id = :cours_id 
-                          AND user_id = :eleve_id 
-                          AND DATE(date_signature) = DATE(:date_cours)");
+                          AND user_id = :user_id");
     $stmt->execute([
         'cours_id' => $cours_id,
-        'eleve_id' => $eleve_id,
-        'date_cours' => $cours['date_debut']
+        'user_id' => $eleve_id
     ]);
     
     if ($stmt->fetchColumn() > 0) {
@@ -66,55 +50,32 @@ try {
     // Vérifier si le professeur a initié la signature
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM sign 
                           WHERE cours_id = :cours_id 
-                          AND professeur_id = :prof_id 
-                          AND DATE(date_signature) = DATE(:date_cours)");
+                          AND professeur_id = :prof_id");
     $stmt->execute([
         'cours_id' => $cours_id,
-        'prof_id' => $cours['professeur_id'],
-        'date_cours' => $cours['date_debut']
+        'prof_id' => $cours['prof_id']
     ]);
-
+    
     if ($stmt->fetchColumn() == 0) {
-        throw new Exception("La signature n'est pas encore disponible pour ce cours");
+        throw new Exception("Le professeur n'a pas encore initié la signature");
     }
 
-    // Enregistrer la signature
-    $stmt = $pdo->prepare("INSERT INTO sign (
-        cours_id,
-        user_id,
-        professeur_id,
-        classe_id,
-        signature,
-        signed,
-        date_signature
-    ) VALUES (
-        :cours_id,
-        :user_id,
-        :professeur_id,
-        :classe_id,
-        :signature,
-        1,
-        :date_signature
-    )");
-
-    // Utiliser NOW() pour la date actuelle et ajuster pour le fuseau horaire Europe/Paris
-    $date = new DateTime('now', new DateTimeZone('Europe/Paris'));
+    // Insérer la signature
+    $stmt = $pdo->prepare("INSERT INTO sign (user_id, professeur_id, classe_id, cours_id, signature, signed, date_signature) 
+                          VALUES (:user_id, :prof_id, :classe_id, :cours_id, :signature, 1, NOW())");
     
     $stmt->execute([
-        'cours_id' => $cours_id,
         'user_id' => $eleve_id,
-        'professeur_id' => $cours['professeur_id'],
+        'prof_id' => $cours['prof_id'],
         'classe_id' => $cours['classe_id'],
-        'signature' => $signature_data,
-        'date_signature' => $date->format('Y-m-d H:i:s')
+        'cours_id' => $cours_id,
+        'signature' => $signature_data
     ]);
 
-    // Valider la transaction
     $pdo->commit();
-    
     $_SESSION['success'] = "Signature enregistrée avec succès";
+
 } catch (Exception $e) {
-    // Annuler la transaction en cas d'erreur
     $pdo->rollBack();
     $_SESSION['error'] = $e->getMessage();
 }
