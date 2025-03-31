@@ -39,8 +39,8 @@ $query = "SELECT
                 WHEN EXISTS (
                     SELECT 1 FROM sign s2
                     WHERE s2.cours_id = c.id 
-                    AND s2.professeur_id = c.professeur_id
                     AND s2.user_id = :eleve_id_check
+                    AND s2.signed = 0
                 ) THEN 'to_sign'
                 ELSE 'not_available'
             END as signature_status
@@ -79,7 +79,7 @@ $cours = $stmt->fetchAll();
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show">
             <?= htmlspecialchars($_SESSION['success']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php unset($_SESSION['success']); ?>
     <?php endif; ?>
@@ -87,7 +87,7 @@ $cours = $stmt->fetchAll();
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger alert-dismissible fade show">
             <?= htmlspecialchars($_SESSION['error']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
@@ -150,15 +150,15 @@ $cours = $stmt->fetchAll();
                         <canvas id="signature-pad" class="border rounded w-100" height="200"></canvas>
                         <input type="hidden" name="signature_data" id="signature_data">
                     </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" onclick="clearSignature()">
+                            <i class="fas fa-eraser"></i> Effacer
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="saveSignature()">
+                            <i class="fas fa-check"></i> Valider
+                        </button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="clearSignature()">
-                    <i class="fas fa-eraser"></i> Effacer
-                </button>
-                <button type="button" class="btn btn-primary" onclick="saveSignature()">
-                    <i class="fas fa-check"></i> Valider
-                </button>
             </div>
         </div>
     </div>
@@ -207,6 +207,19 @@ document.getElementById('signatureModal').addEventListener('hidden.bs.modal', fu
     if (signaturePad) {
         signaturePad.clear();
     }
+});
+
+// Fermer automatiquement les alertes après 5 secondes
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            var closeButton = alert.querySelector('.btn-close');
+            if (closeButton) {
+                closeButton.click();
+            }
+        });
+    }, 5000);
 });
 </script>
 
