@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 require_once "header_prof.php"; // Inclusion du header pour le professeur
 
@@ -13,22 +10,21 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'prof') {
 
 require_once "bdd.php"; // Connexion à la base de données
 
-// Récupérer les cours du professeur avec leur statut de signature
 $professeur_id = $_SESSION['user_id'];
 
+// Récupérer les cours du professeur avec leur statut de signature
 $query = "SELECT c.*, cl.name as classe_nom, m.name as matiere_nom,
-          CASE WHEN s.id IS NOT NULL THEN true ELSE false END as is_signed
+          CASE WHEN EXISTS (
+              SELECT 1 FROM sign s 
+              WHERE s.cours_id = c.id 
+              AND s.professeur_id = :professeur_id
+          ) THEN true ELSE false END as is_signed
           FROM cours c 
           INNER JOIN classes cl ON c.class_id = cl.id
           INNER JOIN matieres m ON c.matiere_id = m.id
-          LEFT JOIN sign s ON c.id = (
-              SELECT sign.classe_id 
-              FROM sign 
-              WHERE sign.classe_id = c.class_id 
-              AND DATE(sign.date_signature) = DATE(c.date_debut)
-              LIMIT 1
-          )
-          WHERE c.professeur_id = :professeur_id";
+          WHERE c.professeur_id = :professeur_id
+          ORDER BY c.date_debut DESC";
+
 $stmt = $pdo->prepare($query);
 $stmt->execute(['professeur_id' => $professeur_id]);
 $cours = $stmt->fetchAll();

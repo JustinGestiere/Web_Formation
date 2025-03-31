@@ -15,12 +15,7 @@ if (!isset($_POST['cours_id']) || !isset($_POST['eleves_present']) || !is_array(
     exit();
 }
 
-// Affichons la structure de la table sign
-$stmt = $pdo->query("DESCRIBE sign");
-$sign_columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-var_dump("Structure de la table sign:", $sign_columns);
-
-$cours_id = $_POST['cours_id'];
+$cours_id = intval($_POST['cours_id']);
 $eleves_presents = $_POST['eleves_present'];
 $date_signature = date('Y-m-d H:i:s');
 $professeur_id = $_SESSION['user_id'];
@@ -39,8 +34,8 @@ try {
     }
 
     // Préparation de la requête d'insertion
-    $stmt = $pdo->prepare("INSERT INTO sign (user_id, professeur_id, classe_id, statut, signature, signed, date_signature) 
-                          VALUES (:user_id, :professeur_id, :classe_id, 'En attente', '', 0, :date_signature)");
+    $stmt = $pdo->prepare("INSERT INTO sign (user_id, professeur_id, classe_id, cours_id, statut, signature, signed, date_signature) 
+                          VALUES (:user_id, :professeur_id, :classe_id, :cours_id, 'En attente', '', 0, :date_signature)");
 
     // Insertion pour chaque élève présent
     foreach ($eleves_presents as $eleve_id) {
@@ -48,6 +43,7 @@ try {
             'user_id' => $eleve_id,
             'professeur_id' => $professeur_id,
             'classe_id' => $cours['class_id'],
+            'cours_id' => $cours_id,
             'date_signature' => $date_signature
         ]);
     }
@@ -64,4 +60,3 @@ try {
 // Redirection vers la page des signatures
 header("Location: signature_prof.php");
 exit();
-?>

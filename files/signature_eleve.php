@@ -34,16 +34,13 @@ $query = "SELECT
                     SELECT 1 FROM sign s1
                     WHERE s1.cours_id = c.id 
                     AND s1.user_id = :eleve_id_sign
+                    AND s1.signed = 1
                 ) THEN 'signed'
                 WHEN EXISTS (
                     SELECT 1 FROM sign s2
                     WHERE s2.cours_id = c.id 
                     AND s2.professeur_id = c.professeur_id
-                    AND NOT EXISTS (
-                        SELECT 1 FROM sign s3
-                        WHERE s3.cours_id = c.id
-                        AND s3.user_id = :eleve_id_check
-                    )
+                    AND s2.user_id = :eleve_id_check
                 ) THEN 'to_sign'
                 ELSE 'not_available'
             END as signature_status
