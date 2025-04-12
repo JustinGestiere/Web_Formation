@@ -61,14 +61,17 @@ echo '<link href="../css/cours.css" rel="stylesheet" />';
 
 // Traitement du formulaire de modification
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'];
+    $id = intval($_POST['id']);
     $titre = securiser($_POST['titre']);
     $description = isset($_POST['description']) ? securiser($_POST['description']) : '';
     $date_debut = $_POST['date_debut'];
     $date_fin = $_POST['date_fin'];
-    $professeur_id = $_POST['professeur_id'];
-    $classes_id = $_POST['classes_id'];
-    $matiere_id = $_POST['matiere_id'];
+    $professeur_id = intval($_POST['professeur_id']);
+    $classes_id = intval($_POST['classes_id']);
+    $matiere_id = intval($_POST['matiere_id']);
+
+    // Débogage
+    error_log("Tentative de modification - ID: $id, Titre: $titre, Date début: $date_debut, Date fin: $date_fin, Prof ID: $professeur_id, Classe ID: $classes_id, Matière ID: $matiere_id");
 
     // Vérification que les champs obligatoires sont remplis
     if (empty($titre) || empty($date_debut) || empty($date_fin) || 
@@ -86,7 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Mise à jour du cours dans la base de données
                 $stmt = $pdo->prepare("UPDATE cours SET titre = :titre, description = :description, date_debut = :date_debut, date_fin = :date_fin, professeur_id = :professeur_id, classes_id = :classes_id, matiere_id = :matiere_id WHERE id = :id");
-                $stmt->execute([
+                
+                $params = [
                     ':titre' => $titre,
                     ':description' => $description,
                     ':date_debut' => $date_debut,
@@ -95,22 +99,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':classes_id' => $classes_id,
                     ':matiere_id' => $matiere_id,
                     ':id' => $id
-                ]);
+                ];
+                
+                error_log("Paramètres de mise à jour: " . print_r($params, true));
+                
+                $result = $stmt->execute($params);
 
-                $_SESSION['message'] = "Le cours a été mis à jour avec succès.";
-                header("Location: cours.php");
-                exit();
+                if ($result) {
+                    $_SESSION['message'] = "Le cours a été mis à jour avec succès.";
+                    header("Location: cours.php");
+                    exit();
+                } else {
+                    $errorInfo = $stmt->errorInfo();
+                    error_log("Erreur SQL: " . $errorInfo[2]);
+                    $message = "Une erreur est survenue lors de la mise à jour du cours: " . $errorInfo[2];
+                }
             }
         } catch (PDOException $e) {
             error_log("Erreur lors de la mise à jour du cours : " . $e->getMessage());
-            $message = "Une erreur est survenue lors de la mise à jour du cours.";
+            $message = "Une erreur est survenue lors de la mise à jour du cours: " . $e->getMessage();
         }
     }
 }
 
 // Formatage des dates pour les champs datetime-local
-$date_debut_formatted = str_replace(' ', 'T', $cours['date_debut']);
-$date_fin_formatted = str_replace(' ', 'T', $cours['date_fin']);
+try {
+    $date_debut_formatted = str_replace(' ', 'T', $cours['date_debut']);
+    $date_fin_formatted = str_replace(' ', 'T', $cours['date_fin']);
+} catch (Exception $e) {
+    error_log("Erreur lors du formatage des dates : " . $e->getMessage());
+    $date_debut_formatted = date('Y-m-d\TH:i');
+    $date_fin_formatted = date('Y-m-d\TH:i', strtotime('+1 hour'));
+}
 ?>
 
 <section>

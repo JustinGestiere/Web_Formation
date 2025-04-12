@@ -39,9 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = isset($_POST['description']) ? securiser($_POST['description']) : '';
         $date_debut = $_POST['date_debut'];
         $date_fin = $_POST['date_fin'];
-        $professeur_id = $_POST['professeur_id'];
-        $classes_id = $_POST['classes_id'];
-        $matiere_id = $_POST['matiere_id'];
+        $professeur_id = intval($_POST['professeur_id']);
+        $classes_id = intval($_POST['classes_id']);
+        $matiere_id = intval($_POST['matiere_id']);
 
         // Vérification que les champs obligatoires sont remplis
         if (empty($titre) || empty($date_debut) || empty($date_fin) || 
@@ -58,11 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Insertion du nouveau cours
                 try {
+                    // Débogage des valeurs
+                    error_log("Tentative d'insertion - Titre: $titre, Date début: $date_debut, Date fin: $date_fin, Prof ID: $professeur_id, Classe ID: $classes_id, Matière ID: $matiere_id");
+                    
                     $stmt = $pdo->prepare("
                         INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, classes_id, matiere_id)
                         VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :classes_id, :matiere_id)
                     ");
-                    $stmt->execute([
+                    
+                    $result = $stmt->execute([
                         ':titre' => $titre,
                         ':description' => $description,
                         ':date_debut' => $date_debut,
@@ -71,10 +75,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':classes_id' => $classes_id,
                         ':matiere_id' => $matiere_id
                     ]);
-                    $_SESSION['message'] = "Le cours a été créé avec succès.";
+                    
+                    if ($result) {
+                        $_SESSION['message'] = "Le cours a été créé avec succès.";
+                    } else {
+                        $errorInfo = $stmt->errorInfo();
+                        error_log("Erreur SQL: " . $errorInfo[2]);
+                        $_SESSION['message'] = "Une erreur est survenue lors de la création du cours: " . $errorInfo[2];
+                    }
                 } catch (PDOException $e) {
                     error_log("Erreur lors de la création du cours : " . $e->getMessage());
-                    $_SESSION['message'] = "Une erreur est survenue lors de la création du cours.";
+                    $_SESSION['message'] = "Une erreur est survenue lors de la création du cours: " . $e->getMessage();
                 }
                 header("Location: cours.php");
                 exit();
