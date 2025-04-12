@@ -62,34 +62,49 @@ echo '<link href="../css/cours.css" rel="stylesheet" />';
 // Traitement du formulaire de modification
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'];
-    $titre = $_POST['titre'];
-    $description = $_POST['description'];
+    $titre = securiser($_POST['titre']);
+    $description = isset($_POST['description']) ? securiser($_POST['description']) : '';
     $date_debut = $_POST['date_debut'];
     $date_fin = $_POST['date_fin'];
     $professeur_id = $_POST['professeur_id'];
     $classes_id = $_POST['classes_id'];
     $matiere_id = $_POST['matiere_id'];
 
-    try {
-        // Mise à jour du cours dans la base de données
-        $stmt = $pdo->prepare("UPDATE cours SET titre = :titre, description = :description, date_debut = :date_debut, date_fin = :date_fin, professeur_id = :professeur_id, classes_id = :classes_id, matiere_id = :matiere_id WHERE id = :id");
-        $stmt->execute([
-            ':titre' => $titre,
-            ':description' => $description,
-            ':date_debut' => $date_debut,
-            ':date_fin' => $date_fin,
-            ':professeur_id' => $professeur_id,
-            ':classes_id' => $classes_id,
-            ':matiere_id' => $matiere_id,
-            ':id' => $id
-        ]);
+    // Vérification que les champs obligatoires sont remplis
+    if (empty($titre) || empty($date_debut) || empty($date_fin) || 
+        empty($professeur_id) || empty($classes_id) || empty($matiere_id)) {
+        $message = "Tous les champs obligatoires doivent être remplis.";
+    } else {
+        try {
+            // Vérification de l'unicité du titre (sauf pour le cours actuel)
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM cours WHERE titre = :titre AND id != :id");
+            $stmt->execute([':titre' => $titre, ':id' => $id]);
+            $count = $stmt->fetchColumn();
+            
+            if ($count > 0) {
+                $message = "Un cours avec ce titre existe déjà. Veuillez en choisir un autre.";
+            } else {
+                // Mise à jour du cours dans la base de données
+                $stmt = $pdo->prepare("UPDATE cours SET titre = :titre, description = :description, date_debut = :date_debut, date_fin = :date_fin, professeur_id = :professeur_id, classes_id = :classes_id, matiere_id = :matiere_id WHERE id = :id");
+                $stmt->execute([
+                    ':titre' => $titre,
+                    ':description' => $description,
+                    ':date_debut' => $date_debut,
+                    ':date_fin' => $date_fin,
+                    ':professeur_id' => $professeur_id,
+                    ':classes_id' => $classes_id,
+                    ':matiere_id' => $matiere_id,
+                    ':id' => $id
+                ]);
 
-        $_SESSION['message'] = "Le cours a été mis à jour avec succès.";
-        header("Location: cours.php");
-        exit();
-    } catch (PDOException $e) {
-        error_log("Erreur lors de la mise à jour du cours : " . $e->getMessage());
-        $message = "Une erreur est survenue lors de la mise à jour du cours.";
+                $_SESSION['message'] = "Le cours a été mis à jour avec succès.";
+                header("Location: cours.php");
+                exit();
+            }
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la mise à jour du cours : " . $e->getMessage());
+            $message = "Une erreur est survenue lors de la mise à jour du cours.";
+        }
     }
 }
 
@@ -113,7 +128,7 @@ $date_fin_formatted = str_replace(' ', 'T', $cours['date_fin']);
 
                 <!-- Champ description -->
                 <label for="description">Description :</label>
-                <textarea id="description" name="description" rows="4" required><?php echo htmlspecialchars($cours['description']); ?></textarea>
+                <textarea id="description" name="description" rows="4"><?php echo htmlspecialchars($cours['description']); ?></textarea>
                 <br><br>
 
                 <!-- Champs date et heure de début et fin -->
