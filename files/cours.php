@@ -1,14 +1,36 @@
 <?php
 session_start(); // Démarre une session PHP pour gérer les données utilisateur entre les pages
 
+// Inclure le header approprié en fonction du rôle
+if (isset($_SESSION['user_role'])) {
+    switch ($_SESSION['user_role']) {
+        case 'admin':
+            include "header_admin.php"; // Interface administrateur
+            break;
+        case 'prof':
+            include "header_prof.php"; // Interface professeur
+            break;
+        default:
+            include "header.php"; // Interface standard/élève
+            break;
+    }
+} else {
+    // Si l'utilisateur n'est pas connecté, redirection vers login
+    header("Location: login.php");
+    exit();
+}
+
+// Ajout de la feuille de style CSS spécifique
+echo '<link href="../css/cours.css" rel="stylesheet" />';
+
+// Connexion à la base de données
+require_once 'bdd.php';
+
 // Variable pour stocker les messages à afficher à l'utilisateur
 $message = "";
 
-// Traitement des formulaires avant tout affichage
+// Traitement des formulaires
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Inclusion du fichier de configuration de la base de données
-    require_once 'bdd.php';
-    
     // Création d'un cours
     if (isset($_POST['titre'], $_POST['description'], $_POST['date_debut'], $_POST['date_fin'], 
               $_POST['professeur_id'], $_POST['classes_id'], $_POST['matiere_id'])) {
@@ -48,8 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $message = "Le cours a été créé avec succès.";
                 
-                // Redirection pour éviter la resoumission du formulaire
-                header("Location: cours.php?message=" . urlencode($message));
+                // Redirection vers la même page pour éviter la resoumission du formulaire
+                header("Location: cours.php");
                 exit();
             } catch (PDOException $e) {
                 // Gestion des erreurs SQL
@@ -69,8 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([':id' => $supprimer_id]);
             $message = "Le cours a été supprimé avec succès.";
             
-            // Redirection pour éviter la resoumission du formulaire
-            header("Location: cours.php?message=" . urlencode($message));
+            // Redirection vers la même page pour éviter la resoumission du formulaire
+            header("Location: cours.php");
             exit();
         } catch (PDOException $e) {
             // Gestion des erreurs
@@ -79,49 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
-// Récupération du message depuis l'URL si présent
-if (isset($_GET['message'])) {
-    $message = $_GET['message'];
-}
-
-try {
-    // Inclusion du fichier de configuration de la base de données
-    require_once 'bdd.php';  // Contient les paramètres de connexion à la BDD
-    
-    // Vérification de l'authentification - Redirection si non connecté
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: login.php'); // Redirige vers la page de connexion
-        exit(); // Arrête l'exécution du script
-    }
-
-    // Chargement du header approprié selon le rôle de l'utilisateur
-    if (isset($_SESSION['user_role'])) {
-        switch ($_SESSION['user_role']) {
-            case 'admin':
-                include "header_admin.php"; // Interface administrateur
-                break;
-            case 'prof':
-                include "header_prof.php"; // Interface professeur
-                break;
-            default:
-                include "header.php"; // Interface standard/élève
-                break;
-        }
-    } else {
-        // Redirection en cas d'absence de rôle (sécurité supplémentaire)
-        header("Location: login.php");
-        exit();
-    }
-} catch (Exception $e) {
-    // Journalisation des erreurs et redirection en cas de problème
-    error_log("Erreur dans cours.php : " . $e->getMessage());
-    header("Location: login.php");
-    exit();
-}
-
-// Ajout de la feuille de style CSS spécifique dans le head déjà ouvert
-echo '<link href="../css/cours.css" rel="stylesheet" />';
 ?>
 
 <section>
