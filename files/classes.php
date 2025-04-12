@@ -2,24 +2,10 @@
 // ======== INITIALISATION DE LA SESSION ET VÉRIFICATION DE CONNEXION ========
 session_start(); // Démarre la session pour gérer les utilisateurs connectés
 
-// Vérification du rôle de l'utilisateur et inclusion du header approprié
-if (isset($_SESSION['user_role'])) {
-    // Utilisation d'un switch pour choisir le header selon le rôle
-    switch ($_SESSION['user_role']) {
-        case 'admin':
-            include "header_admin.php"; // Header pour administrateurs
-            break;
-        case 'prof':
-            include "header_prof.php"; // Header pour professeurs
-            break;
-        default:
-            include "header.php"; // Header par défaut pour autres rôles
-            break;
-    }
-} else {
-    // Redirection vers la page de connexion si l'utilisateur n'est pas connecté
-    header("Location: login.php");
-    exit(); // Arrêt du script pour éviter tout traitement supplémentaire
+// Vérification de l'authentification
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
 }
 
 // Variable pour stocker les messages d'erreur ou de succès
@@ -34,6 +20,67 @@ if (isset($_SESSION['message'])) {
 // Connexion à la base de données
 require_once 'bdd.php';
 
+// ======== TRAITEMENT DES FORMULAIRES ========
+// Traitement de la création d'une classe
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && !isset($_POST['submit'])) {
+    // Récupération et nettoyage du nom de classe
+    $name_classe = securiser($_POST['name']);
+
+    // Validation: vérifier que le champ n'est pas vide
+    if (empty($name_classe)) {
+        $_SESSION['message'] = "Le nom de la classe doit être rempli.";
+    } else {
+        // Vérification de l'existence de la classe dans la base
+        $sql = "SELECT * FROM classes WHERE name = :name";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':name', $name_classe);
+        $stmt->execute();
+        
+        // Si la classe existe déjà
+        if ($stmt->rowCount() > 0) {
+            $_SESSION['message'] = "Cette classe existe déjà.";
+        } else {           
+            // Insertion de la nouvelle classe dans la base de données
+            $sql = "INSERT INTO classes (name) VALUES (:name)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':name', $name_classe);
+            
+            // Exécution et vérification de la requête
+            if ($stmt->execute()) {
+                $_SESSION['message'] = "Nouvelle classe enregistrée.";
+            } else {
+                $_SESSION['message'] = "Erreur lors de l'enregistrement de la classe. Veuillez réessayer.";
+            }
+        }
+    }
+    header("Location: classes.php");
+    exit();
+}
+
+// Traitement de la suppression d'une classe
+if (isset($_POST['submit']) && isset($_POST['classe_id']) && !empty($_POST['classe_id'])) {
+    // Conversion en entier pour s'assurer que c'est un nombre
+    $classe_id = intval($_POST['classe_id']);
+    
+    try {
+        // Préparation et exécution de la requête de suppression
+        $sql = "DELETE FROM classes WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        
+        if ($stmt->execute([$classe_id])) {
+            $_SESSION['message'] = "Classe supprimée avec succès.";
+        } else {
+            $_SESSION['message'] = "Erreur lors de la suppression.";
+        }
+    } catch (PDOException $e) {
+        error_log("Erreur lors de la suppression de la classe : " . $e->getMessage());
+        $_SESSION['message'] = "Une erreur est survenue lors de la suppression de la classe.";
+    }
+    
+    header("Location: classes.php");
+    exit();
+}
+
 // ======== FONCTIONS UTILITAIRES ========
 /**
  * Sécurise les données entrées par l'utilisateur
@@ -45,6 +92,22 @@ function securiser($data) {
     $data = stripslashes($data); // Supprime les antislashs
     $data = htmlspecialchars($data); // Convertit les caractères spéciaux en entités HTML
     return $data;
+}
+
+// Inclusion du header approprié selon le rôle
+if (isset($_SESSION['user_role'])) {
+    // Utilisation d'un switch pour choisir le header selon le rôle
+    switch ($_SESSION['user_role']) {
+        case 'admin':
+            include "header_admin.php"; // Header pour administrateurs
+            break;
+        case 'prof':
+            include "header_prof.php"; // Header pour professeurs
+            break;
+        default:
+            include "header.php"; // Header par défaut pour autres rôles
+            break;
+    }
 }
 
 ?>
@@ -65,41 +128,7 @@ function securiser($data) {
             <details>
                 <summary><h4>Créer une classe</h4></summary>
                 <form method="post" class="p-4 border border-light rounded">
-                    <?php
-                    // Traitement du formulaire de création de classe
-                    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name'])) {
-                        // Récupération et nettoyage du nom de classe
-                        $name_classe = securiser($_POST['name']);
-                    
-                        // Validation: vérifier que le champ n'est pas vide
-                        if (empty($name_classe)) {
-                            $message = "Le nom de la classe doit être rempli.";
-                        } else {
-                            // Vérification de l'existence de la classe dans la base
-                            $sql = "SELECT * FROM classes WHERE name = :name";
-                            $stmt = $pdo->prepare($sql);
-                            $stmt->bindParam(':name', $name_classe);
-                            $stmt->execute();
-                            
-                            // Si la classe existe déjà
-                            if ($stmt->rowCount() > 0) {
-                                $message = "Cette classe existe déjà.";
-                            } else {           
-                                // Insertion de la nouvelle classe dans la base de données
-                                $sql = "INSERT INTO classes (name) VALUES (:name)";
-                                $stmt = $pdo->prepare($sql);
-                                $stmt->bindParam(':name', $name_classe);
-                                
-                                // Exécution et vérification de la requête
-                                if ($stmt->execute()) {
-                                    $message = "Nouvelle classe enregistrée.";
-                                } else {
-                                    $message = "Erreur lors de l'enregistrement de la classe. Veuillez réessayer.";
-                                }
-                            }
-                        }
-                    }
-                    ?>
+
                     <div class="form-group">
                         <label for="name">Nom de la classe :</label>
                         <input type="text" placeholder="Nom de la classe" class="form-control" id="name" name="name" required>
@@ -201,38 +230,7 @@ function securiser($data) {
                         <button id="supprimer" type="submit" name="submit">Supprimer</button>
                     </form>
 
-                    <?php
-                    // Traitement de la suppression d'une classe
-                    if (isset($_POST['submit'])) {
-                        if (isset($_POST['classe_id']) && !empty($_POST['classe_id'])) {
-                            // Conversion en entier pour s'assurer que c'est un nombre
-                            $classe_id = intval($_POST['classe_id']);
-                            
-                            try {
-                                // Préparation et exécution de la requête de suppression
-                                $sql = "DELETE FROM classes WHERE id = ?";
-                                $stmt = $pdo->prepare($sql);
-                                
-                                if ($stmt->execute([$classe_id])) {
-                                    $_SESSION['message'] = "Classe supprimée avec succès.";
-                                } else {
-                                    $_SESSION['message'] = "Erreur lors de la suppression.";
-                                }
-                            } catch (PDOException $e) {
-                                error_log("Erreur lors de la suppression de la classe : " . $e->getMessage());
-                                $_SESSION['message'] = "Une erreur est survenue lors de la suppression de la classe.";
-                            }
-                            
-                            // Redirection pour actualiser la page et afficher le message
-                            header("Location: classes.php");
-                            exit();
-                        } else {
-                            $_SESSION['message'] = "Aucune classe sélectionnée.";
-                            header("Location: classes.php");
-                            exit();
-                        }
-                    }
-                    ?>
+
                 </div>
             </details>
         </div>
