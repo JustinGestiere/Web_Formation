@@ -4,6 +4,87 @@ session_start(); // Démarre une session PHP pour gérer les données utilisateu
 // Variable pour stocker les messages à afficher à l'utilisateur
 $message = "";
 
+// Traitement des formulaires avant tout affichage
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Inclusion du fichier de configuration de la base de données
+    require_once 'bdd.php';
+    
+    // Création d'un cours
+    if (isset($_POST['titre'], $_POST['description'], $_POST['date_debut'], $_POST['date_fin'], 
+              $_POST['professeur_id'], $_POST['classes_id'], $_POST['matiere_id'])) {
+        
+        // Récupération des données du formulaire
+        $titre = $_POST['titre'];
+        $description = $_POST['description'];
+        $date_debut = $_POST['date_debut'];
+        $date_fin = $_POST['date_fin'];
+        $professeur_id = $_POST['professeur_id'];
+        $classes_id = $_POST['classes_id'];
+        $matiere_id = $_POST['matiere_id'];
+
+        // Vérification de l'unicité du titre du cours (évite les doublons)
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM cours WHERE titre = :titre");
+        $stmt->execute([':titre' => $titre]);
+        $count = $stmt->fetchColumn();
+
+        if ($count > 0) {
+            $message = "Un cours avec ce titre existe déjà. Veuillez en choisir un autre.";
+        } else {
+            // Insertion du nouveau cours dans la base de données
+            try {
+                $stmt = $pdo->prepare("
+                    INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, classes_id, matiere_id)
+                    VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :classes_id, :matiere_id)
+                ");
+                // Exécution avec tableau associatif pour lier les paramètres (sécurité contre les injections SQL)
+                $stmt->execute([
+                    ':titre' => $titre,
+                    ':description' => $description,
+                    ':date_debut' => $date_debut,
+                    ':date_fin' => $date_fin,
+                    ':professeur_id' => $professeur_id,
+                    ':classes_id' => $classes_id,
+                    ':matiere_id' => $matiere_id
+                ]);
+                $message = "Le cours a été créé avec succès.";
+                
+                // Redirection pour éviter la resoumission du formulaire
+                header("Location: cours.php?message=" . urlencode($message));
+                exit();
+            } catch (PDOException $e) {
+                // Gestion des erreurs SQL
+                error_log("Erreur lors de la création du cours : " . $e->getMessage());
+                $message = "Une erreur est survenue lors de la création du cours. Veuillez réessayer plus tard.";
+            }
+        }
+    }
+    
+    // Suppression d'un cours
+    if (isset($_POST['supprimer_id'])) {
+        $supprimer_id = $_POST['supprimer_id'];
+
+        try {
+            // Suppression du cours sélectionné
+            $stmt = $pdo->prepare("DELETE FROM cours WHERE id = :id");
+            $stmt->execute([':id' => $supprimer_id]);
+            $message = "Le cours a été supprimé avec succès.";
+            
+            // Redirection pour éviter la resoumission du formulaire
+            header("Location: cours.php?message=" . urlencode($message));
+            exit();
+        } catch (PDOException $e) {
+            // Gestion des erreurs
+            error_log("Erreur lors de la suppression du cours : " . $e->getMessage());
+            $message = "Une erreur est survenue lors de la suppression du cours. Veuillez réessayer plus tard.";
+        }
+    }
+}
+
+// Récupération du message depuis l'URL si présent
+if (isset($_GET['message'])) {
+    $message = $_GET['message'];
+}
+
 try {
     // Inclusion du fichier de configuration de la base de données
     require_once 'bdd.php';  // Contient les paramètres de connexion à la BDD
@@ -53,56 +134,7 @@ echo '<link href="../css/cours.css" rel="stylesheet" />';
         <!-- BLOC 1: CRÉATION DE COURS -->
         <div class="blocs_cours">
             <?php
-            // Traitement du formulaire de création de cours
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                // Vérification de la présence de tous les champs requis
-                if (isset($_POST['titre'], $_POST['description'], $_POST['date_debut'], $_POST['date_fin'], 
-                          $_POST['professeur_id'], $_POST['classes_id'], $_POST['matiere_id'])) {
-                    
-                    // Récupération des données du formulaire
-                    $titre = $_POST['titre'];
-                    $description = $_POST['description'];
-                    $date_debut = $_POST['date_debut'];
-                    $date_fin = $_POST['date_fin'];
-                    $professeur_id = $_POST['professeur_id'];
-                    $classes_id = $_POST['classes_id'];
-                    $matiere_id = $_POST['matiere_id'];
-            
-                    // Vérification de l'unicité du titre du cours (évite les doublons)
-                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM cours WHERE titre = :titre");
-                    $stmt->execute([':titre' => $titre]);
-                    $count = $stmt->fetchColumn();
-            
-                    if ($count > 0) {
-                        $message = "Un cours avec ce titre existe déjà. Veuillez en choisir un autre.";
-                    } else {
-                        // Insertion du nouveau cours dans la base de données
-                        try {
-                            $stmt = $pdo->prepare("
-                                INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, classes_id, matiere_id)
-                                VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :classes_id, :matiere_id)
-                            ");
-                            // Exécution avec tableau associatif pour lier les paramètres (sécurité contre les injections SQL)
-                            $stmt->execute([
-                                ':titre' => $titre,
-                                ':description' => $description,
-                                ':date_debut' => $date_debut,
-                                ':date_fin' => $date_fin,
-                                ':professeur_id' => $professeur_id,
-                                ':classes_id' => $classes_id,
-                                ':matiere_id' => $matiere_id
-                            ]);
-                            $message = "Le cours a été créé avec succès.";
-                        } catch (PDOException $e) {
-                            // Gestion des erreurs SQL
-                            error_log("Erreur lors de la création du cours : " . $e->getMessage());
-                            $message = "Une erreur est survenue lors de la création du cours. Veuillez réessayer plus tard.";
-                        }
-                    }
-                } else {
-                    $message = "Certains champs sont manquants.";
-                }
-            }
+            // Récupération des données pour les listes déroulantes du formulaire
             
             // Récupération des données pour les listes déroulantes du formulaire
             // Liste des professeurs
@@ -376,21 +408,6 @@ echo '<link href="../css/cours.css" rel="stylesheet" />';
                 <summary><h4>Supprimer un cours</h4></summary>
 
                 <?php
-                // Traitement de la demande de suppression
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer_id'])) {
-                    $supprimer_id = $_POST['supprimer_id'];
-
-                    try {
-                        // Suppression du cours sélectionné
-                        $stmt = $pdo->prepare("DELETE FROM cours WHERE id = :id");
-                        $stmt->execute([':id' => $supprimer_id]);
-                        $message = "Le cours a été supprimé avec succès.";
-                    } catch (PDOException $e) {
-                        // Gestion des erreurs
-                        error_log("Erreur lors de la suppression du cours : " . $e->getMessage());
-                        $message = "Une erreur est survenue lors de la suppression du cours. Veuillez réessayer plus tard.";
-                    }
-                }
 
                 // Récupération de la liste des cours pour le menu déroulant
                 $stmt = $pdo->query("SELECT id, titre FROM cours");
@@ -424,26 +441,6 @@ echo '<link href="../css/cours.css" rel="stylesheet" />';
 </section>
 
 <?php
-  // Extraction du contenu du footer sans les balises HTML de structure
-  ob_start();
-  include "footer.php";
-  $footer_content = ob_get_clean();
-  
-  // Extraction du contenu entre <section> et </section> du footer
-  preg_match('/<section class="container_footer my-0">(.*?)<\/section>/s', $footer_content, $section_matches);
-  
-  // Extraction du contenu du footer proprement dit
-  preg_match('/<footer class="bg-dark text-light text-center py-3">(.*?)<\/footer>/s', $footer_content, $footer_matches);
-  
-  // Affichage du contenu extrait
-  if (!empty($section_matches[0])) {
-    echo $section_matches[0];
-  }
-  
-  if (!empty($footer_matches[0])) {
-    echo $footer_matches[0];
-  }
+// Inclusion du pied de page
+include "footer.php";
 ?>
-
-</body>
-</html>
