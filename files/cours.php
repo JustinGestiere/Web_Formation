@@ -1,6 +1,9 @@
 <?php
 session_start(); // Démarre une session PHP pour gérer les données utilisateur entre les pages
 
+// Variable pour stocker les messages à afficher à l'utilisateur
+$message = "";
+
 try {
     // Inclusion du fichier de configuration de la base de données
     require_once 'bdd.php';  // Contient les paramètres de connexion à la BDD
@@ -36,14 +39,9 @@ try {
     exit();
 }
 
-// Variable pour stocker les messages à afficher à l'utilisateur
-$message = "";
+// Ajout de la feuille de style CSS spécifique dans le head déjà ouvert
+echo '<link href="../css/cours.css" rel="stylesheet" />';
 ?>
-
-<head>
-    <!-- Liaison avec la feuille de style CSS spécifique -->
-    <link href="../css/cours.css" rel="stylesheet" />
-</head>
 
 <section>
     <!-- Titre principal de la page -->
@@ -426,6 +424,26 @@ $message = "";
 </section>
 
 <?php
-  // Inclusion du pied de page commun
+  // Extraction du contenu du footer sans les balises HTML de structure
+  ob_start();
   include "footer.php";
+  $footer_content = ob_get_clean();
+  
+  // Extraction du contenu entre <section> et </section> du footer
+  preg_match('/<section class="container_footer my-0">(.*?)<\/section>/s', $footer_content, $section_matches);
+  
+  // Extraction du contenu du footer proprement dit
+  preg_match('/<footer class="bg-dark text-light text-center py-3">(.*?)<\/footer>/s', $footer_content, $footer_matches);
+  
+  // Affichage du contenu extrait
+  if (!empty($section_matches[0])) {
+    echo $section_matches[0];
+  }
+  
+  if (!empty($footer_matches[0])) {
+    echo $footer_matches[0];
+  }
 ?>
+
+</body>
+</html>
