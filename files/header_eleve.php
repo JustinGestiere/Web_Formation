@@ -110,6 +110,12 @@ try {
         
         <?php if (isset($_SESSION['user_id'])): ?>
             <li class="nav-item">
+                <a class="nav-link" href="absences.php">Absences/Présences</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="signature_eleve.php">Signatures</a>
+            </li>
+            <li class="nav-item">
                 <form method="post" action="/files/logout.php" class="d-inline">
                     <button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button>
                 </form>

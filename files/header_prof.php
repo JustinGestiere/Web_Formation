@@ -191,6 +191,9 @@ try {
             <a class="nav-link" href="signature_prof.php">Signature</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" href="absences.php">Absences/Présences</a>
+        </li>
+        <li class="nav-item">
             <form method="post" action="logout.php" class="d-inline">
                 <button type="submit" class="btn btn-danger nav-link w-100">Déconnexion</button>
             </form>
