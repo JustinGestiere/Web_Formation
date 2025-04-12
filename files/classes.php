@@ -23,7 +23,13 @@ if (isset($_SESSION['user_role'])) {
 }
 
 // Variable pour stocker les messages d'erreur ou de succès
-$message = ""; 
+$message = "";
+
+// Récupération du message depuis la session
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    unset($_SESSION['message']); // Effacer le message après l'avoir affiché
+}
 
 // ======== FONCTIONS UTILITAIRES ========
 /**
@@ -201,6 +207,9 @@ function securiser($data) {
                             } else {
                                 $_SESSION['message'] = "Erreur lors de la suppression.";
                             }
+                            // Redirection pour actualiser la page et afficher le message
+                            header("Location: classes.php");
+                            exit();
                         } else {
                             $_SESSION['message'] = "Aucune classe sélectionnée.";
                         }

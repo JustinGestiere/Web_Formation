@@ -1,6 +1,6 @@
 <?php
-// Démarrage de la session
-session_start();
+// ======== INITIALISATION DE LA SESSION ET VÉRIFICATION DE CONNEXION ========
+session_start(); // Démarre la session pour gérer les données utilisateur entre les pages
 
 // Vérification de l'authentification
 if (!isset($_SESSION['user_id'])) {
@@ -16,7 +16,19 @@ try {
     exit("Erreur de connexion à la base de données.");
 }
 
-// Traitement des formulaires
+/**
+ * Sécurise les données entrées par l'utilisateur
+ * @param string $data Donnée à nettoyer
+ * @return string Donnée nettoyée
+ */
+function securiser($data) {
+    $data = trim($data); // Supprime les espaces en début et fin
+    $data = stripslashes($data); // Supprime les antislashs
+    $data = htmlspecialchars($data); // Convertit les caractères spéciaux en entités HTML
+    return $data;
+}
+
+// ======== TRAITEMENT DES FORMULAIRES ========
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Création d'un cours
     if (isset($_POST['titre'], $_POST['description'], $_POST['date_debut'], $_POST['date_fin'], 
@@ -88,17 +100,19 @@ if (isset($_SESSION['message'])) {
 }
 
 // Inclusion du header approprié selon le rôle
-$role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : '';
-switch ($role) {
-    case 'admin':
-        include "header_admin.php";
-        break;
-    case 'prof':
-        include "header_prof.php";
-        break;
-    default:
-        include "header.php";
-        break;
+if (isset($_SESSION['user_role'])) {
+    // Utilisation d'un switch pour choisir le header selon le rôle
+    switch ($_SESSION['user_role']) {
+        case 'admin':
+            include "header_admin.php"; // Header pour administrateurs
+            break;
+        case 'prof':
+            include "header_prof.php"; // Header pour professeurs
+            break;
+        default:
+            include "header.php"; // Header par défaut pour autres rôles
+            break;
+    }
 }
 
 // Ajout de la feuille de style CSS spécifique
