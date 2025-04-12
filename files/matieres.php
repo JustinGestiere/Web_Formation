@@ -1,50 +1,120 @@
 <?php
-// ======== INITIALISATION DE LA SESSION ET VÉRIFICATION DE CONNEXION ========
-session_start(); // Démarre la session pour gérer les utilisateurs connectés
+// Démarrage de la session
+session_start();
 
-// Vérification du rôle de l'utilisateur et inclusion du header approprié
-if (isset($_SESSION['user_role'])) {
-    // Utilisation d'un switch pour choisir le header selon le rôle
-    switch ($_SESSION['user_role']) {
-        case 'admin':
-            include "header_admin.php"; // Header pour administrateurs
-            break;
-        case 'prof':
-            include "header_prof.php"; // Header pour professeurs
-            break;
-        default:
-            include "header.php"; // Header par défaut pour autres rôles
-            break;
-    }
-} else {
-    // Redirection vers la page de connexion si non connecté
-    header("Location: login.php");
-    exit(); // Arrêt du script pour éviter tout traitement supplémentaire
+// Vérification de l'authentification
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
 }
 
-// ======== FONCTIONS UTILITAIRES ========
+// Connexion à la base de données
+try {
+    require_once 'bdd.php';
+} catch (Exception $e) {
+    error_log("Erreur BDD: " . $e->getMessage());
+    exit("Erreur de connexion à la base de données.");
+}
+
 /**
  * Sécurise les données entrées par l'utilisateur
  * @param string $data Donnée à nettoyer
  * @return string Donnée nettoyée
  */
 function securiser($data) {
-    $data = trim($data); // Supprime les espaces en début et fin
-    $data = stripslashes($data); // Supprime les antislashs
-    $data = htmlspecialchars($data); // Convertit les caractères spéciaux en entités HTML
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
     return $data;
 }
 
-// Récupération des messages de session
+// Traitement des formulaires
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Création d'une matière
+    if (isset($_POST['name']) && !isset($_POST['submit'])) {
+        $name_matiere = securiser($_POST['name']);
+        
+        if (empty($name_matiere)) {
+            $_SESSION['message'] = "Le nom de la matière doit être rempli.";
+        } else {
+            // Vérification de l'existence de la matière
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM matieres WHERE name = :name");
+            $stmt->execute([':name' => $name_matiere]);
+            $count = $stmt->fetchColumn();
+
+            if ($count > 0) {
+                $_SESSION['message'] = "Cette matière existe déjà.";
+            } else {
+                // Insertion de la nouvelle matière
+                try {
+                    $stmt = $pdo->prepare("INSERT INTO matieres (name) VALUES (:name)");
+                    $stmt->execute([':name' => $name_matiere]);
+                    $_SESSION['message'] = "Nouvelle matière enregistrée avec succès.";
+                } catch (PDOException $e) {
+                    error_log("Erreur lors de la création de la matière : " . $e->getMessage());
+                    $_SESSION['message'] = "Une erreur est survenue lors de l'enregistrement de la matière.";
+                }
+            }
+        }
+        header("Location: matieres.php");
+        exit();
+    }
+    
+    // Suppression d'une matière
+    if (isset($_POST['submit']) && isset($_POST['matiere_id']) && !empty($_POST['matiere_id'])) {
+        $matiere_id = intval($_POST['matiere_id']);
+        try {
+            $stmt = $pdo->prepare("DELETE FROM matieres WHERE id = ?");
+            if ($stmt->execute([$matiere_id])) {
+                $_SESSION['message'] = "Matière supprimée avec succès.";
+            } else {
+                $_SESSION['message'] = "Erreur lors de la suppression.";
+            }
+        } catch (PDOException $e) {
+            error_log("Erreur lors de la suppression de la matière : " . $e->getMessage());
+            $_SESSION['message'] = "Une erreur est survenue lors de la suppression de la matière.";
+        }
+        header("Location: matieres.php");
+        exit();
+    }
+}
+
+// Récupération du message depuis la session
 $message = '';
 if (isset($_SESSION['message'])) {
     $message = $_SESSION['message'];
-    unset($_SESSION['message']); // Suppression du message après récupération
+    unset($_SESSION['message']); // Effacer le message après l'avoir affiché
+}
+
+// Inclusion du header approprié selon le rôle
+$role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : '';
+switch ($role) {
+    case 'admin':
+        include "header_admin.php";
+        break;
+    case 'prof':
+        include "header_prof.php";
+        break;
+    default:
+        include "header.php";
+        break;
+}
+
+// Récupération de la liste des matières pour l'affichage
+try {
+    $sql = "SELECT id, name FROM matieres ORDER BY name";
+    $stmt = $pdo->query($sql);
+    $matieres = $stmt->fetchAll();
+    $matiereCount = count($matieres);
+} catch (PDOException $e) {
+    error_log("Erreur lors de la récupération des matières : " . $e->getMessage());
+    $matieres = [];
+    $matiereCount = 0;
 }
 ?>
 
 <head>
-    <link href="../css/matieres.css" rel="stylesheet" /> <!-- Chargement du style CSS -->
+    <link href="../css/matieres.css" rel="stylesheet" />
 </head>
 
 <section>
@@ -54,100 +124,47 @@ if (isset($_SESSION['message'])) {
     </div>
 
     <div class="page_matieres">
-        <!-- ======== BLOC CRÉATION DE MATIÈRE ======== -->
+        <!-- BLOC 1: CRÉATION DE MATIÈRE -->
         <div class="blocs_matieres">
             <details>
                 <summary><h4>Créer une matière</h4></summary>
-                <form method="post" class="p-4 border border-light rounded">
-                    <?php
-                    // Traitement du formulaire de création de matière
-                    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name'])) {
-                        // Récupération et nettoyage du nom de matière
-                        $name_matiere = securiser($_POST['name']);
-                        
-                        // Validation: vérifier que le champ n'est pas vide
-                        if (empty($name_matiere)) {
-                            $message = "Le nom de la matière doit être rempli.";
-                        } else {
-                            // Vérification de l'existence de la matière dans la base
-                            $sql = "SELECT * FROM matieres WHERE name = :name";
-                            $stmt = $pdo->prepare($sql);
-                            $stmt->bindParam(':name', $name_matiere);
-                            $stmt->execute();
-                    
-                            // Si la matière existe déjà
-                            if ($stmt->rowCount() > 0) {
-                                $message = "Cette matière existe déjà.";
-                            } else {
-                                // Insertion de la nouvelle matière dans la base de données
-                                $sql = "INSERT INTO matieres (name) VALUES (:name)";
-                                $stmt = $pdo->prepare($sql);
-                                $stmt->bindParam(':name', $name_matiere);
-                    
-                                // Exécution et vérification de la requête
-                                if ($stmt->execute()) {
-                                    $_SESSION['message'] = "Nouvelle matière enregistrée avec succès.";
-                                    header("Location: matieres.php"); // Redirection pour éviter les soumissions multiples
-                                    exit();
-                                } else {
-                                    $message = "Erreur lors de l'enregistrement de la matière. Veuillez réessayer.";
-                                }
-                            }
-                        }
-                    }
-                    ?>
+                <form method="POST" action="" class="p-4 border border-light rounded">
                     <div class="form-group">
                         <label for="name">Nom de la matière :</label>
                         <input type="text" placeholder="Mathématiques" class="form-control" id="name" name="name" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Enregistrement</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
                 </form>
             </details>
         </div>
 
-        <!-- ======== BLOC MODIFICATION DE MATIÈRE ======== -->
+        <!-- BLOC 2: MODIFICATION DE MATIÈRE -->
         <div class="blocs_matieres">
             <details>
                 <summary><h4>Modifier les matières</h4></summary>
-                <div>
-                    <?php
-                    // Récupération de toutes les matières pour modification
-                    $stmt = $pdo->query("SELECT id, name FROM matieres ORDER BY name");
-
-                    // Affichage d'un formulaire par matière
-                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
-                        <form method="POST" action="modifier_matiere.php" style="margin-bottom: 10px;">
-                            <label for="matiere_<?php echo $row['id']; ?>">Matière :</label>
-                            <input type="text" id="matiere_<?php echo $row['id']; ?>" name="name" value="<?php echo htmlspecialchars($row['name']); ?>" required>
-                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                            <button type="submit">Enregistrer</button>
-                        </form>
-                    <?php endwhile; ?>
-                </div>
+                <form method="GET" action="modifier_matiere.php" class="p-4 border border-light rounded">
+                    <label for="matiere_id">Choisissez une matière à modifier :</label>
+                    <select name="id" id="matiere_id" required>
+                        <option value="">-- Sélectionnez une matière --</option>
+                        <?php foreach ($matieres as $matiere): ?>
+                            <option value="<?php echo $matiere['id']; ?>">
+                                <?php echo htmlspecialchars($matiere['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Modifier</button>
+                </form>
             </details>
         </div>
 
-        <!-- ======== BLOC VISUALISATION DES MATIÈRES ======== -->
+        <!-- BLOC 3: VISUALISATION DES MATIÈRES -->
         <div class="blocs_matieres">
             <details>
                 <summary><h4>Voir les matières</h4></summary>
                 <div class="liste_matieres">
                     <ul>
                         <?php
-                        try {
-                            // Récupération des matières par ordre alphabétique
-                            $sql = "SELECT name FROM matieres ORDER BY name";
-                            $stmt = $pdo->query($sql);
-                            $matieres = $stmt->fetchAll();
-                            $matiereCount = count($matieres);
-                        } catch (PDOException $e) {
-                            // Gestion des erreurs de base de données
-                            error_log("Erreur lors de la récupération des matières : " . $e->getMessage());
-                            $matieres = [];
-                            $matiereCount = 0;
-                        }
-
-                        // Affichage des matières ou message si aucune matière
+                        // Affichage de la liste des matières ou message si aucune matière
                         if ($matiereCount > 0) {
                             foreach ($matieres as $matiere) {
                                 echo "<li>" . htmlspecialchars($matiere["name"]) . "</li>";
@@ -161,74 +178,37 @@ if (isset($_SESSION['message'])) {
             </details>
         </div>
 
-        <!-- ======== BLOC SUPPRESSION DE MATIÈRE ======== -->
+        <!-- BLOC 4: SUPPRESSION DE MATIÈRE -->
         <div class="blocs_matieres">
             <details>
                 <summary><h4>Supprimer les matières</h4></summary>
                 <div class="liste_matiere">
-                    <form method="post" class="p-4 border border-light rounded">
+                    <form method="POST" action="" class="p-4 border border-light rounded">
                         <label for="matiere">Choisissez une matière :</label>
                         <select name="matiere_id" id="matiere" required>
                             <option value="">-- Sélectionnez une matière --</option>
-                            <?php
-                            // Récupération de toutes les matières pour le menu déroulant
-                            $sql = "SELECT id, name FROM matieres ORDER BY name";
-                            $stmt = $pdo->query($sql);
-                            $matieres = $stmt->fetchAll();
-                            
-                            // Affichage des options du menu déroulant
-                            if (count($matieres) > 0) {
-                                foreach ($matieres as $matiere) {
-                                    echo "<option value='" . htmlspecialchars($matiere['id']) . "'>" . htmlspecialchars($matiere['name']) . "</option>";
-                                }
-                            } else {
-                                echo "<option value=''>Aucune matière disponible</option>";
-                            }
-                            ?>
+                            <?php foreach ($matieres as $matiere): ?>
+                                <option value="<?php echo $matiere['id']; ?>">
+                                    <?php echo htmlspecialchars($matiere['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
-                        <button id="supprimer" type="submit" name="submit">Supprimer</button>
+                        <button id="supprimer" type="submit" name="submit" class="btn btn-danger">Supprimer</button>
                     </form>
-
-                    <?php
-                    // Traitement de la suppression d'une matière
-                    if (isset($_POST['submit'])) {
-                        if (isset($_POST['matiere_id']) && !empty($_POST['matiere_id'])) {
-                            // Conversion en entier pour s'assurer que c'est un nombre
-                            $matiere_id = intval($_POST['matiere_id']);
-                            
-                            // Préparation et exécution de la requête de suppression
-                            $sql = "DELETE FROM matieres WHERE id = ?";
-                            $stmt = $pdo->prepare($sql);
-                    
-                            if ($stmt->execute([$matiere_id])) {
-                                $_SESSION['message'] = "Matière supprimée avec succès.";
-                                // Redirection pour appliquer le message de session
-                                header("Location: matieres.php");
-                                exit();
-                            } else {
-                                $_SESSION['message'] = "Erreur lors de la suppression.";
-                            }
-                        } else {
-                            $_SESSION['message'] = "Aucune matière sélectionnée.";
-                        }
-                    }
-                    ?>
                 </div>
             </details>
         </div>
     </div>
 
-    <!-- ======== AFFICHAGE DES MESSAGES ======== -->
+    <!-- Zone d'affichage des messages (succès/erreur) -->
     <div class="message">
-        <?php if (isset($message) && $message): ?>
+        <?php if (!empty($message)): ?>
             <p><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
     </div>
-    
-    <!-- Inclusion des scripts JavaScript -->
-    <script src="../js/matieres.js"></script>
 </section>
 
 <?php
-  include "footer.php"; // Inclusion du pied de page
+// Inclusion du pied de page
+include "footer.php";
 ?>
