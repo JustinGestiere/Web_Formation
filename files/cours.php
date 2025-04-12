@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : '';
             $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '';
             $professeur_id = isset($_POST['professeur_id']) ? intval($_POST['professeur_id']) : 0;
-            $classes_id = isset($_POST['classes_id']) ? intval($_POST['classes_id']) : 0;
+            $class_id = isset($_POST['classes_id']) ? intval($_POST['classes_id']) : 0;
             $matiere_id = isset($_POST['matiere_id']) ? intval($_POST['matiere_id']) : 0;
 
             // Débogage des valeurs reçues
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Vérification que les champs obligatoires sont remplis
             if (empty($titre) || empty($date_debut) || empty($date_fin) || 
-                empty($professeur_id) || empty($classes_id) || empty($matiere_id)) {
+                empty($professeur_id) || empty($class_id) || empty($matiere_id)) {
                 $_SESSION['message'] = "Tous les champs obligatoires doivent être remplis.";
             } else {
                 // Vérification de l'unicité du titre du cours
@@ -65,8 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     // Insertion du nouveau cours
                     $stmt = $pdo->prepare("
-                        INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, classes_id, matiere_id)
-                        VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :classes_id, :matiere_id)
+                        INSERT INTO cours (titre, description, date_debut, date_fin, professeur_id, class_id, matiere_id)
+                        VALUES (:titre, :description, :date_debut, :date_fin, :professeur_id, :class_id, :matiere_id)
                     ");
                     
                     $params = [
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':date_debut' => $date_debut,
                         ':date_fin' => $date_fin,
                         ':professeur_id' => $professeur_id,
-                        ':classes_id' => $classes_id,
+                        ':class_id' => $class_id,
                         ':matiere_id' => $matiere_id
                     ];
                     

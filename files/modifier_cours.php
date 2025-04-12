@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : '';
         $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '';
         $professeur_id = isset($_POST['professeur_id']) ? intval($_POST['professeur_id']) : 0;
-        $classes_id = isset($_POST['classes_id']) ? intval($_POST['classes_id']) : 0;
+        $class_id = isset($_POST['classes_id']) ? intval($_POST['classes_id']) : 0;
         $matiere_id = isset($_POST['matiere_id']) ? intval($_POST['matiere_id']) : 0;
 
         // Débogage
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Vérification que les champs obligatoires sont remplis
         if (empty($titre) || empty($date_debut) || empty($date_fin) || 
-            empty($professeur_id) || empty($classes_id) || empty($matiere_id)) {
+            empty($professeur_id) || empty($class_id) || empty($matiere_id)) {
             $message = "Tous les champs obligatoires doivent être remplis.";
         } else {
             // Vérification de l'unicité du titre (sauf pour le cours actuel)
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Un cours avec ce titre existe déjà. Veuillez en choisir un autre.";
             } else {
                 // Mise à jour du cours dans la base de données
-                $stmt = $pdo->prepare("UPDATE cours SET titre = :titre, description = :description, date_debut = :date_debut, date_fin = :date_fin, professeur_id = :professeur_id, classes_id = :classes_id, matiere_id = :matiere_id WHERE id = :id");
+                $stmt = $pdo->prepare("UPDATE cours SET titre = :titre, description = :description, date_debut = :date_debut, date_fin = :date_fin, professeur_id = :professeur_id, class_id = :class_id, matiere_id = :matiere_id WHERE id = :id");
                 
                 $params = [
                     ':titre' => $titre,
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':date_debut' => $date_debut,
                     ':date_fin' => $date_fin,
                     ':professeur_id' => $professeur_id,
-                    ':classes_id' => $classes_id,
+                    ':class_id' => $class_id,
                     ':matiere_id' => $matiere_id,
                     ':id' => $id
                 ];
@@ -207,10 +207,9 @@ try {
                     <?php foreach ($classes as $classe): ?>
                         <?php 
                         // Débogage de la sélection de classe
-                        $selected = ($classe['id'] == $cours['classes_id']) ? 'selected' : '';
-                        error_log("Classe ID: " . $classe['id'] . ", Cours classe_id: " . $cours['classes_id'] . ", Selected: " . $selected);
+                        error_log("Classe ID: " . $classe['id'] . ", Cours class_id: " . $cours['class_id'] . ", Selected: " . (($classe['id'] == $cours['class_id']) ? 'selected' : ''));
                         ?>
-                        <option value="<?php echo $classe['id']; ?>" <?php echo $selected; ?>>
+                        <option value="<?php echo $classe['id']; ?>" <?php echo ($classe['id'] == $cours['class_id']) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($classe['name']); ?>
                         </option>
                     <?php endforeach; ?>
