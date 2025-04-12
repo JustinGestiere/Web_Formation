@@ -27,6 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "L'âge doit être un nombre valide et supérieur ou égal à 16.";
     } elseif ($password !== $confirmpassword) {
         $error = "Les mots de passe ne correspondent pas.";
+    } elseif (strlen($password) < 12 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password) || !preg_match('/[!@#$%^&*()_+\-=\[\]{};\':"|,.<>\/?]/', $password)) {
+        $error = "Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.";
+
     } else {
         // Vérifier si l'email existe déjà dans la base de données
         $sql = "SELECT * FROM users WHERE emails = :email";
@@ -72,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Inscription - Web Formation</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="../css/authentification.css" rel="stylesheet">
+    <link href="../css/validation.css" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -106,11 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="form-group">
                 <label for="password">Mot de passe :</label>
                 <input type="password" placeholder="Votre mot de passe" class="form-control" id="password" name="password" required>
+                <small class="form-text text-muted">Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.</small>
+                <div id="password-feedback"></div>
             </div>
 
             <div class="form-group">
                 <label for="confirmpassword">Confirmer le mot de passe :</label>
                 <input type="password" placeholder="Confirmation de votre mot de passe" class="form-control" id="confirmpassword" name="confirmpassword" required>
+                <div id="confirm-feedback"></div>
             </div>
 
             <!-- Afficher les erreurs ici -->
