@@ -31,6 +31,9 @@ if (isset($_SESSION['message'])) {
     unset($_SESSION['message']); // Effacer le message après l'avoir affiché
 }
 
+// Connexion à la base de données
+require_once 'bdd.php';
+
 // ======== FONCTIONS UTILITAIRES ========
 /**
  * Sécurise les données entrées par l'utilisateur
@@ -111,21 +114,28 @@ function securiser($data) {
         <div class="blocs_classes">
             <details>
                 <summary><h4>Modifier les classes</h4></summary>
-                <div>
-                    <?php
-                    // Récupération de toutes les classes pour modification
-                    $stmt = $pdo->query("SELECT id, name FROM classes ORDER BY name");
-
-                    // Affichage d'un formulaire par classe
-                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
-                        <form method="POST" action="modifier_class.php" style="margin-bottom: 10px;">
-                            <label for="classe_<?php echo $row['id']; ?>">Classe :</label>
-                            <input type="text" id="classe_<?php echo $row['id']; ?>" name="name" value="<?php echo htmlspecialchars($row['name']); ?>" required>
-                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                            <button type="submit">Enregistrer</button>
-                        </form>
-                    <?php endwhile; ?>
-                </div>
+                <form method="GET" action="modifier_classe.php" class="p-4 border border-light rounded">
+                    <label for="classe_id">Choisissez une classe à modifier :</label>
+                    <select name="id" id="classe_id" required>
+                        <option value="">-- Sélectionnez une classe --</option>
+                        <?php
+                        // Récupération de toutes les classes pour le menu déroulant
+                        $sql = "SELECT id, name FROM classes ORDER BY name";
+                        $stmt = $pdo->query($sql);
+                        $classes_list = $stmt->fetchAll();
+                        
+                        // Affichage des options du menu déroulant
+                        if (count($classes_list) > 0) {
+                            foreach ($classes_list as $classe) {
+                                echo "<option value='" . htmlspecialchars($classe['id']) . "'>" . htmlspecialchars($classe['name']) . "</option>";
+                            }
+                        } else {
+                            echo "<option value=''>Aucune classe disponible</option>";
+                        }
+                        ?>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Modifier</button>
+                </form>
             </details>
         </div>
 
@@ -198,20 +208,28 @@ function securiser($data) {
                             // Conversion en entier pour s'assurer que c'est un nombre
                             $classe_id = intval($_POST['classe_id']);
                             
-                            // Préparation et exécution de la requête de suppression
-                            $sql = "DELETE FROM classes WHERE id = ?";
-                            $stmt = $pdo->prepare($sql);
-                            
-                            if ($stmt->execute([$classe_id])) {
-                                $_SESSION['message'] = "Classe supprimée avec succès.";
-                            } else {
-                                $_SESSION['message'] = "Erreur lors de la suppression.";
+                            try {
+                                // Préparation et exécution de la requête de suppression
+                                $sql = "DELETE FROM classes WHERE id = ?";
+                                $stmt = $pdo->prepare($sql);
+                                
+                                if ($stmt->execute([$classe_id])) {
+                                    $_SESSION['message'] = "Classe supprimée avec succès.";
+                                } else {
+                                    $_SESSION['message'] = "Erreur lors de la suppression.";
+                                }
+                            } catch (PDOException $e) {
+                                error_log("Erreur lors de la suppression de la classe : " . $e->getMessage());
+                                $_SESSION['message'] = "Une erreur est survenue lors de la suppression de la classe.";
                             }
+                            
                             // Redirection pour actualiser la page et afficher le message
                             header("Location: classes.php");
                             exit();
                         } else {
                             $_SESSION['message'] = "Aucune classe sélectionnée.";
+                            header("Location: classes.php");
+                            exit();
                         }
                     }
                     ?>
