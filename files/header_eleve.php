@@ -142,9 +142,9 @@ try {
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
             <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
-                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 4px 0;"></span>
-                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 4px 0;"></span>
-                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 4px 0;"></span>
+                <div style="width: 25px; height: 3px; background-color: #333; margin: 4px 0; display: block !important;"></div>
+                <div style="width: 25px; height: 3px; background-color: #333; margin: 4px 0; display: block !important;"></div>
+                <div style="width: 25px; height: 3px; background-color: #333; margin: 4px 0; display: block !important;"></div>
             </button>
             <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
             <h2 class="h3 mb-0">Web Formation</h2>
