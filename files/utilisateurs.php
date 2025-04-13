@@ -2,8 +2,36 @@
 // Démarrage de la session pour gérer l'authentification utilisateur
 session_start(); 
 
+// Vérification de l'authentification
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
 // Inclusion du fichier de connexion à la base de données
 require_once 'bdd.php';
+
+// Traitement de la demande de suppression d'utilisateur
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_btn'])) {
+    $user_id = $_POST['delete_user'];
+    if (empty($user_id)) {
+        $_SESSION['message'] = "Aucun utilisateur sélectionné.";
+    } else {
+        try {
+            // Suppression de l'utilisateur de la base de données
+            $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+            $stmt->execute([':id' => $user_id]);
+            $_SESSION['message'] = "L'utilisateur a été supprimé avec succès.";
+        } catch (PDOException $e) {
+            // Gestion des erreurs lors de la suppression
+            error_log("Erreur lors de la suppression de l'utilisateur : " . $e->getMessage());
+            $_SESSION['message'] = "Erreur lors de la suppression de l'utilisateur.";
+        }
+    }
+    // Redirection pour actualiser la page et afficher le message
+    header("Location: utilisateurs.php");
+    exit();
+}
 
 // Gestion des droits d'accès selon le rôle de l'utilisateur
 // Chaque rôle a un header spécifique avec des options adaptées
@@ -72,6 +100,22 @@ $error = "";
                     <label for="passwords">Mot de passe :</label>
                     <input type="password" id="passwords" name="passwords" required>
                     <br><br>
+                    
+                    <label for="confirm_password">Confirmer le mot de passe :</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <br><br>
+                    
+                    <div class="password-requirements">
+                        <p>Le mot de passe doit contenir au moins :</p>
+                        <ul>
+                            <li>12 caractères</li>
+                            <li>Une lettre majuscule</li>
+                            <li>Une lettre minuscule</li>
+                            <li>Un chiffre</li>
+                            <li>Un caractère spécial</li>
+                        </ul>
+                    </div>
+                    <br><br>
 
                     <!-- Menu déroulant pour sélectionner le rôle -->
                     <label for="roles">Rôle :</label>
@@ -108,44 +152,76 @@ $error = "";
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
                 // Vérification que tous les champs obligatoires sont remplis
                 if (!empty($_POST['nom']) && !empty($_POST['prenoms']) && !empty($_POST['emails']) && 
-                    !empty($_POST['ages']) && !empty($_POST['passwords']) && !empty($_POST['roles'])) {
+                    !empty($_POST['ages']) && !empty($_POST['passwords']) && !empty($_POST['confirm_password']) && !empty($_POST['roles'])) {
                     
                     // Récupération des valeurs du formulaire
-                    $nom = $_POST['nom'];
-                    $prenoms = $_POST['prenoms'];
-                    $emails = $_POST['emails'];
-                    $ages = $_POST['ages'];
-                    // Hachage du mot de passe pour sécuriser le stockage
-                    $passwords = password_hash($_POST['passwords'], PASSWORD_BCRYPT);
+                    $nom = trim($_POST['nom']);
+                    $prenoms = trim($_POST['prenoms']);
+                    $emails = trim($_POST['emails']);
+                    $ages = trim($_POST['ages']);
+                    $password = $_POST['passwords'];
+                    $confirm_password = $_POST['confirm_password'];
                     $roles = $_POST['roles'];
                     $classe_id = $_POST['classe_id']; // Peut être vide si non applicable
-
-                    // Vérification de l'unicité de l'email (évite les doublons)
-                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE emails = :emails");
-                    $stmt->execute([':emails' => $emails]);
-                    if ($stmt->fetchColumn() > 0) {
-                        $message = "Un utilisateur avec cet email existe déjà.";
-                    } else {
-                        // Insertion du nouvel utilisateur dans la base de données
-                        try {
-                            $stmt = $pdo->prepare("
-                                INSERT INTO users (nom, prenoms, emails, ages, passwords, roles, classe_id)
-                                VALUES (:nom, :prenoms, :emails, :ages, :passwords, :roles, :classe_id)
-                            ");
-                            $stmt->execute([
-                                ':nom' => $nom,
-                                ':prenoms' => $prenoms,
-                                ':emails' => $emails,
-                                ':ages' => $ages,
-                                ':passwords' => $passwords,
-                                ':roles' => $roles,
-                                ':classe_id' => $classe_id
-                            ]);
-                            $message = "L'utilisateur a été créé avec succès.";
-                        } catch (PDOException $e) {
-                            // Gestion des erreurs lors de l'insertion
-                            $message = "Erreur lors de la création de l'utilisateur : " . $e->getMessage();
+                    
+                    // Vérification des données
+                    $error = "";
+                    
+                    // Vérification de l'email
+                    if (!filter_var($emails, FILTER_VALIDATE_EMAIL)) {
+                        $error = "L'adresse e-mail n'est pas valide.";
+                    }
+                    // Vérification que l'âge est un nombre
+                    elseif (!is_numeric($ages)) {
+                        $error = "L'âge doit être un nombre valide.";
+                    }
+                    // Vérification de la correspondance des mots de passe
+                    elseif ($password !== $confirm_password) {
+                        $error = "Les mots de passe ne correspondent pas.";
+                    }
+                    // Vérification de la complexité du mot de passe
+                    elseif (strlen($password) < 12 || 
+                             !preg_match('/[A-Z]/', $password) || 
+                             !preg_match('/[a-z]/', $password) || 
+                             !preg_match('/[0-9]/', $password) || 
+                             !preg_match('/[!@#$%^&*()_+\-=\[\]{};\':"|,.<>\/?]/', $password)) {
+                        $error = "Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.";
+                    }
+                    
+                    // Si aucune erreur, continuer le traitement
+                    if (empty($error)) {
+                        // Hachage du mot de passe pour sécuriser le stockage
+                        $passwords = password_hash($password, PASSWORD_BCRYPT);
+                        
+                        // Vérification de l'unicité de l'email (évite les doublons)
+                        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE emails = :emails");
+                        $stmt->execute([':emails' => $emails]);
+                        if ($stmt->fetchColumn() > 0) {
+                            $message = "Un utilisateur avec cet email existe déjà.";
+                        } else {
+                            // Insertion du nouvel utilisateur dans la base de données
+                            try {
+                                $stmt = $pdo->prepare("
+                                    INSERT INTO users (nom, prenoms, emails, ages, passwords, roles, classe_id)
+                                    VALUES (:nom, :prenoms, :emails, :ages, :passwords, :roles, :classe_id)
+                                ");
+                                $stmt->execute([
+                                    ':nom' => $nom,
+                                    ':prenoms' => $prenoms,
+                                    ':emails' => $emails,
+                                    ':ages' => $ages,
+                                    ':passwords' => $passwords,
+                                    ':roles' => $roles,
+                                    ':classe_id' => $classe_id
+                                ]);
+                                $message = "L'utilisateur a été créé avec succès.";
+                            } catch (PDOException $e) {
+                                // Gestion des erreurs lors de l'insertion
+                                $message = "Erreur lors de la création de l'utilisateur : " . $e->getMessage();
+                            }
                         }
+                    } else {
+                        $message = $error;
                     }
                 } else {
                     $message = "Tous les champs sont obligatoires.";
@@ -325,29 +401,7 @@ $error = "";
                     <button type="submit" name="delete_user_btn">Supprimer</button>
                 </form>
             </details>
-            <?php
-                // Traitement de la demande de suppression d'utilisateur
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_btn'])) {
-                    $user_id = $_POST['delete_user'];
-                    if (empty($user_id)) {
-                        $_SESSION['message'] = "Aucun utilisateur sélectionné.";
-                    } else {
-                        try {
-                            // Suppression de l'utilisateur de la base de données
-                            $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
-                            $stmt->execute([':id' => $user_id]);
-                            $_SESSION['message'] = "L'utilisateur a été supprimé avec succès.";
-                        } catch (PDOException $e) {
-                            // Gestion des erreurs lors de la suppression
-                            error_log("Erreur lors de la suppression de l'utilisateur : " . $e->getMessage());
-                            $_SESSION['message'] = "Erreur lors de la suppression de l'utilisateur.";
-                        }
-                    }
-                    // Redirection pour actualiser la page et afficher le message
-                    header("Location: utilisateurs.php");
-                    exit();
-                }
-            ?>
+            <!-- Le traitement de la suppression a été déplacé au début du fichier -->
         </div>
         
     </div>
