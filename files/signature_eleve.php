@@ -171,20 +171,6 @@ $cours = $stmt->fetchAll();
                                     <button type="button" class="btn btn-primary btn-sm" onclick="showSignatureModal(<?= $c['id'] ?>)">
                                         <i class="fas fa-signature"></i> Signer
                                     </button>
-                                <?php elseif ($c['signature_status'] === 'signed'): ?>
-                                    <?php 
-                                    // Récupérer l'ID de la signature
-                                    $signStmt = $pdo->prepare("SELECT id FROM sign WHERE cours_id = :cours_id AND user_id = :user_id AND signed = 1");
-                                    $signStmt->execute([
-                                        ':cours_id' => $c['id'],
-                                        ':user_id' => $eleve_id
-                                    ]);
-                                    $signData = $signStmt->fetch();
-                                    if ($signData): ?>
-                                        <a href="voir_signature.php?id=<?= $signData['id'] ?>" class="btn btn-success btn-sm">
-                                            <i class="fas fa-eye"></i> Voir signature
-                                        </a>
-                                    <?php endif; ?>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -230,7 +216,7 @@ $cours = $stmt->fetchAll();
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- SignaturePad JS -->
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
     <script>
     let signaturePad;
@@ -246,22 +232,12 @@ $cours = $stmt->fetchAll();
         
         setTimeout(() => {
             const canvas = document.getElementById('signature-pad');
-            // Définir la largeur du canvas en fonction de son conteneur
             canvas.width = canvas.offsetWidth;
             canvas.height = 200;
-            
-            // Initialiser SignaturePad avec des options supplémentaires
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)',
-                velocityFilterWeight: 0.7,
-                minWidth: 0.5,
-                maxWidth: 2.5,
-                throttle: 16 // 1/60ème de seconde
+                penColor: 'rgb(0, 0, 0)'
             });
-            
-            // S'assurer que le canvas est bien visible
-            canvas.style.display = 'block';
         }, 500);
     }
 

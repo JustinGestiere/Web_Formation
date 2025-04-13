@@ -103,30 +103,19 @@ foreach ($cours as $c) {
         <div class="col-md-4">
             <div id="liste-eleves" class="mt-4" style="display: none;">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header">
                         <h5 class="mb-0">Liste des élèves</h5>
-                        <small id="cours-info" class="text-white"></small>
+                        <small id="cours-info"></small>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info mb-3">
-                            <i class="fas fa-info-circle"></i> Cochez les élèves présents au cours et cliquez sur "Envoyer pour signature".
-                        </div>
                         <form id="signature-form" action="signature_traitement.php" method="POST">
                             <input type="hidden" name="cours_id" id="cours_id_input">
-                            <div id="eleves-container" class="mb-3">
+                            <div id="eleves-container">
                                 <!-- La liste des élèves sera injectée ici -->
                             </div>
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="button" class="btn btn-secondary me-md-2" onclick="selectAllStudents(true)">
-                                    <i class="fas fa-check-square"></i> Tout sélectionner
-                                </button>
-                                <button type="button" class="btn btn-secondary me-md-2" onclick="selectAllStudents(false)">
-                                    <i class="fas fa-square"></i> Tout désélectionner
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-signature"></i> Envoyer pour signature
-                                </button>
-                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">
+                                <i class="fas fa-signature"></i> Envoyer pour signature
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -142,14 +131,6 @@ foreach ($cours as $c) {
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@4.4.0/main.min.js'></script>
 
 <script>
-// Fonction pour sélectionner/désélectionner tous les élèves
-function selectAllStudents(select) {
-    const checkboxes = document.querySelectorAll('#eleves-container input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = select;
-    });
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -163,20 +144,10 @@ document.addEventListener('DOMContentLoaded', function() {
         locale: 'fr',
         timeZone: 'Europe/Paris',
         events: <?= json_encode($events) ?>,
-        eventRender: function(info) {
-            // Ajouter des infos au survol
-            $(info.el).tooltip({
-                title: info.event.extendedProps.is_signed ? 'Signé' : 'Non signé',
-                placement: 'top',
-                trigger: 'hover',
-                container: 'body'
-            });
-        },
         eventClick: function(info) {
             var event = info.event;
             var coursId = event.id;
             var classId = event.extendedProps.class_id;
-            var isSigned = event.extendedProps.is_signed;
             
             // Mettre à jour l'ID du cours dans le formulaire
             document.getElementById('cours_id_input').value = coursId;
@@ -184,22 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Afficher les informations du cours
             document.getElementById('cours-info').textContent = event.title;
             
-            // Si le cours est déjà signé, ajouter un lien pour voir les signatures
-            if (isSigned) {
-                var signatureLink = document.createElement('div');
-                signatureLink.className = 'alert alert-success mt-2';
-                signatureLink.innerHTML = `
-                    <i class="fas fa-check-circle"></i> Ce cours a déjà été envoyé pour signature.
-                    <a href="liste_signatures.php?cours_id=${coursId}" class="btn btn-sm btn-primary ms-2">
-                        <i class="fas fa-eye"></i> Voir les signatures
-                    </a>
-                `;
-                document.getElementById('eleves-container').innerHTML = '';
-                document.getElementById('eleves-container').appendChild(signatureLink);
-            } else {
-                // Afficher la liste des élèves pour cette classe
-                var elevesContainer = document.getElementById('eleves-container');
-                elevesContainer.innerHTML = '';
+            // Afficher la liste des élèves pour cette classe
+            var elevesContainer = document.getElementById('eleves-container');
+            elevesContainer.innerHTML = '';
             
             var eleves = <?= json_encode($eleves_par_classe) ?>[classId] || [];
             eleves.forEach(function(eleve) {
@@ -217,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Afficher le conteneur de la liste des élèves
             document.getElementById('liste-eleves').style.display = 'block';
-            }
         }
     });
     
