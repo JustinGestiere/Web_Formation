@@ -30,10 +30,55 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="../css/header_admin.css" rel="stylesheet">
     <title>Web Formation - Gestion de Planning</title>
     <style>
+        /* Styles pour la barre de navigation */
+        #sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100%;
+            left: -250px;
+            top: 0;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 3px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        
+        #sidebar.active {
+            left: 0;
+        }
+        
+        #overlay {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        #overlay.active {
+            display: block;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
         .navbar-toggler {
             position: relative;
             width: 45px;
@@ -44,6 +89,9 @@ try {
             cursor: pointer;
             padding: 8px;
             margin-right: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
         }
 
         .navbar-toggler span {
@@ -51,22 +99,8 @@ try {
             width: 25px;
             height: 3px;
             background-color: #333;
-            margin: 6px 0;
             border-radius: 2px;
             transition: all 0.3s ease;
-            position: relative;
-            left: 0;
-        }
-        
-        /* Assurer que les tirets sont bien visibles */
-        .navbar-toggler:before {
-            content: '';
-            display: block;
-            clear: both;
-        }
-
-        .navbar-toggler:hover {
-            background-color: rgba(0, 0, 0, 0.05);
         }
 
         .navbar-toggler.active span:nth-child(1) {
@@ -87,7 +121,18 @@ try {
             font-size: 24px;
             cursor: pointer;
             padding: 0 10px;
+            color: white;
+        }
+        
+        /* Styles pour les liens de navigation */
+        .nav-link {
+            padding: 10px 20px;
             color: #333;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: #e9ecef;
         }
     </style>
 </head>
@@ -97,9 +142,9 @@ try {
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
             <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 4px 0;"></span>
+                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 4px 0;"></span>
+                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 4px 0;"></span>
             </button>
             <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
             <h2 class="h3 mb-0">Web Formation</h2>
@@ -148,6 +193,8 @@ function toggleSidebar(button) {
 </script>
 
 <!-- Scripts de Bootstrap -->
+<!-- jQuery d'abord, puis Popper.js, puis Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
