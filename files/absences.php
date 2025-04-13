@@ -77,7 +77,7 @@ if ($user_role === 'prof') {
                             $stmt = $pdo->prepare("SELECT c.id, c.titre 
                                                  FROM cours c 
                                                  WHERE c.professeur_id = :prof_id
-                                                 " . ($selectedClasse > 0 ? " AND c.classes_id = :classe_id" : "") . "
+                                                 " . ($selectedClasse > 0 ? " AND c.class_id = :classe_id" : "") . "
                                                  ORDER BY c.titre");
                             $stmt->bindParam(':prof_id', $user_id);
                             if ($selectedClasse > 0) {
@@ -87,7 +87,7 @@ if ($user_role === 'prof') {
                             // Les élèves voient les cours de leur classe
                             $stmt = $pdo->prepare("SELECT c.id, c.titre 
                                                  FROM cours c 
-                                                 JOIN users u ON u.classe_id = c.classes_id
+                                                 JOIN users u ON u.classe_id = c.class_id
                                                  WHERE u.id = :user_id
                                                  ORDER BY c.titre");
                             $stmt->bindParam(':user_id', $user_id);
@@ -164,7 +164,7 @@ if ($user_role === 'prof') {
                           u.nom as prof_nom, u.prenoms as prof_prenom
                           FROM sign s
                           JOIN cours c ON s.cours_id = c.id
-                          JOIN classes cl ON s.classe_id = cl.id
+                          JOIN classes cl ON c.class_id = cl.id
                           JOIN users u ON s.professeur_id = u.id
                           WHERE s.user_id = :user_id";
                 

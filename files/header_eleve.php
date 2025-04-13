@@ -54,6 +54,8 @@ try {
             margin: 4px 0;
             border-radius: 2px;
             transition: all 0.3s ease;
+            position: relative;
+            left: 0;
         }
 
         .navbar-toggler:hover {
