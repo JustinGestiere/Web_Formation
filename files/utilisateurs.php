@@ -13,19 +13,45 @@ require_once 'bdd.php';
 
 // Traitement de la demande de suppression d'utilisateur
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_btn'])) {
-    $user_id = $_POST['delete_user'];
+    $user_id = isset($_POST['delete_user']) ? $_POST['delete_user'] : '';
     if (empty($user_id)) {
         $_SESSION['message'] = "Aucun utilisateur sélectionné.";
     } else {
         try {
-            // Suppression de l'utilisateur de la base de données
-            $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
-            $stmt->execute([':id' => $user_id]);
-            $_SESSION['message'] = "L'utilisateur a été supprimé avec succès.";
+            // Désactiver temporairement les contraintes de clé étrangère pour permettre la suppression
+            $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+            
+            // Vérifier si l'utilisateur existe
+            $check = $pdo->prepare("SELECT id FROM users WHERE id = :id");
+            $check->execute([':id' => $user_id]);
+            if ($check->rowCount() === 0) {
+                $_SESSION['message'] = "L'utilisateur sélectionné n'existe pas.";
+            } else {
+                // Suppression de l'utilisateur de la base de données
+                $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+                $result = $stmt->execute([':id' => $user_id]);
+                
+                if ($result && $stmt->rowCount() > 0) {
+                    $_SESSION['message'] = "L'utilisateur a été supprimé avec succès.";
+                } else {
+                    $_SESSION['message'] = "Aucun utilisateur n'a été supprimé. Vérifiez l'ID.";
+                }
+            }
+            
+            // Réactiver les contraintes de clé étrangère
+            $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+            
         } catch (PDOException $e) {
             // Gestion des erreurs lors de la suppression
             error_log("Erreur lors de la suppression de l'utilisateur : " . $e->getMessage());
-            $_SESSION['message'] = "Erreur lors de la suppression de l'utilisateur.";
+            $_SESSION['message'] = "Erreur lors de la suppression de l'utilisateur: " . $e->getMessage();
+            
+            // S'assurer que les contraintes sont réactivées même en cas d'erreur
+            try {
+                $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+            } catch (Exception $ex) {
+                error_log("Erreur lors de la réactivation des contraintes : " . $ex->getMessage());
+            }
         }
     }
     // Redirection pour actualiser la page et afficher le message
