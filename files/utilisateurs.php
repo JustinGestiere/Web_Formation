@@ -329,15 +329,23 @@ $error = "";
                 // Traitement de la demande de suppression d'utilisateur
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_btn'])) {
                     $user_id = $_POST['delete_user'];
-                    try {
-                        // Suppression de l'utilisateur de la base de données
-                        $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
-                        $stmt->execute([':id' => $user_id]);
-                        $message = "L'utilisateur a été supprimé avec succès.";
-                    } catch (PDOException $e) {
-                        // Gestion des erreurs lors de la suppression
-                        $message = "Erreur lors de la suppression : " . $e->getMessage();
+                    if (empty($user_id)) {
+                        $_SESSION['message'] = "Aucun utilisateur sélectionné.";
+                    } else {
+                        try {
+                            // Suppression de l'utilisateur de la base de données
+                            $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+                            $stmt->execute([':id' => $user_id]);
+                            $_SESSION['message'] = "L'utilisateur a été supprimé avec succès.";
+                        } catch (PDOException $e) {
+                            // Gestion des erreurs lors de la suppression
+                            error_log("Erreur lors de la suppression de l'utilisateur : " . $e->getMessage());
+                            $_SESSION['message'] = "Erreur lors de la suppression de l'utilisateur.";
+                        }
                     }
+                    // Redirection pour actualiser la page et afficher le message
+                    header("Location: utilisateurs.php");
+                    exit();
                 }
             ?>
         </div>
@@ -346,9 +354,17 @@ $error = "";
 
     <!-- Affichage des messages de confirmation ou d'erreur -->
     <div class="message">
-        <?php if (isset($message) && $message): ?>
-            <p><?php echo htmlspecialchars($message); ?></p>
-        <?php endif; ?>
+        <?php 
+        // Affichage du message de session s'il existe
+        if (isset($_SESSION['message']) && !empty($_SESSION['message'])) {
+            echo '<p>' . htmlspecialchars($_SESSION['message']) . '</p>';
+            unset($_SESSION['message']); // Effacer le message après l'avoir affiché
+        } 
+        // Affichage du message local s'il existe
+        elseif (isset($message) && !empty($message)) {
+            echo '<p>' . htmlspecialchars($message) . '</p>';
+        }
+        ?>
     </div>  
 </section>
 
