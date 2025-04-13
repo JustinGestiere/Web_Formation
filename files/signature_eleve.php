@@ -171,6 +171,20 @@ $cours = $stmt->fetchAll();
                                     <button type="button" class="btn btn-primary btn-sm" onclick="showSignatureModal(<?= $c['id'] ?>)">
                                         <i class="fas fa-signature"></i> Signer
                                     </button>
+                                <?php elseif ($c['signature_status'] === 'signed'): ?>
+                                    <?php 
+                                    // Récupérer l'ID de la signature
+                                    $signStmt = $pdo->prepare("SELECT id FROM sign WHERE cours_id = :cours_id AND user_id = :user_id AND signed = 1");
+                                    $signStmt->execute([
+                                        ':cours_id' => $c['id'],
+                                        ':user_id' => $eleve_id
+                                    ]);
+                                    $signData = $signStmt->fetch();
+                                    if ($signData): ?>
+                                        <a href="voir_signature.php?id=<?= $signData['id'] ?>" class="btn btn-success btn-sm">
+                                            <i class="fas fa-eye"></i> Voir signature
+                                        </a>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </td>
                         </tr>

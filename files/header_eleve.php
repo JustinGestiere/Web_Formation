@@ -51,11 +51,18 @@ try {
             width: 25px;
             height: 3px;
             background-color: #333;
-            margin: 4px 0;
+            margin: 6px 0;
             border-radius: 2px;
             transition: all 0.3s ease;
             position: relative;
             left: 0;
+        }
+        
+        /* Assurer que les tirets sont bien visibles */
+        .navbar-toggler:before {
+            content: '';
+            display: block;
+            clear: both;
         }
 
         .navbar-toggler:hover {
@@ -90,9 +97,9 @@ try {
     <div class="container_header_admin">
         <div class="d-flex align-items-center">
             <button class="navbar-toggler" type="button" onclick="toggleSidebar(this)">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 6px 0; border-radius: 2px;"></span>
+                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 6px 0; border-radius: 2px;"></span>
+                <span style="display: block; width: 25px; height: 3px; background-color: #333; margin: 6px 0; border-radius: 2px;"></span>
             </button>
             <img src="../images/logo.jpg" alt="Logo de Web Formation" class="logo_header_admin">
             <h2 class="h3 mb-0">Web Formation</h2>

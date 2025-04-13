@@ -176,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var event = info.event;
             var coursId = event.id;
             var classId = event.extendedProps.class_id;
+            var isSigned = event.extendedProps.is_signed;
             
             // Mettre à jour l'ID du cours dans le formulaire
             document.getElementById('cours_id_input').value = coursId;
@@ -183,9 +184,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // Afficher les informations du cours
             document.getElementById('cours-info').textContent = event.title;
             
-            // Afficher la liste des élèves pour cette classe
-            var elevesContainer = document.getElementById('eleves-container');
-            elevesContainer.innerHTML = '';
+            // Si le cours est déjà signé, ajouter un lien pour voir les signatures
+            if (isSigned) {
+                var signatureLink = document.createElement('div');
+                signatureLink.className = 'alert alert-success mt-2';
+                signatureLink.innerHTML = `
+                    <i class="fas fa-check-circle"></i> Ce cours a déjà été envoyé pour signature.
+                    <a href="liste_signatures.php?cours_id=${coursId}" class="btn btn-sm btn-primary ms-2">
+                        <i class="fas fa-eye"></i> Voir les signatures
+                    </a>
+                `;
+                document.getElementById('eleves-container').innerHTML = '';
+                document.getElementById('eleves-container').appendChild(signatureLink);
+            } else {
+                // Afficher la liste des élèves pour cette classe
+                var elevesContainer = document.getElementById('eleves-container');
+                elevesContainer.innerHTML = '';
             
             var eleves = <?= json_encode($eleves_par_classe) ?>[classId] || [];
             eleves.forEach(function(eleve) {
@@ -203,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Afficher le conteneur de la liste des élèves
             document.getElementById('liste-eleves').style.display = 'block';
+            }
         }
     });
     
