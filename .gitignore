@@ -1,0 +1,30 @@
+# Fichiers de configuration avec informations sensibles
+files/bdd.php
+
+# Fichiers et dossiers générés par l'environnement
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dossiers de dépendances
+/vendor/
+/node_modules/
+
+# Fichiers de logs
+*.log
+logs/
+log/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Fichiers de configuration IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
