@@ -1,4 +1,8 @@
 <?php
+// Affichage des erreurs pour le debug
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 /**
  * En-tête élève - Gestion des accès et de la navigation
  */
