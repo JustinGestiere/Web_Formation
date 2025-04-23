@@ -1,5 +1,5 @@
 # Fichiers de configuration avec informations sensibles
-files/bdd.php
+#files/bdd.php
 
 # Fichiers et dossiers générés par l'environnement
 .env
